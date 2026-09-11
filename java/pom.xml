@@ -30,7 +30,7 @@
         <javac.executable>javac</javac.executable>
 
         <!-- Temporal -->
-        <temporal.version>1.33.0</temporal.version>
+        <temporal.version>1.38.0</temporal.version>
 
         <!-- Spring Boot -->
         <spring-boot.version>3.5.9</spring-boot.version>
