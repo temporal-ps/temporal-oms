@@ -5,41 +5,28 @@ multi-namespace Temporal workshop application with Java workers, Python
 fulfillment and agent workflows, generated protobuf contracts, Kubernetes
 deployment assets, and a Svelte web UI.
 
+This file is the portable, agent-neutral source of instructions for working
+in this repository, read by Codex, Claude Code, and any other AGENTS.md-aware
+coding agent. It does not assume any particular agent's tooling, skills, or
+plugin ecosystem.
+
 ## Agent Behavior Rules
 
-Cross-cutting behavior rules live under `.claude/rules/`, indexed at
-`.claude/rules/README.md`. The rules govern how an agent works in the
-repository, while this file governs repo-specific orientation and engineering
-constraints.
+Claude Code additionally reads cross-cutting behavior rules from
+`.claude/rules/` (indexed at `.claude/rules/README.md`): shell and file-editing
+conventions, output style, and authoring hygiene. These are Claude
+Code-specific mechanics layered on top of this file, not a replacement for it.
+Agents that don't read `.claude/` should rely on this file alone; the
+repository behaves identically either way.
 
-Before doing repository work, skim `.claude/rules/README.md` and open any rule
-that applies to the task. For this checkout, the repo-local `.claude/rules/`
-copy is the source to cite and keep in sync.
+## Temporal Domain Knowledge
 
-## Required Temporal Skills
-
-This is a Temporal repository. Before touching Temporal workflow, activity,
-worker, Nexus, namespace, Worker Versioning, deployment, operational, testing,
-or documentation concerns, load a Temporal skill.
-
-Preferred routing:
-
-- Use `temporal-developer` or `skill-temporal-developer` for Temporal SDK code,
-  workflow and activity design, replay safety, worker implementation, testing,
-  and Temporal application documentation.
-- If that skill is unavailable, use the most specific Temporal skill available:
-  `stack-temporal` for general Temporal application work,
-  `stack-temporal-python` for Python SDK work, `temporal-ops` for Temporal
-  Cloud, server, CLI, namespace, task queue, and workflow diagnosis, and
-  `deployment-kubernetes-local` for local Kubernetes or Temporal Worker
-  Controller work.
-- Pair the Temporal skill with language or layer skills when relevant:
-  `stack-java`, `stack-python`, `stack-typescript`, `stack-frontend`,
-  `schema-protobuf`, or similar.
-
-If no Temporal skill can be loaded, say that explicitly and continue from the
-repository docs, specs, code, tests, and official Temporal documentation when
-current product behavior or API details are uncertain.
+This is a Temporal repository: workflows, activities, workers, Nexus
+operations, namespaces, and Worker Versioning are core to the design. If your
+agent has Temporal-specific tooling available (a skill, plugin, or MCP
+server), use it. Otherwise, work from this repository's own docs, specs,
+code, and tests, and consult the official Temporal documentation
+(https://docs.temporal.io) for SDK and product behavior you're unsure of.
 
 ## Repository Orientation
 
@@ -84,11 +71,11 @@ crosses module or runtime boundaries.
 Common checks:
 
 ```bash
-mvn -f /Users/mnichols/dev/fde-temporal-oms/java/pom.xml test
-uv run --project /Users/mnichols/dev/fde-temporal-oms/python pytest
-npm --prefix /Users/mnichols/dev/fde-temporal-oms/web run check
-npm --prefix /Users/mnichols/dev/fde-temporal-oms/web run lint
-buf lint /Users/mnichols/dev/fde-temporal-oms/proto
+mvn -f java/pom.xml test
+uv run --project python pytest
+npm --prefix web run check
+npm --prefix web run lint
+buf lint proto
 ```
 
 For workshop or deployment changes, also validate the relevant script path under
