@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../_lib.sh"
 scenario_begin "$SCRIPT_DIR"
 
-ORDER_JSON="$(scenario_order_json "388 Townsend St" "San Francisco" "CA" "94107" "1")"
+ORDER_JSON="$(scenario_order_json "11 Wall St" "New York" "NY" "10005" "1")"
 
 echo "Submitting order with 1-cent paid price to trigger MARGIN_SPIKE..."
 echo "Workflow ID: ${ORDER_ID}"

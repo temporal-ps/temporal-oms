@@ -49,7 +49,7 @@ class IntegrationServicesTest {
     }
 
     @Test
-    void pimsMapsKnownAndUnknownItemsLikeCurrentStub() {
+    void pimsMapsKnownItemsAndPassesThroughUnknownItemIdsAsSkuIds() {
         var service = new PimsIntegrationService();
         var response = service.enrichOrder(EnrichOrderRequest.newBuilder()
                 .setOrder(Order.newBuilder()
@@ -68,7 +68,7 @@ class IntegrationServicesTest {
         assertThat(response.getItems(0).getSkuId()).isEqualTo("ELEC-SKU-001");
         assertThat(response.getItems(0).getBrandCode()).isEqualTo("NEXGEN");
         assertThat(response.getItems(0).getQuantity()).isEqualTo(2);
-        assertThat(response.getItems(1).getSkuId()).isEqualTo("ELEC-unknown");
+        assertThat(response.getItems(1).getSkuId()).isEqualTo("unknown");
         assertThat(response.getItems(1).getBrandCode()).isEqualTo("GENERIC");
     }
 

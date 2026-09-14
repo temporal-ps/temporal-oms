@@ -40,7 +40,7 @@ public class OrderActivitiesImpl implements OrderActivities {
     // (java/enablements/enablements-api/src/main/resources/fixtures/shipping-fixtures.json)
     // or fulfillment's address verification rejects the order outright.
     private static final List<CannedAddress> CANNED_ADDRESSES = List.of(
-            new CannedAddress("388 Townsend St", "San Francisco", "CA", "94107", "US"),
+            new CannedAddress("200 N Spring St", "Los Angeles", "CA", "90012", "US"),
             new CannedAddress("301 Congress Ave", "Austin", "TX", "78701", "US"),
             new CannedAddress("401 5th Ave", "Seattle", "WA", "98104", "US"),
             new CannedAddress("11 Wall St", "New York", "NY", "10005", "US"));

@@ -517,16 +517,22 @@ directly as JSON like `shipping-fixtures.json`):
 {
   "items": [
     {
-      "item_id": "item-1",
+      "item_id": "APRL-001",
       "name": "Blue T-Shirt",
       "description": "Premium blue t-shirt with modern fit",
       "price_cents": 2500,
-      "image_url": "/images/item-1.jpg",
+      "image_url": "/images/aprl-001.jpg",
       "initial_stock": 25
     }
   ]
 }
 ```
+
+`item_id` carries a category prefix (`APRL-` apparel, `FOOT-` footwear, `ACC-`
+accessories, `BAG-` bags) that fulfillment's shipping fixture warehouses use
+for SKU-prefix routing (see `shipping-fixtures.json` `warehouses[].sku_prefixes`
+and `PimsIntegrationService.enrichOrder`, which passes an unrecognized item's
+`item_id` through as its `sku_id` verbatim).
 
 `initial_stock` seeds `CommerceInventory`'s starting `stock_by_item_id`
 map at startup; the fixture itself never changes at runtime.

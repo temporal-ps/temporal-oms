@@ -31,7 +31,7 @@
 	// (java/enablements/enablements-api/src/main/resources/fixtures/shipping-fixtures.json)
 	// or fulfillment's address verification rejects the order outright.
 	const CANNED_ADDRESSES: ShippingAddress[] = [
-		{ street: '388 Townsend St', city: 'San Francisco', state: 'CA', postalCode: '94107', country: 'US' },
+		{ street: '200 N Spring St', city: 'Los Angeles', state: 'CA', postalCode: '90012', country: 'US' },
 		{ street: '301 Congress Ave', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' },
 		{ street: '401 5th Ave', city: 'Seattle', state: 'WA', postalCode: '98104', country: 'US' },
 		{ street: '11 Wall St', city: 'New York', state: 'NY', postalCode: '10005', country: 'US' }

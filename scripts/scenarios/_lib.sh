@@ -67,11 +67,13 @@ scenario_order_json() {
   local paid_price_cents="$5"
   local delivery_days="${6:-}"
 
+  # APRL-001 (Blue T-Shirt in commerce-catalog.json) carries the "APRL-" warehouse-routing
+  # prefix the fulfillment shipping fixture expects; see shipping-fixtures.json warehouses.
   if [ -n "$delivery_days" ]; then
-    printf '{"orderId":"%s","items":[{"itemId":"shirt-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD","deliveryDays":%s}}' \
+    printf '{"orderId":"%s","items":[{"itemId":"APRL-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD","deliveryDays":%s}}' \
       "$ORDER_ID" "$street" "$city" "$state" "$postal_code" "$paid_price_cents" "$delivery_days"
   else
-    printf '{"orderId":"%s","items":[{"itemId":"shirt-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD"}}' \
+    printf '{"orderId":"%s","items":[{"itemId":"APRL-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD"}}' \
       "$ORDER_ID" "$street" "$city" "$state" "$postal_code" "$paid_price_cents"
   fi
 }

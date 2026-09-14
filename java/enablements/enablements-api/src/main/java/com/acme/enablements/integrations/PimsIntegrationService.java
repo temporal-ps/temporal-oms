@@ -36,9 +36,12 @@ public class PimsIntegrationService {
                     if (fixture != null) {
                         return fixture.toBuilder().setQuantity(orderItem.getQuantity()).build();
                     }
+                    // Commerce catalog item IDs already carry a warehouse-routing category
+                    // prefix (APRL-, FOOT-, ACC-, BAG-; see commerce-catalog.json), so the
+                    // sku_id used for warehouse/shipment lookup is the item_id itself.
                     return EnrichedItem.newBuilder()
                             .setItemId(orderItem.getItemId())
-                            .setSkuId("ELEC-" + orderItem.getItemId())
+                            .setSkuId(orderItem.getItemId())
                             .setBrandCode("GENERIC")
                             .setQuantity(orderItem.getQuantity())
                             .build();
