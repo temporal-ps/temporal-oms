@@ -1,28 +1,22 @@
 package com.acme.enablements.activities;
 
-import com.acme.proto.acme.enablements.v1.SubmitOrdersRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOrdersResponse;
+import com.acme.proto.acme.enablements.v1.SubmitOneOrderRequest;
+import com.acme.proto.acme.enablements.v1.SubmitOneOrderResponse;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
 /**
- * Activities for submitting orders to the OMS during enablement demonstrations.
+ * Submits one order to the Commerce App / Payments Processor backends
+ * (SPECS/commerce-payments-apps/spec.md) during enablement demonstrations.
  */
 @ActivityInterface
 public interface OrderActivities {
 
-  /**
-   * Submit a single order to the OMS via apps-api.
-   * <p>
-   * This activity calls the apps-api endpoint to create an order, simulating
-   * an external client making order submissions. The order flows through the
-   * OMS's normal processing pipelines (enrichment, payment capture).
-   *
-   * @return Order ID if successful
-   * @throws RuntimeException if order submission fails after retries
-   */
-  @ActivityMethod
-  SubmitOrdersResponse submitOrders(SubmitOrdersRequest cmd);
-
-
+    /**
+     * Submit one order and its charge, carrying the workflow-chosen
+     * DemoScenario. Real delivery into apps-api's webhooks happens later,
+     * asynchronously, via PublishCartOrders' scheduled tick.
+     */
+    @ActivityMethod
+    SubmitOneOrderResponse submitOneOrder(SubmitOneOrderRequest cmd);
 }

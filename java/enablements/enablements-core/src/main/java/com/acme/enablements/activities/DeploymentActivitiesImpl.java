@@ -35,16 +35,17 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
      */
     @Override
     public DeployWorkerVersionResponse deployWorkerVersion(DeployWorkerVersionRequest cmd) {
-        logger.info("Deploying workers");
+        logger.info("Deploying workers: version={}, buildId={}", cmd.getVersion(), cmd.getBuildId());
 
         try {
-            String manifest = readAndSubstituteTemplate("v2", "processing-worker:v2", 1);
+            int replicas = cmd.hasReplicaCount() ? cmd.getReplicaCount() : 1;
+            String manifest = readAndSubstituteTemplate(cmd.getVersion(), cmd.getBuildId(), replicas);
             applyManifestViaKubectl(manifest);
-            logger.info("V2 workers deployed successfully");
+            logger.info("{} workers deployed successfully", cmd.getBuildId());
 
         } catch (Exception e) {
-            logger.error("Failed to deploy v2 workers", e);
-            throw new RuntimeException("V2 worker deployment failed", e);
+            logger.error("Failed to deploy workers for buildId {}", cmd.getBuildId(), e);
+            throw new RuntimeException("Worker deployment failed for buildId " + cmd.getBuildId(), e);
         }
         return DeployWorkerVersionResponse.getDefaultInstance();
     }

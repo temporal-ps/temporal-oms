@@ -3,24 +3,24 @@
 	import { customerId } from '$lib/stores/customer';
 	import { cart } from '$lib/stores/cart';
 	import { orderId } from '$lib/stores/order';
-	import { nanoid } from 'nanoid';
+	import { chargeId } from '$lib/stores/charge';
 
 	let customerIdInput = '';
 	let error = '';
 
-	function handleSubmit() {
+	function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
 		if (!customerIdInput.trim()) {
 			error = 'Customer ID is required';
 			return;
 		}
 
-		// Clear previous session data
+		// Clear previous session data; the order/charge ID are assigned
+		// server-side once checkout actually places an order.
 		cart.clear();
 		orderId.clear();
+		chargeId.clear();
 		customerId.set(customerIdInput.trim());
-
-		// Create new order ID
-		orderId.set(`order-${nanoid()}`);
 
 		// Redirect to clothing page
 		goto('/shop/clothing');
@@ -53,7 +53,7 @@
 			<p class="mt-2 text-gray-600">Enter your customer ID to start shopping</p>
 		</div>
 
-		<form onsubmit|preventDefault={handleSubmit} class="space-y-6">
+		<form onsubmit={handleSubmit} class="space-y-6">
 			<div>
 				<label for="customerId" class="block text-sm font-medium text-gray-700 mb-2">
 					Customer ID
@@ -98,7 +98,7 @@
 					<span class="flex-shrink-0 w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold mr-3">
 						3
 					</span>
-					<span>Enter shipping details and complete payment with Stripe</span>
+					<span>Enter shipping details and complete payment with a test card number</span>
 				</li>
 				<li class="flex items-start">
 					<span class="flex-shrink-0 w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-semibold mr-3">

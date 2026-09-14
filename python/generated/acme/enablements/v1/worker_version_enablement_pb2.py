@@ -24,9 +24,10 @@ _sym_db = _symbol_database.Default()
 
 from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from acme.enablements.domain.v1 import commerce_pb2 as acme_dot_enablements_dot_domain_dot_v1_dot_commerce__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n3acme/enablements/v1/worker_version_enablement.proto\x12\x13\x61\x63me.enablements.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8a\x02\n#StartWorkerVersionEnablementRequest\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12\x1f\n\x0border_count\x18\x02 \x01(\x05R\norderCount\x12-\n\x13submit_rate_per_min\x18\x03 \x01(\x05R\x10submitRatePerMin\x12\x33\n\x07timeout\x18\x04 \x01(\x0b\x32\x19.google.protobuf.DurationR\x07timeout\x12\'\n\rorder_id_seed\x18\x05 \x01(\tH\x00R\x0borderIdSeed\x88\x01\x01\x42\x10\n\x0e_order_id_seed\"\xed\x05\n\x1cWorkerVersionEnablementState\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12L\n\x04\x61rgs\x18\x02 \x01(\x0b\x32\x38.acme.enablements.v1.StartWorkerVersionEnablementRequestR\x04\x61rgs\x12`\n\rcurrent_phase\x18\x03 \x01(\x0e\x32;.acme.enablements.v1.WorkerVersionEnablementState.DemoPhaseR\x0c\x63urrentPhase\x12\x34\n\x16orders_submitted_count\x18\x04 \x01(\x05R\x14ordersSubmittedCount\x12*\n\x11orders_per_minute\x18\x05 \x01(\x02R\x0fordersPerMinute\x12\'\n\x0f\x61\x63tive_versions\x18\x06 \x03(\tR\x0e\x61\x63tiveVersions\x12H\n\x12last_transition_at\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x10lastTransitionAt\x12X\n\x0f\x64\x65ploy_requests\x18\x08 \x03(\x0b\x32/.acme.enablements.v1.DeployWorkerVersionRequestR\x0e\x64\x65ployRequests\x12R\n\x0b\x64\x65ployments\x18\t \x03(\x0b\x32\x30.acme.enablements.v1.DeployWorkerVersionResponseR\x0b\x64\x65ployments\"u\n\tDemoPhase\x12\x1a\n\x16\x44\x45MO_PHASE_UNSPECIFIED\x10\x00\x12\x13\n\x0fRUNNING_V1_ONLY\x10\x01\x12\x17\n\x13TRANSITIONING_TO_V2\x10\x02\x12\x10\n\x0cRUNNING_BOTH\x10\x03\x12\x0c\n\x08\x43OMPLETE\x10\x04\"\x8d\x01\n\x13SubmitOrdersRequest\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12-\n\x13submit_rate_per_min\x18\x02 \x01(\x05R\x10submitRatePerMin\x12\"\n\rorder_id_seed\x18\x03 \x01(\tR\x0borderIdSeed\"L\n\x14SubmitOrdersResponse\x12\x34\n\x16orders_submitted_count\x18\x01 \x01(\tR\x14ordersSubmittedCount\"\xb6\x01\n\x1a\x44\x65ployWorkerVersionRequest\x12\'\n\x0f\x64\x65ployment_name\x18\x01 \x01(\tR\x0e\x64\x65ploymentName\x12\x19\n\x08\x62uild_id\x18\x02 \x01(\tR\x07\x62uildId\x12\x18\n\x07version\x18\x03 \x01(\tR\x07version\x12(\n\rreplica_count\x18\x04 \x01(\x05H\x00R\x0creplicaCount\x88\x01\x01\x42\x10\n\x0e_replica_count\"\x1d\n\x1b\x44\x65ployWorkerVersionResponseB\xb0\x01\n\"com.acme.proto.acme.enablements.v1B\x1cWorkerVersionEnablementProtoP\x01\xa2\x02\x03\x41\x45X\xaa\x02\x13\x41\x63me.Enablements.V1\xca\x02\x13\x41\x63me\\Enablements\\V1\xe2\x02\x1f\x41\x63me\\Enablements\\V1\\GPBMetadata\xea\x02\x15\x41\x63me::Enablements::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n3acme/enablements/v1/worker_version_enablement.proto\x12\x13\x61\x63me.enablements.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)acme/enablements/domain/v1/commerce.proto\"\xda\x02\n#StartWorkerVersionEnablementRequest\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12\x1f\n\x0border_count\x18\x02 \x01(\x05R\norderCount\x12-\n\x13submit_rate_per_min\x18\x03 \x01(\x05R\x10submitRatePerMin\x12\x33\n\x07timeout\x18\x04 \x01(\x0b\x32\x19.google.protobuf.DurationR\x07timeout\x12\'\n\rorder_id_seed\x18\x05 \x01(\tH\x00R\x0borderIdSeed\x88\x01\x01\x12N\n\x10scenario_weights\x18\x06 \x03(\x0b\x32#.acme.enablements.v1.ScenarioWeightR\x0fscenarioWeightsB\x10\n\x0e_order_id_seed\"z\n\x0eScenarioWeight\x12P\n\x08scenario\x18\x01 \x01(\x0e\x32\x34.acme.enablements.domain.enablements.v1.DemoScenarioR\x08scenario\x12\x16\n\x06weight\x18\x02 \x01(\x05R\x06weight\"\xed\x05\n\x1cWorkerVersionEnablementState\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12L\n\x04\x61rgs\x18\x02 \x01(\x0b\x32\x38.acme.enablements.v1.StartWorkerVersionEnablementRequestR\x04\x61rgs\x12`\n\rcurrent_phase\x18\x03 \x01(\x0e\x32;.acme.enablements.v1.WorkerVersionEnablementState.DemoPhaseR\x0c\x63urrentPhase\x12\x34\n\x16orders_submitted_count\x18\x04 \x01(\x05R\x14ordersSubmittedCount\x12*\n\x11orders_per_minute\x18\x05 \x01(\x02R\x0fordersPerMinute\x12\'\n\x0f\x61\x63tive_versions\x18\x06 \x03(\tR\x0e\x61\x63tiveVersions\x12H\n\x12last_transition_at\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x10lastTransitionAt\x12X\n\x0f\x64\x65ploy_requests\x18\x08 \x03(\x0b\x32/.acme.enablements.v1.DeployWorkerVersionRequestR\x0e\x64\x65ployRequests\x12R\n\x0b\x64\x65ployments\x18\t \x03(\x0b\x32\x30.acme.enablements.v1.DeployWorkerVersionResponseR\x0b\x64\x65ployments\"u\n\tDemoPhase\x12\x1a\n\x16\x44\x45MO_PHASE_UNSPECIFIED\x10\x00\x12\x13\n\x0fRUNNING_V1_ONLY\x10\x01\x12\x17\n\x13TRANSITIONING_TO_V2\x10\x02\x12\x10\n\x0cRUNNING_BOTH\x10\x03\x12\x0c\n\x08\x43OMPLETE\x10\x04\"\xb6\x01\n\x15SubmitOneOrderRequest\x12#\n\renablement_id\x18\x01 \x01(\tR\x0c\x65nablementId\x12&\n\x0forder_id_prefix\x18\x02 \x01(\tR\rorderIdPrefix\x12P\n\x08scenario\x18\x03 \x01(\x0e\x32\x34.acme.enablements.domain.enablements.v1.DemoScenarioR\x08scenario\"P\n\x16SubmitOneOrderResponse\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x1b\n\tcharge_id\x18\x02 \x01(\tR\x08\x63hargeId\"\xb6\x01\n\x1a\x44\x65ployWorkerVersionRequest\x12\'\n\x0f\x64\x65ployment_name\x18\x01 \x01(\tR\x0e\x64\x65ploymentName\x12\x19\n\x08\x62uild_id\x18\x02 \x01(\tR\x07\x62uildId\x12\x18\n\x07version\x18\x03 \x01(\tR\x07version\x12(\n\rreplica_count\x18\x04 \x01(\x05H\x00R\x0creplicaCount\x88\x01\x01\x42\x10\n\x0e_replica_count\"\x1d\n\x1b\x44\x65ployWorkerVersionResponseB\xb0\x01\n\"com.acme.proto.acme.enablements.v1B\x1cWorkerVersionEnablementProtoP\x01\xa2\x02\x03\x41\x45X\xaa\x02\x13\x41\x63me.Enablements.V1\xca\x02\x13\x41\x63me\\Enablements\\V1\xe2\x02\x1f\x41\x63me\\Enablements\\V1\\GPBMetadata\xea\x02\x15\x41\x63me::Enablements::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,18 +35,20 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'acme.enablements.v1.worker_
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\"com.acme.proto.acme.enablements.v1B\034WorkerVersionEnablementProtoP\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002\023Acme\\Enablements\\V1\342\002\037Acme\\Enablements\\V1\\GPBMetadata\352\002\025Acme::Enablements::V1'
-  _globals['_STARTWORKERVERSIONENABLEMENTREQUEST']._serialized_start=142
-  _globals['_STARTWORKERVERSIONENABLEMENTREQUEST']._serialized_end=408
-  _globals['_WORKERVERSIONENABLEMENTSTATE']._serialized_start=411
-  _globals['_WORKERVERSIONENABLEMENTSTATE']._serialized_end=1160
-  _globals['_WORKERVERSIONENABLEMENTSTATE_DEMOPHASE']._serialized_start=1043
-  _globals['_WORKERVERSIONENABLEMENTSTATE_DEMOPHASE']._serialized_end=1160
-  _globals['_SUBMITORDERSREQUEST']._serialized_start=1163
-  _globals['_SUBMITORDERSREQUEST']._serialized_end=1304
-  _globals['_SUBMITORDERSRESPONSE']._serialized_start=1306
-  _globals['_SUBMITORDERSRESPONSE']._serialized_end=1382
-  _globals['_DEPLOYWORKERVERSIONREQUEST']._serialized_start=1385
-  _globals['_DEPLOYWORKERVERSIONREQUEST']._serialized_end=1567
-  _globals['_DEPLOYWORKERVERSIONRESPONSE']._serialized_start=1569
-  _globals['_DEPLOYWORKERVERSIONRESPONSE']._serialized_end=1598
+  _globals['_STARTWORKERVERSIONENABLEMENTREQUEST']._serialized_start=185
+  _globals['_STARTWORKERVERSIONENABLEMENTREQUEST']._serialized_end=531
+  _globals['_SCENARIOWEIGHT']._serialized_start=533
+  _globals['_SCENARIOWEIGHT']._serialized_end=655
+  _globals['_WORKERVERSIONENABLEMENTSTATE']._serialized_start=658
+  _globals['_WORKERVERSIONENABLEMENTSTATE']._serialized_end=1407
+  _globals['_WORKERVERSIONENABLEMENTSTATE_DEMOPHASE']._serialized_start=1290
+  _globals['_WORKERVERSIONENABLEMENTSTATE_DEMOPHASE']._serialized_end=1407
+  _globals['_SUBMITONEORDERREQUEST']._serialized_start=1410
+  _globals['_SUBMITONEORDERREQUEST']._serialized_end=1592
+  _globals['_SUBMITONEORDERRESPONSE']._serialized_start=1594
+  _globals['_SUBMITONEORDERRESPONSE']._serialized_end=1674
+  _globals['_DEPLOYWORKERVERSIONREQUEST']._serialized_start=1677
+  _globals['_DEPLOYWORKERVERSIONREQUEST']._serialized_end=1859
+  _globals['_DEPLOYWORKERVERSIONRESPONSE']._serialized_start=1861
+  _globals['_DEPLOYWORKERVERSIONRESPONSE']._serialized_end=1890
 # @@protoc_insertion_point(module_scope)

@@ -22,26 +22,49 @@ public interface ProcessOrderRequestExecutionOptionsOrBuilder extends
   long getProcessingTimeoutSecs();
 
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    * @return Whether the omsProperties field is set.
    */
   boolean hasOmsProperties();
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    * @return The omsProperties.
    */
   com.acme.proto.acme.oms.v1.OmsProperties getOmsProperties();
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    */
   com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder getOmsPropertiesOrBuilder();
 
   /**
+   * <pre>
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return Whether the sendFulfillment field is set.
    */
   boolean hasSendFulfillment();
   /**
+   * <pre>
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return The sendFulfillment.
    */

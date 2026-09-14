@@ -2,6 +2,7 @@ import datetime
 
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
+from acme.enablements.domain.v1 import commerce_pb2 as _commerce_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -18,12 +19,22 @@ class StartWorkerVersionEnablementRequest(_message.Message):
     SUBMIT_RATE_PER_MIN_FIELD_NUMBER: _ClassVar[int]
     TIMEOUT_FIELD_NUMBER: _ClassVar[int]
     ORDER_ID_SEED_FIELD_NUMBER: _ClassVar[int]
+    SCENARIO_WEIGHTS_FIELD_NUMBER: _ClassVar[int]
     enablement_id: str
     order_count: int
     submit_rate_per_min: int
     timeout: _duration_pb2.Duration
     order_id_seed: str
-    def __init__(self, enablement_id: _Optional[str] = ..., order_count: _Optional[int] = ..., submit_rate_per_min: _Optional[int] = ..., timeout: _Optional[_Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]] = ..., order_id_seed: _Optional[str] = ...) -> None: ...
+    scenario_weights: _containers.RepeatedCompositeFieldContainer[ScenarioWeight]
+    def __init__(self, enablement_id: _Optional[str] = ..., order_count: _Optional[int] = ..., submit_rate_per_min: _Optional[int] = ..., timeout: _Optional[_Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]] = ..., order_id_seed: _Optional[str] = ..., scenario_weights: _Optional[_Iterable[_Union[ScenarioWeight, _Mapping]]] = ...) -> None: ...
+
+class ScenarioWeight(_message.Message):
+    __slots__ = ()
+    SCENARIO_FIELD_NUMBER: _ClassVar[int]
+    WEIGHT_FIELD_NUMBER: _ClassVar[int]
+    scenario: _commerce_pb2.DemoScenario
+    weight: int
+    def __init__(self, scenario: _Optional[_Union[_commerce_pb2.DemoScenario, str]] = ..., weight: _Optional[int] = ...) -> None: ...
 
 class WorkerVersionEnablementState(_message.Message):
     __slots__ = ()
@@ -59,21 +70,23 @@ class WorkerVersionEnablementState(_message.Message):
     deployments: _containers.RepeatedCompositeFieldContainer[DeployWorkerVersionResponse]
     def __init__(self, enablement_id: _Optional[str] = ..., args: _Optional[_Union[StartWorkerVersionEnablementRequest, _Mapping]] = ..., current_phase: _Optional[_Union[WorkerVersionEnablementState.DemoPhase, str]] = ..., orders_submitted_count: _Optional[int] = ..., orders_per_minute: _Optional[float] = ..., active_versions: _Optional[_Iterable[str]] = ..., last_transition_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., deploy_requests: _Optional[_Iterable[_Union[DeployWorkerVersionRequest, _Mapping]]] = ..., deployments: _Optional[_Iterable[_Union[DeployWorkerVersionResponse, _Mapping]]] = ...) -> None: ...
 
-class SubmitOrdersRequest(_message.Message):
+class SubmitOneOrderRequest(_message.Message):
     __slots__ = ()
     ENABLEMENT_ID_FIELD_NUMBER: _ClassVar[int]
-    SUBMIT_RATE_PER_MIN_FIELD_NUMBER: _ClassVar[int]
-    ORDER_ID_SEED_FIELD_NUMBER: _ClassVar[int]
+    ORDER_ID_PREFIX_FIELD_NUMBER: _ClassVar[int]
+    SCENARIO_FIELD_NUMBER: _ClassVar[int]
     enablement_id: str
-    submit_rate_per_min: int
-    order_id_seed: str
-    def __init__(self, enablement_id: _Optional[str] = ..., submit_rate_per_min: _Optional[int] = ..., order_id_seed: _Optional[str] = ...) -> None: ...
+    order_id_prefix: str
+    scenario: _commerce_pb2.DemoScenario
+    def __init__(self, enablement_id: _Optional[str] = ..., order_id_prefix: _Optional[str] = ..., scenario: _Optional[_Union[_commerce_pb2.DemoScenario, str]] = ...) -> None: ...
 
-class SubmitOrdersResponse(_message.Message):
+class SubmitOneOrderResponse(_message.Message):
     __slots__ = ()
-    ORDERS_SUBMITTED_COUNT_FIELD_NUMBER: _ClassVar[int]
-    orders_submitted_count: str
-    def __init__(self, orders_submitted_count: _Optional[str] = ...) -> None: ...
+    ORDER_ID_FIELD_NUMBER: _ClassVar[int]
+    CHARGE_ID_FIELD_NUMBER: _ClassVar[int]
+    order_id: str
+    charge_id: str
+    def __init__(self, order_id: _Optional[str] = ..., charge_id: _Optional[str] = ...) -> None: ...
 
 class DeployWorkerVersionRequest(_message.Message):
     __slots__ = ()

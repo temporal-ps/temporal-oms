@@ -86,13 +86,19 @@
 					<div class="p-4">
 						<h3 class="text-lg font-semibold text-gray-900 mb-1">{item.name}</h3>
 						<p class="text-sm text-gray-600 mb-3 line-clamp-2">{item.description}</p>
+						{#if item.availableStock !== undefined}
+							<p class="text-xs text-gray-500 mb-3">
+								{item.availableStock > 0 ? `${item.availableStock} in stock` : 'Out of stock'}
+							</p>
+						{/if}
 						<div class="flex items-center justify-between">
 							<span class="text-2xl font-bold text-primary-600">
 								{formatPrice(item.priceCents)}
 							</span>
 							<button
 								onclick={() => addToCart(item)}
-								class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
+								disabled={item.availableStock === 0}
+								class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 							>
 								Add to Cart
 							</button>

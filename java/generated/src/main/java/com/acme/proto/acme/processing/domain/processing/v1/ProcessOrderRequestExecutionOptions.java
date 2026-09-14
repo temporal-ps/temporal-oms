@@ -71,6 +71,11 @@ private static final long serialVersionUID = 0L;
   public static final int OMS_PROPERTIES_FIELD_NUMBER = 2;
   private com.acme.proto.acme.oms.v1.OmsProperties omsProperties_;
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    * @return Whether the omsProperties field is set.
    */
@@ -79,6 +84,11 @@ private static final long serialVersionUID = 0L;
     return ((bitField0_ & 0x00000002) != 0);
   }
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    * @return The omsProperties.
    */
@@ -87,6 +97,11 @@ private static final long serialVersionUID = 0L;
     return omsProperties_ == null ? com.acme.proto.acme.oms.v1.OmsProperties.getDefaultInstance() : omsProperties_;
   }
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * </pre>
+   *
    * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
    */
   @java.lang.Override
@@ -97,6 +112,10 @@ private static final long serialVersionUID = 0L;
   public static final int SEND_FULFILLMENT_FIELD_NUMBER = 3;
   private boolean sendFulfillment_ = false;
   /**
+   * <pre>
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return Whether the sendFulfillment field is set.
    */
@@ -105,6 +124,10 @@ private static final long serialVersionUID = 0L;
     return ((bitField0_ & 0x00000004) != 0);
   }
   /**
+   * <pre>
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return The sendFulfillment.
    */
@@ -532,6 +555,11 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilder<
         com.acme.proto.acme.oms.v1.OmsProperties, com.acme.proto.acme.oms.v1.OmsProperties.Builder, com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder> omsPropertiesBuilder_;
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      * @return Whether the omsProperties field is set.
      */
@@ -539,6 +567,11 @@ private static final long serialVersionUID = 0L;
       return ((bitField0_ & 0x00000002) != 0);
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      * @return The omsProperties.
      */
@@ -550,6 +583,11 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public Builder setOmsProperties(com.acme.proto.acme.oms.v1.OmsProperties value) {
@@ -566,6 +604,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public Builder setOmsProperties(
@@ -580,6 +623,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public Builder mergeOmsProperties(com.acme.proto.acme.oms.v1.OmsProperties value) {
@@ -601,6 +649,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public Builder clearOmsProperties() {
@@ -614,6 +667,11 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public com.acme.proto.acme.oms.v1.OmsProperties.Builder getOmsPropertiesBuilder() {
@@ -622,6 +680,11 @@ private static final long serialVersionUID = 0L;
       return internalGetOmsPropertiesFieldBuilder().getBuilder();
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     public com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder getOmsPropertiesOrBuilder() {
@@ -633,10 +696,15 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * </pre>
+     *
      * <code>optional .acme.oms.v1.OmsProperties oms_properties = 2 [json_name = "omsProperties"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.oms.v1.OmsProperties, com.acme.proto.acme.oms.v1.OmsProperties.Builder, com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder>
+        com.acme.proto.acme.oms.v1.OmsProperties, com.acme.proto.acme.oms.v1.OmsProperties.Builder, com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder> 
         internalGetOmsPropertiesFieldBuilder() {
       if (omsPropertiesBuilder_ == null) {
         omsPropertiesBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -651,6 +719,10 @@ private static final long serialVersionUID = 0L;
 
     private boolean sendFulfillment_ ;
     /**
+     * <pre>
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return Whether the sendFulfillment field is set.
      */
@@ -659,6 +731,10 @@ private static final long serialVersionUID = 0L;
       return ((bitField0_ & 0x00000004) != 0);
     }
     /**
+     * <pre>
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return The sendFulfillment.
      */
@@ -667,6 +743,10 @@ private static final long serialVersionUID = 0L;
       return sendFulfillment_;
     }
     /**
+     * <pre>
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @param value The sendFulfillment to set.
      * @return This builder for chaining.
@@ -679,6 +759,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return This builder for chaining.
      */

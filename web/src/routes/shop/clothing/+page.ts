@@ -3,10 +3,10 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = async () => {
 	try {
-		const items = await api.getClothing(50);
+		const items = await api.getCatalog();
 		return { items };
 	} catch (error) {
-		console.error('Failed to load clothing items:', error);
+		console.error('Failed to load catalog:', error);
 		return { items: [] };
 	}
 };

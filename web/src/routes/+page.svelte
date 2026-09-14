@@ -77,9 +77,9 @@
 		<div class="mt-16 bg-blue-50 rounded-lg p-8">
 			<h3 class="text-lg font-semibold text-gray-900">Architecture</h3>
 			<p class="mt-2 text-gray-600">
-				This system demonstrates Domain-Driven Design with 4 Temporal namespaces:
+				This system demonstrates Domain-Driven Design with 3 Temporal namespaces:
 			</p>
-			<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+			<div class="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
 				<div class="bg-white p-4 rounded-lg">
 					<div class="font-semibold text-primary-700">Apps</div>
 					<div class="text-gray-600 mt-1">Orchestration</div>
@@ -89,11 +89,7 @@
 					<div class="text-gray-600 mt-1">Order enrichment</div>
 				</div>
 				<div class="bg-white p-4 rounded-lg">
-					<div class="font-semibold text-primary-700">Risk</div>
-					<div class="text-gray-600 mt-1">Fraud detection</div>
-				</div>
-				<div class="bg-white p-4 rounded-lg">
-					<div class="font-semibold text-primary-700">Fulfillments</div>
+					<div class="font-semibold text-primary-700">Fulfillment</div>
 					<div class="text-gray-600 mt-1">AI-powered</div>
 				</div>
 			</div>

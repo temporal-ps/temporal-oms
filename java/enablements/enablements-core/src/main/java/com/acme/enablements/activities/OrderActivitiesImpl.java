@@ -1,16 +1,17 @@
 package com.acme.enablements.activities;
 
-import com.acme.proto.acme.apps.api.orders.v1.MakePaymentRequest;
-import com.acme.proto.acme.apps.api.orders.v1.Metadata;
-import com.acme.proto.acme.apps.api.orders.v1.Order;
-import com.acme.proto.acme.apps.api.orders.v1.ShippingAddress;
-import com.acme.proto.acme.apps.api.orders.v1.SubmitOrderRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOrdersRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOrdersResponse;
+import com.acme.enablements.commerce.CommerceCatalogFixtureService;
+import com.acme.proto.acme.common.v1.Address;
+import com.acme.proto.acme.common.v1.EasyPostAddress;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CommerceOrderState;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CreateChargeRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.PaymentChargeState;
+import com.acme.proto.acme.enablements.domain.enablements.v1.ScenarioOptions;
+import com.acme.proto.acme.enablements.v1.SubmitOneOrderRequest;
+import com.acme.proto.acme.enablements.v1.SubmitOneOrderResponse;
+import com.acme.proto.acme.oms.v1.Item;
 import com.google.protobuf.util.JsonFormat;
-import io.temporal.activity.Activity;
-import io.temporal.client.ActivityCompletionException;
-import io.temporal.failure.CanceledFailure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,177 +19,94 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component("order-activities")
 public class OrderActivitiesImpl implements OrderActivities {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderActivitiesImpl.class);
 
-    private final RestClient appsRestClient;
-    private final RestClient processingRestClient;
+    private static final String APPROVED_TEST_CARD = "4242424242424242";
+
+    private record CannedAddress(String street1, String city, String state, String zip, String country) {
+    }
+
+    private static final List<CannedAddress> CANNED_ADDRESSES = List.of(
+            new CannedAddress("388 Townsend St", "San Francisco", "CA", "94107", "US"),
+            new CannedAddress("500 W 2nd St", "Austin", "TX", "78701", "US"),
+            new CannedAddress("1 Microsoft Way", "Redmond", "WA", "98052", "US"),
+            new CannedAddress("350 5th Ave", "New York", "NY", "10118", "US"));
+
+    private final RestClient enablementsApiClient;
+    private final CommerceCatalogFixtureService catalogFixture;
 
     public OrderActivitiesImpl(
             RestClient.Builder restClientBuilder,
-            @Value("${enablements.apps-api.base-url:http://localhost:8080}") String appsApiBaseUrl,
-            @Value("${enablements.processing-api.base-url:http://localhost:8081}") String processingApiBaseUrl) {
-        this.appsRestClient = restClientBuilder.baseUrl(appsApiBaseUrl).build();
-        this.processingRestClient = restClientBuilder.baseUrl(processingApiBaseUrl).build();
+            @Value("${enablements.api.base-url:http://localhost:8050}") String enablementsApiBaseUrl,
+            CommerceCatalogFixtureService catalogFixture) {
+        this.enablementsApiClient = restClientBuilder.baseUrl(enablementsApiBaseUrl).build();
+        this.catalogFixture = catalogFixture;
     }
 
     @Override
-    public SubmitOrdersResponse submitOrders(SubmitOrdersRequest cmd) {
-        var ctx = Activity.getExecutionContext();
-        var sleepIntervalMs = (60 / cmd.getSubmitRatePerMin()) * 1000;
-        var canceled = false;
-        var submittedCount = 0;
-        List<String> submittedOrderIds = new ArrayList<>();
+    public SubmitOneOrderResponse submitOneOrder(SubmitOneOrderRequest cmd) {
+        var random = ThreadLocalRandom.current();
+        var items = catalogFixture.fixture().items();
+        var item = items.get(random.nextInt(items.size()));
+        var address = CANNED_ADDRESSES.get(random.nextInt(CANNED_ADDRESSES.size()));
 
-        while (!canceled) {
-            try {
-                ctx.heartbeat(null);
-                var enablementId = cmd.getEnablementId().isBlank() ? ctx.getInfo().getWorkflowId() : cmd.getEnablementId();
+        String customerId = cmd.getOrderIdPrefix() + "-" + cmd.getEnablementId();
 
-                // Generate order ID as enablement_id + timestamp
-                long timestamp = System.currentTimeMillis();
-                String orderId = cmd.getOrderIdSeed() + "-" + enablementId + "-" + timestamp;
-
-                try {
-                    String customerId = "enablements-customer-" + UUID.randomUUID().toString();
-                    // Call /api/v1/orders/{orderId} endpoint
-                    callOrderEndpoint(orderId, customerId);
-                    callPaymentEndpoint(orderId, customerId);
-                    if(cmd.getOrderIdSeed().contains("invalid")) {
-                        scheduleValidation(orderId);
-                    }
-
-                    submittedOrderIds.add(orderId);
-                    submittedCount++;
-                    logger.debug("Submitted order: {} (total: {})", orderId, submittedCount);
-                } catch (Exception e) {
-                    logger.error("Failed to submit order {}: {}", orderId, e.getMessage());
-                    throw e;
-                }
-
-                try {
-                    Thread.sleep(sleepIntervalMs);
-                } catch (InterruptedException e) {
-                    if (e.getCause() instanceof CanceledFailure) {
-                        canceled = true;
-                    }
-                }
-            } catch (ActivityCompletionException e) {
-                logger.error("Activity failed: {}", e.getMessage());
-                if (e.getCause() instanceof CanceledFailure) {
-                    logger.info("Activity canceled");
-                    canceled = true;
-                } else {
-                    throw e;
-                }
-            }
-        }
-
-        logger.info("Order submission activity completed. Submitted {} orders", submittedCount);
-        return SubmitOrdersResponse.newBuilder()
-                .setOrdersSubmittedCount(String.valueOf(submittedCount))
-                .build();
-    }
-
-    private void callOrderEndpoint(String orderId, String customerId) {
-        // Keep this address aligned with the workshop fixture warehouse set.
-        var shippingAddress = ShippingAddress.newBuilder()
-                .setStreet("388 Townsend St")
-                .setCity("San Francisco")
-                .setState("CA")
-                .setPostalCode("94107")
-                .setCountry("US")
-                .build();
-
-        var item = com.acme.proto.acme.apps.api.orders.v1.Item.newBuilder()
-                .setItemId("HOME-" + UUID.randomUUID().toString().substring(0, 8))
-                .setQuantity((int) (Math.random() * 10) + 1)
-                .build();
-
-        var selectedShipment = com.acme.proto.acme.apps.api.orders.v1.SelectedShipment.newBuilder()
-                .setPaidPriceCents(1)
-                .setCurrency("USD")
-                .build();
-
-        var order = Order.newBuilder()
-                .setOrderId(orderId)
-                .addItems(item)
-                .setShippingAddress(shippingAddress)
-                .setSelectedShipment(selectedShipment)
-                .build();
-
-        var req = SubmitOrderRequest.newBuilder()
+        var orderRequest = CreateCommerceOrderRequest.newBuilder()
                 .setCustomerId(customerId)
-                .setOrder(order)
+                .addItems(Item.newBuilder().setItemId(item.itemId()).setQuantity(1).build())
+                .setShippingAddress(Address.newBuilder()
+                        .setEasypost(EasyPostAddress.newBuilder()
+                                .setStreet1(address.street1())
+                                .setCity(address.city())
+                                .setState(address.state())
+                                .setZip(address.zip())
+                                .setCountry(address.country())
+                                .build())
+                        .build())
+                .setScenarioOptions(ScenarioOptions.newBuilder().setScenario(cmd.getScenario()).build())
                 .build();
 
-        try {
-            String body = JsonFormat.printer().print(req);
-            appsRestClient.put()
-                .uri("/api/v1/commerce-app/orders/{orderId}", orderId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
-                .retrieve()
-                .onStatus(status -> status.value() != 202,
-                        (request, response) -> {
-                            throw new RuntimeException("Failed to submit order " + orderId +
-                                    ": expected 202 Accepted, got " + response.getStatusCode());
-                        })
-                .body(Void.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize or submit order " + orderId, e);
-        }
-    }
+        CommerceOrderState order = post("/api/v1/integrations/commerce/orders", orderRequest, CommerceOrderState.newBuilder());
+        logger.debug("Submitted order {} (scenario={})", order.getOrderId(), cmd.getScenario());
 
-    private void callPaymentEndpoint(String orderId, String customerId) {
-        var req = MakePaymentRequest.newBuilder()
+        var chargeRequest = CreateChargeRequest.newBuilder()
+                .setOrderId(order.getOrderId())
                 .setCustomerId(customerId)
-                .setRrn(UUID.randomUUID().toString())
-                .setAmountCents((long) (Math.random() * 10000) + 100)
-                .setMetadata(Metadata.newBuilder().setOrderId(orderId).build())
+                .setAmountCents(item.priceCents())
+                .setCardNumber(APPROVED_TEST_CARD)
                 .build();
 
-        try {
-            String body = JsonFormat.printer().print(req);
-            appsRestClient.post()
-                .uri("/api/v1/payments-app/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
-                .retrieve()
-                .onStatus(status -> status.value() != 202,
-                        (request, response) -> {
-                            throw new RuntimeException("Failed to capture payment for order " + orderId +
-                                    ": expected 202 Accepted, got " + response.getStatusCode());
-                        })
-                .body(Void.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to serialize or capture payment for order " + orderId, e);
-        }
+        PaymentChargeState charge = post("/api/v1/integrations/payments/charges", chargeRequest, PaymentChargeState.newBuilder());
+        logger.debug("Submitted charge {} for order {} (status={})", charge.getChargeId(), order.getOrderId(), charge.getStatus());
+
+        return SubmitOneOrderResponse.newBuilder()
+                .setOrderId(order.getOrderId())
+                .setChargeId(charge.getChargeId())
+                .build();
     }
 
-    private void scheduleValidation(String orderId) {
-        Thread.ofVirtual().start(() -> {
-            try {
-                Thread.sleep(40_000);
-                processingRestClient.post()
-                    .uri("/api/v1/validations/{orderId}/complete", orderId)
+    private <T extends com.google.protobuf.Message> T post(String path, com.google.protobuf.Message request, com.google.protobuf.Message.Builder responseBuilder) {
+        try {
+            String requestJson = JsonFormat.printer().print(request);
+            String responseJson = enablementsApiClient.post()
+                    .uri(path)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(requestJson)
                     .retrieve()
-                    .onStatus(status -> status.value() != 202,
-                            (request, response) -> {
-                                throw new RuntimeException("Failed to complete validation for order " + orderId +
-                                        ": expected 202 Accepted, got " + response.getStatusCode());
-                            })
-                    .body(Void.class);
-                logger.debug("Validation completed for order: {}", orderId);
-            } catch (Exception e) {
-                logger.error("Failed to complete validation for order {}: {}", orderId, e.getMessage());
-            }
-        });
+                    .body(String.class);
+            JsonFormat.parser().ignoringUnknownFields().merge(responseJson, responseBuilder);
+            @SuppressWarnings("unchecked")
+            T built = (T) responseBuilder.build();
+            return built;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to call " + path, e);
+        }
     }
 }

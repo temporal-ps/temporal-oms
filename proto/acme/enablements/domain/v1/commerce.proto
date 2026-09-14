@@ -1,0 +1,79 @@
+// Commerce App domain contracts (catalog, cart-to-order, inventory, demo scenarios)
+syntax = "proto3";
+
+package acme.enablements.domain.enablements.v1;
+
+import "google/protobuf/timestamp.proto";
+import "acme/oms/v1/values.proto";
+import "acme/common/v1/values.proto";
+
+enum DemoScenario {
+  NORMAL = 0;                    // deliver commerce then payment, both delivered
+  PAYMENT_BEFORE_COMMERCE = 1;   // deliver payment then commerce (out-of-order)
+  MISSING_COMMERCE_EVENT = 2;    // deliver payment only; commerce event never sent
+  MISSING_PAYMENT_EVENT = 3;     // deliver commerce only; payment event never sent
+}
+
+message ScenarioOptions {
+  DemoScenario scenario = 1;
+}
+
+message CommerceOrderState {
+  string order_id = 1;
+  string customer_id = 2;
+  repeated acme.oms.v1.Item items = 3;
+  acme.common.v1.Address shipping_address = 4;
+  optional acme.common.v1.Shipment selected_shipment = 5;
+  string status = 6; // PLACED
+  google.protobuf.Timestamp placed_at = 7;
+  ScenarioOptions scenario_options = 8;
+}
+
+message CreateCommerceOrderRequest {
+  string customer_id = 1;
+  repeated acme.oms.v1.Item items = 2;
+  acme.common.v1.Address shipping_address = 3;
+  optional acme.common.v1.Shipment selected_shipment = 4;
+  ScenarioOptions scenario_options = 5; // from the Svelte checkout's floating scenario selector
+}
+
+message CommerceInventoryState {
+  map<string, int32> stock_by_item_id = 1;
+}
+
+message HoldInventoryRequest {
+  string order_id = 1;
+  repeated acme.oms.v1.Item items = 2;
+}
+
+message CommerceCatalogItem {
+  string item_id = 1;
+  string name = 2;
+  string description = 3;
+  int64 price_cents = 4;
+  string image_url = 5;
+  int32 available_stock = 6;
+}
+
+message GetCommerceCatalogResponse {
+  repeated CommerceCatalogItem items = 1;
+}
+
+// Commerce-App-owned shipping rate quote, distinct from and unrelated to
+// enablements' fulfillment-side shipping fixtures.
+message CommerceShippingRateOption {
+  string rate_id = 1;
+  string carrier = 2;
+  string service_level = 3;
+  acme.common.v1.Money cost = 4;
+  int32 estimated_days = 5;
+}
+
+message GetCommerceShippingRatesRequest {
+  acme.common.v1.Address shipping_address = 1;
+  repeated acme.oms.v1.Item items = 2;
+}
+
+message GetCommerceShippingRatesResponse {
+  repeated CommerceShippingRateOption options = 1;
+}

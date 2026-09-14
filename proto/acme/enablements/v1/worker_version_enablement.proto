@@ -4,6 +4,7 @@ package acme.enablements.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "acme/enablements/domain/v1/commerce.proto";
 
 // Start a worker versioning enablement demonstration
 message StartWorkerVersionEnablementRequest {
@@ -13,6 +14,13 @@ message StartWorkerVersionEnablementRequest {
   int32 submit_rate_per_min = 3;    // Orders per minute (e.g., 12)
   google.protobuf.Duration timeout = 4;  // How long to run (e.g., 5 minutes)
   optional string order_id_seed = 5;
+  repeated ScenarioWeight scenario_weights = 6; // weighted mix of DemoScenario; empty defaults to mostly NORMAL
+}
+
+// Weight for one DemoScenario in the generated load's scenario mix.
+message ScenarioWeight {
+  acme.enablements.domain.enablements.v1.DemoScenario scenario = 1;
+  int32 weight = 2;
 }
 
 // Current state of the worker versioning enablement demonstration
@@ -42,13 +50,16 @@ message WorkerVersionEnablementState {
   repeated DeployWorkerVersionResponse deployments = 9;
 }
 
-message SubmitOrdersRequest {
+// Submits one order to the Commerce App / Payments Processor backends
+// (SPECS/commerce-payments-apps/spec.md), not directly to apps-api.
+message SubmitOneOrderRequest {
   string enablement_id = 1;
-  int32 submit_rate_per_min = 2;
-  string order_id_seed = 3;
+  string order_id_prefix = 2;
+  acme.enablements.domain.enablements.v1.DemoScenario scenario = 3;
 }
-message SubmitOrdersResponse {
-  string orders_submitted_count = 1;
+message SubmitOneOrderResponse {
+  string order_id = 1;
+  string charge_id = 2;
 }
 
 message DeployWorkerVersionRequest {

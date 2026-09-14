@@ -649,7 +649,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.fulfillment.domain.fulfillment.v1.ProcessedOrder processed_order = 1 [json_name = "processedOrder"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrder.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrderOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrder.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ProcessedOrderOrBuilder> 
         internalGetProcessedOrderFieldBuilder() {
       if (processedOrderBuilder_ == null) {
         processedOrderBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -770,7 +770,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequest delivery_status_request = 2 [json_name = "deliveryStatusRequest"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequest, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequest.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequestOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequest, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequest.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.NotifyDeliveryStatusRequestOrBuilder> 
         internalGetDeliveryStatusRequestFieldBuilder() {
       if (deliveryStatusRequestBuilder_ == null) {
         deliveryStatusRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -936,7 +936,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.common.v1.Shipment selected_shipment = 3 [json_name = "selectedShipment"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder>
+        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder> 
         internalGetSelectedShipmentFieldBuilder() {
       if (selectedShipmentBuilder_ == null) {
         selectedShipmentBuilder_ = new com.google.protobuf.SingleFieldBuilder<

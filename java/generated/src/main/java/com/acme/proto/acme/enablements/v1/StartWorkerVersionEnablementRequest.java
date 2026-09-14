@@ -34,6 +34,7 @@ private static final long serialVersionUID = 0L;
   private StartWorkerVersionEnablementRequest() {
     enablementId_ = "";
     orderIdSeed_ = "";
+    scenarioWeights_ = java.util.Collections.emptyList();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -217,6 +218,67 @@ private static final long serialVersionUID = 0L;
     }
   }
 
+  public static final int SCENARIO_WEIGHTS_FIELD_NUMBER = 6;
+  @SuppressWarnings("serial")
+  private java.util.List<com.acme.proto.acme.enablements.v1.ScenarioWeight> scenarioWeights_;
+  /**
+   * <pre>
+   * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public java.util.List<com.acme.proto.acme.enablements.v1.ScenarioWeight> getScenarioWeightsList() {
+    return scenarioWeights_;
+  }
+  /**
+   * <pre>
+   * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public java.util.List<? extends com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder> 
+      getScenarioWeightsOrBuilderList() {
+    return scenarioWeights_;
+  }
+  /**
+   * <pre>
+   * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public int getScenarioWeightsCount() {
+    return scenarioWeights_.size();
+  }
+  /**
+   * <pre>
+   * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.enablements.v1.ScenarioWeight getScenarioWeights(int index) {
+    return scenarioWeights_.get(index);
+  }
+  /**
+   * <pre>
+   * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder getScenarioWeightsOrBuilder(
+      int index) {
+    return scenarioWeights_.get(index);
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -246,6 +308,9 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000002) != 0)) {
       com.google.protobuf.GeneratedMessage.writeString(output, 5, orderIdSeed_);
     }
+    for (int i = 0; i < scenarioWeights_.size(); i++) {
+      output.writeMessage(6, scenarioWeights_.get(i));
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -273,6 +338,15 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000002) != 0)) {
       size += com.google.protobuf.GeneratedMessage.computeStringSize(5, orderIdSeed_);
     }
+
+        {
+          final int count = scenarioWeights_.size();
+          for (int i = 0; i < count; i++) {
+            size += com.google.protobuf.CodedOutputStream
+              .computeMessageSizeNoTag(scenarioWeights_.get(i));
+          }
+          size += 1 * count;
+        }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -304,6 +378,8 @@ private static final long serialVersionUID = 0L;
       if (!getOrderIdSeed()
           .equals(other.getOrderIdSeed())) return false;
     }
+    if (!getScenarioWeightsList()
+        .equals(other.getScenarioWeightsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -328,6 +404,10 @@ private static final long serialVersionUID = 0L;
     if (hasOrderIdSeed()) {
       hash = (37 * hash) + ORDER_ID_SEED_FIELD_NUMBER;
       hash = (53 * hash) + getOrderIdSeed().hashCode();
+    }
+    if (getScenarioWeightsCount() > 0) {
+      hash = (37 * hash) + SCENARIO_WEIGHTS_FIELD_NUMBER;
+      hash = (53 * hash) + getScenarioWeightsList().hashCode();
     }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
@@ -464,6 +544,7 @@ private static final long serialVersionUID = 0L;
       if (com.google.protobuf.GeneratedMessage
               .alwaysUseFieldBuilders) {
         internalGetTimeoutFieldBuilder();
+        internalGetScenarioWeightsFieldBuilder();
       }
     }
     @java.lang.Override
@@ -479,6 +560,13 @@ private static final long serialVersionUID = 0L;
         timeoutBuilder_ = null;
       }
       orderIdSeed_ = "";
+      if (scenarioWeightsBuilder_ == null) {
+        scenarioWeights_ = java.util.Collections.emptyList();
+      } else {
+        scenarioWeights_ = null;
+        scenarioWeightsBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
 
@@ -505,9 +593,22 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest buildPartial() {
       com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest result = new com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest(this);
+      buildPartialRepeatedFields(result);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
+    }
+
+    private void buildPartialRepeatedFields(com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest result) {
+      if (scenarioWeightsBuilder_ == null) {
+        if (((bitField0_ & 0x00000020) != 0)) {
+          scenarioWeights_ = java.util.Collections.unmodifiableList(scenarioWeights_);
+          bitField0_ = (bitField0_ & ~0x00000020);
+        }
+        result.scenarioWeights_ = scenarioWeights_;
+      } else {
+        result.scenarioWeights_ = scenarioWeightsBuilder_.build();
+      }
     }
 
     private void buildPartial0(com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest result) {
@@ -566,6 +667,32 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00000010;
         onChanged();
       }
+      if (scenarioWeightsBuilder_ == null) {
+        if (!other.scenarioWeights_.isEmpty()) {
+          if (scenarioWeights_.isEmpty()) {
+            scenarioWeights_ = other.scenarioWeights_;
+            bitField0_ = (bitField0_ & ~0x00000020);
+          } else {
+            ensureScenarioWeightsIsMutable();
+            scenarioWeights_.addAll(other.scenarioWeights_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.scenarioWeights_.isEmpty()) {
+          if (scenarioWeightsBuilder_.isEmpty()) {
+            scenarioWeightsBuilder_.dispose();
+            scenarioWeightsBuilder_ = null;
+            scenarioWeights_ = other.scenarioWeights_;
+            bitField0_ = (bitField0_ & ~0x00000020);
+            scenarioWeightsBuilder_ = 
+              com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                 internalGetScenarioWeightsFieldBuilder() : null;
+          } else {
+            scenarioWeightsBuilder_.addAllMessages(other.scenarioWeights_);
+          }
+        }
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -619,6 +746,19 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000010;
               break;
             } // case 42
+            case 50: {
+              com.acme.proto.acme.enablements.v1.ScenarioWeight m =
+                  input.readMessage(
+                      com.acme.proto.acme.enablements.v1.ScenarioWeight.parser(),
+                      extensionRegistry);
+              if (scenarioWeightsBuilder_ == null) {
+                ensureScenarioWeightsIsMutable();
+                scenarioWeights_.add(m);
+              } else {
+                scenarioWeightsBuilder_.addMessage(m);
+              }
+              break;
+            } // case 50
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1050,6 +1190,318 @@ private static final long serialVersionUID = 0L;
       bitField0_ |= 0x00000010;
       onChanged();
       return this;
+    }
+
+    private java.util.List<com.acme.proto.acme.enablements.v1.ScenarioWeight> scenarioWeights_ =
+      java.util.Collections.emptyList();
+    private void ensureScenarioWeightsIsMutable() {
+      if (!((bitField0_ & 0x00000020) != 0)) {
+        scenarioWeights_ = new java.util.ArrayList<com.acme.proto.acme.enablements.v1.ScenarioWeight>(scenarioWeights_);
+        bitField0_ |= 0x00000020;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilder<
+        com.acme.proto.acme.enablements.v1.ScenarioWeight, com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder> scenarioWeightsBuilder_;
+
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public java.util.List<com.acme.proto.acme.enablements.v1.ScenarioWeight> getScenarioWeightsList() {
+      if (scenarioWeightsBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(scenarioWeights_);
+      } else {
+        return scenarioWeightsBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public int getScenarioWeightsCount() {
+      if (scenarioWeightsBuilder_ == null) {
+        return scenarioWeights_.size();
+      } else {
+        return scenarioWeightsBuilder_.getCount();
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.ScenarioWeight getScenarioWeights(int index) {
+      if (scenarioWeightsBuilder_ == null) {
+        return scenarioWeights_.get(index);
+      } else {
+        return scenarioWeightsBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder setScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.ScenarioWeight value) {
+      if (scenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.set(index, value);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder setScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder builderForValue) {
+      if (scenarioWeightsBuilder_ == null) {
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder addScenarioWeights(com.acme.proto.acme.enablements.v1.ScenarioWeight value) {
+      if (scenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.add(value);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder addScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.ScenarioWeight value) {
+      if (scenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.add(index, value);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder addScenarioWeights(
+        com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder builderForValue) {
+      if (scenarioWeightsBuilder_ == null) {
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.add(builderForValue.build());
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder addScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder builderForValue) {
+      if (scenarioWeightsBuilder_ == null) {
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder addAllScenarioWeights(
+        java.lang.Iterable<? extends com.acme.proto.acme.enablements.v1.ScenarioWeight> values) {
+      if (scenarioWeightsBuilder_ == null) {
+        ensureScenarioWeightsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, scenarioWeights_);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder clearScenarioWeights() {
+      if (scenarioWeightsBuilder_ == null) {
+        scenarioWeights_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000020);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public Builder removeScenarioWeights(int index) {
+      if (scenarioWeightsBuilder_ == null) {
+        ensureScenarioWeightsIsMutable();
+        scenarioWeights_.remove(index);
+        onChanged();
+      } else {
+        scenarioWeightsBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder getScenarioWeightsBuilder(
+        int index) {
+      return internalGetScenarioWeightsFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder getScenarioWeightsOrBuilder(
+        int index) {
+      if (scenarioWeightsBuilder_ == null) {
+        return scenarioWeights_.get(index);  } else {
+        return scenarioWeightsBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public java.util.List<? extends com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder> 
+         getScenarioWeightsOrBuilderList() {
+      if (scenarioWeightsBuilder_ != null) {
+        return scenarioWeightsBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(scenarioWeights_);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder addScenarioWeightsBuilder() {
+      return internalGetScenarioWeightsFieldBuilder().addBuilder(
+          com.acme.proto.acme.enablements.v1.ScenarioWeight.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder addScenarioWeightsBuilder(
+        int index) {
+      return internalGetScenarioWeightsFieldBuilder().addBuilder(
+          index, com.acme.proto.acme.enablements.v1.ScenarioWeight.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * weighted mix of DemoScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.ScenarioWeight scenario_weights = 6 [json_name = "scenarioWeights"];</code>
+     */
+    public java.util.List<com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder> 
+         getScenarioWeightsBuilderList() {
+      return internalGetScenarioWeightsFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilder<
+        com.acme.proto.acme.enablements.v1.ScenarioWeight, com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder> 
+        internalGetScenarioWeightsFieldBuilder() {
+      if (scenarioWeightsBuilder_ == null) {
+        scenarioWeightsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+            com.acme.proto.acme.enablements.v1.ScenarioWeight, com.acme.proto.acme.enablements.v1.ScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder>(
+                scenarioWeights_,
+                ((bitField0_ & 0x00000020) != 0),
+                getParentForChildren(),
+                isClean());
+        scenarioWeights_ = null;
+      }
+      return scenarioWeightsBuilder_;
     }
 
     // @@protoc_insertion_point(builder_scope:acme.enablements.v1.StartWorkerVersionEnablementRequest)

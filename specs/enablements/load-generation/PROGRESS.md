@@ -1,7 +1,7 @@
 # Worker Version Enablement Workflow - Progress Tracking
 
 **Spec:** [spec.md](./spec.md)
-**Status:** 📋 Draft - Ready for Tech Lead Review (API paths clarified)
+**Status:** ✅ Reconciliation implemented (2026-09-14); see "Implementation Notes" below
 **Owner:** [Your Name]
 **Initiative:** [Worker Version Enablement](../INDEX.md)
 **Subdirectory:** `load-generation/` (historical name; contains core workflow + core module)
@@ -26,17 +26,32 @@ Reconciliation" sections.
 | API path clarification | ✅ Complete (endpoints → apps-api controller) | [Your Name] |
 | Tech lead review | ⏳ Awaiting (now including the reconciliation) | [Tech Lead] |
 | Implementation planning | ⏳ Blocked (pending approval) | TBD |
-| Phase 1: Proto + Workflow | 🔶 Partially implemented, with known bugs (see below); needs the `scenario_weights` field and the four fixes | TBD |
-| Phase 2: EnablementsWorkers | 🔶 Partially implemented (`OrderActivitiesImpl` calls `apps-api` directly today; needs to be repointed at the Commerce App/Payments Processor backends) | TBD |
-| Phase 3: EnablementsController | ⏳ Not started | TBD |
-| Phase 4: V2 + Demo scripts | 🔶 `ENABLEMENT.md` runbook exists and was updated for `scenario_weights`; formal demo scripts (`scripts/start-enablement-workflow.sh` etc.) not started | TBD |
+| Phase 1: Proto + Workflow | ✅ `scenario_weights`/`ScenarioWeight` added; all four documented bugs fixed; loop moved into the workflow | TBD |
+| Phase 2: EnablementsWorkers | ✅ `OrderActivitiesImpl.submitOneOrder` now calls the Commerce App/Payments Processor backends via `enablements.api.base-url`, not `apps-api` | TBD |
+| Phase 3: EnablementsController | ⏳ Not started (still optional per spec) | TBD |
+| Phase 4: V2 + Demo scripts | 🔶 `ENABLEMENT.md` runbook exists and matches `scenario_weights`; formal demo scripts (`scripts/start-enablement-workflow.sh` etc.) not started | TBD |
 
-### Known bugs in the existing implementation (to fix as part of this reconciliation)
-- [ ] `execute()`'s deploy-request replay loop off-by-one throws `IndexOutOfBoundsException` on any `deployWorkerVersion` signal (`WorkerVersionEnablementImpl.java:86-91`)
-- [ ] `pause()`/`resume()` signals are no-ops; they don't gate the submission loop (`WorkerVersionEnablementImpl.java:102-110`)
-- [ ] `DeploymentActivitiesImpl.deployWorkerVersion` hardcodes `v2`/replicas=1, ignoring the signal's real fields (`DeploymentActivitiesImpl.java:37-50`)
-- [ ] No `continueAsNew`; workflow blocks forever via `Workflow.await(() -> false)` (`WorkerVersionEnablementImpl.java:93-94`)
-- [ ] `OrderActivitiesImpl.submitOrders` PUTs/POSTs directly into `apps-api`'s real webhooks instead of going through the Commerce App/Payments Processor simulators; its only "scenario" is a crude `orderIdSeed.contains("invalid")` string match
+### Known bugs in the existing implementation (fixed 2026-09-14)
+- [x] `execute()`'s deploy-request replay loop off-by-one threw `IndexOutOfBoundsException` on any `deployWorkerVersion` signal (`WorkerVersionEnablementImpl.java:86-91`). Fixed by moving deploy-request processing into `processQueuedDeployRequests()`, which drains the queue from index 0 instead of iterating an out-of-bounds range.
+- [x] `pause()`/`resume()` signals were no-ops. Fixed: the submission loop now lives in the workflow and calls `Workflow.await(() -> !paused)` before each pacing sleep, so `pause()` genuinely blocks further submissions until `resume()`.
+- [x] `DeploymentActivitiesImpl.deployWorkerVersion` hardcoded `processing-worker:v2`/replicas=1. Fixed: uses `cmd.getBuildId()`/`cmd.getVersion()`/`cmd.getReplicaCount()` from the signal.
+- [x] No `continueAsNew`; the workflow used to block forever via `Workflow.await(() -> false)`. Fixed: the loop now exits once `order_count`/`timeout` are reached, and calls `Workflow.newContinueAsNewStub` every 100 submitted orders to keep history bounded on long sustained runs.
+- [x] `OrderActivitiesImpl.submitOrders` used to PUT/POST directly into `apps-api`'s real webhooks with a crude `orderIdSeed.contains("invalid")` string-match "scenario." Replaced by `submitOneOrder`, a short one-order-per-call activity that calls the Commerce App (`POST .../commerce/orders`) and Payments Processor (`POST .../payments/charges`) from `SPECS/commerce-payments-apps/spec.md`, carrying the workflow-chosen `DemoScenario`.
+
+### Additional findings fixed in the same pass (not in the original four-bug list)
+- `WorkerVersionEnablementState.current_phase`/`active_versions` were never
+  set anywhere in the real code (`getState()` always returned
+  `DEMO_PHASE_UNSPECIFIED` and an empty version list). Now set: starts
+  `RUNNING_V1_ONLY`/`["v1"]`, moves to `TRANSITIONING_TO_V2` on receiving a
+  `deployWorkerVersion` signal, `RUNNING_BOTH` once that deployment
+  completes (with the new build ID appended to `active_versions`), and
+  `COMPLETE` when the loop ends.
+- The original code only processed queued deploy requests once, after all
+  order submission finished, which cannot match the documented demo flow
+  (`transitionToV2` at the ~2-minute mark of a 5-minute run, order
+  submission continuing throughout). `processQueuedDeployRequests()` now
+  runs once per loop iteration too, so a signal is applied promptly instead
+  of only at the very end.
 
 ---
 
@@ -204,6 +219,48 @@ This is a local development/demo tool. It runs on your host machine and calls th
 
 **Scope:**
 This spec defines the core enablement workflow + activities + local runner. Version deployment (v2 workers) and validation framework are separate sub-specs that build on this.
+
+---
+
+## Implementation Notes (2026-09-14)
+
+- **`OrderActivities`/`OrderActivitiesImpl` class names unchanged**; only
+  the activity method was renamed (`submitOrders` → `submitOneOrder`). The
+  spec text describes the new activity's behavior in detail but never
+  states a new class name; the task's own instruction to "rename per the
+  spec" is read as the method rename the spec text actually documents.
+  Flagging this reading explicitly since no literal new class name exists
+  to verify it against.
+- **`SubmitOrdersRequest`/`SubmitOrdersResponse` proto messages removed**
+  and replaced with `SubmitOneOrderRequest`/`SubmitOneOrderResponse`
+  (`proto/acme/enablements/v1/worker_version_enablement.proto`), matching
+  the activity's new one-order-per-call shape.
+- **The `orderIdSeed.contains("invalid")` → processing-api validation-complete
+  hack is fully removed**, including the `Thread.ofVirtual()` delayed-call
+  code path in the old `OrderActivitiesImpl`; nothing replaces it, per the
+  spec's own statement that `order_id_seed` is now just a naming prefix
+  with no behavioral meaning.
+- **Catalog item and shipping address selection in `submitOneOrder`** picks
+  a random item from the real `CommerceCatalogFixtureService` (injected
+  directly, since both live in `enablements-core`) and a random address
+  from four hardcoded canned addresses, replacing the old single hardcoded
+  San Francisco address.
+- **HTTP retry is Temporal's default activity retry** (exponential backoff,
+  applied by `WorkerVersionEnablementImpl`'s `ActivityOptions` for
+  `OrderActivities`), not hand-rolled retry logic inside the activity.
+  Matches the spec's "retains exponential-backoff retry" language without
+  re-implementing what Temporal already provides for a failed activity
+  call.
+- **Regression tests added**
+  (`enablements-core/src/test/java/com/acme/enablements/workflows/WorkerVersionEnablementWorkflowTest.java`)
+  covering: exact order-count completion, the `deployWorkerVersion`
+  off-by-one fix (signal no longer throws, uses signal fields), and
+  `pause()` actually blocking submission until `resume()`. They use
+  hand-written fakes for `OrderActivities`/`DeploymentActivities` rather
+  than Mockito mocks, because Temporal's activity-registration validator
+  rejects a Mockito-mocked activity interface (Byte Buddy copies the
+  interface's `@ActivityMethod` annotations onto the mock's overriding
+  methods, which Temporal's own validation then flags as invalid).
 
 ---
 

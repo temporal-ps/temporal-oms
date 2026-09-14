@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "item_id": "item-1",
+      "name": "Blue T-Shirt",
+      "description": "Premium blue t-shirt with modern fit",
+      "price_cents": 2500,
+      "image_url": "/images/item-1.jpg",
+      "initial_stock": 25
+    },
+    {
+      "item_id": "item-2",
+      "name": "Black Jeans",
+      "description": "Classic black jeans, straight fit",
+      "price_cents": 5500,
+      "image_url": "/images/item-2.jpg",
+      "initial_stock": 20
+    },
+    {
+      "item_id": "item-3",
+      "name": "White Sneakers",
+      "description": "Everyday white sneakers",
+      "price_cents": 7200,
+      "image_url": "/images/item-3.jpg",
+      "initial_stock": 15
+    },
+    {
+      "item_id": "item-4",
+      "name": "Gray Hoodie",
+      "description": "Heavyweight gray hoodie",
+      "price_cents": 4800,
+      "image_url": "/images/item-4.jpg",
+      "initial_stock": 18
+    },
+    {
+      "item_id": "item-5",
+      "name": "Navy Jacket",
+      "description": "Water-resistant navy jacket",
+      "price_cents": 9900,
+      "image_url": "/images/item-5.jpg",
+      "initial_stock": 12
+    },
+    {
+      "item_id": "item-6",
+      "name": "Beige Chinos",
+      "description": "Slim-fit beige chinos",
+      "price_cents": 4500,
+      "image_url": "/images/item-6.jpg",
+      "initial_stock": 22
+    },
+    {
+      "item_id": "item-7",
+      "name": "Red Cap",
+      "description": "Adjustable red baseball cap",
+      "price_cents": 1800,
+      "image_url": "/images/item-7.jpg",
+      "initial_stock": 30
+    },
+    {
+      "item_id": "item-8",
+      "name": "Green Backpack",
+      "description": "Water-resistant everyday backpack",
+      "price_cents": 6400,
+      "image_url": "/images/item-8.jpg",
+      "initial_stock": 10
+    }
+  ]
+}
