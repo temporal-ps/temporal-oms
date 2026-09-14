@@ -36,6 +36,7 @@ private static final long serialVersionUID = 0L;
     enablementId_ = "";
     orderIdPrefix_ = "";
     scenario_ = 0;
+    businessScenario_ = 0;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -152,6 +153,24 @@ private static final long serialVersionUID = 0L;
     return result == null ? com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario.UNRECOGNIZED : result;
   }
 
+  public static final int BUSINESS_SCENARIO_FIELD_NUMBER = 4;
+  private int businessScenario_ = 0;
+  /**
+   * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+   * @return The enum numeric value on the wire for businessScenario.
+   */
+  @java.lang.Override public int getBusinessScenarioValue() {
+    return businessScenario_;
+  }
+  /**
+   * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+   * @return The businessScenario.
+   */
+  @java.lang.Override public com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario getBusinessScenario() {
+    com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario result = com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.forNumber(businessScenario_);
+    return result == null ? com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.UNRECOGNIZED : result;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -175,6 +194,9 @@ private static final long serialVersionUID = 0L;
     if (scenario_ != com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario.NORMAL.getNumber()) {
       output.writeEnum(3, scenario_);
     }
+    if (businessScenario_ != com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.BUSINESS_SCENARIO_NORMAL.getNumber()) {
+      output.writeEnum(4, businessScenario_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -193,6 +215,10 @@ private static final long serialVersionUID = 0L;
     if (scenario_ != com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario.NORMAL.getNumber()) {
       size += com.google.protobuf.CodedOutputStream
         .computeEnumSize(3, scenario_);
+    }
+    if (businessScenario_ != com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.BUSINESS_SCENARIO_NORMAL.getNumber()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(4, businessScenario_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -214,6 +240,7 @@ private static final long serialVersionUID = 0L;
     if (!getOrderIdPrefix()
         .equals(other.getOrderIdPrefix())) return false;
     if (scenario_ != other.scenario_) return false;
+    if (businessScenario_ != other.businessScenario_) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -231,6 +258,8 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getOrderIdPrefix().hashCode();
     hash = (37 * hash) + SCENARIO_FIELD_NUMBER;
     hash = (53 * hash) + scenario_;
+    hash = (37 * hash) + BUSINESS_SCENARIO_FIELD_NUMBER;
+    hash = (53 * hash) + businessScenario_;
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -370,6 +399,7 @@ private static final long serialVersionUID = 0L;
       enablementId_ = "";
       orderIdPrefix_ = "";
       scenario_ = 0;
+      businessScenario_ = 0;
       return this;
     }
 
@@ -412,6 +442,9 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000004) != 0)) {
         result.scenario_ = scenario_;
       }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.businessScenario_ = businessScenario_;
+      }
     }
 
     @java.lang.Override
@@ -438,6 +471,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.scenario_ != 0) {
         setScenarioValue(other.getScenarioValue());
+      }
+      if (other.businessScenario_ != 0) {
+        setBusinessScenarioValue(other.getBusinessScenarioValue());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -480,6 +516,11 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000004;
               break;
             } // case 24
+            case 32: {
+              businessScenario_ = input.readEnum();
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 32
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -689,6 +730,58 @@ private static final long serialVersionUID = 0L;
     public Builder clearScenario() {
       bitField0_ = (bitField0_ & ~0x00000004);
       scenario_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private int businessScenario_ = 0;
+    /**
+     * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+     * @return The enum numeric value on the wire for businessScenario.
+     */
+    @java.lang.Override public int getBusinessScenarioValue() {
+      return businessScenario_;
+    }
+    /**
+     * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+     * @param value The enum numeric value on the wire for businessScenario to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     * @return This builder for chaining.
+     */
+    public Builder setBusinessScenarioValue(int value) {
+      businessScenario_ = value;
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+     * @return The businessScenario.
+     */
+    @java.lang.Override
+    public com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario getBusinessScenario() {
+      com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario result = com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.forNumber(businessScenario_);
+      return result == null ? com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+     * @param value The businessScenario to set.
+     * @return This builder for chaining.
+     */
+    public Builder setBusinessScenario(com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario value) {
+      if (value == null) { throw new NullPointerException(); }
+      bitField0_ |= 0x00000008;
+      businessScenario_ = value.getNumber();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearBusinessScenario() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      businessScenario_ = 0;
       onChanged();
       return this;
     }

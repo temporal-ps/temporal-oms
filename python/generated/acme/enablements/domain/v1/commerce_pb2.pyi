@@ -18,10 +18,21 @@ class DemoScenario(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     PAYMENT_BEFORE_COMMERCE: _ClassVar[DemoScenario]
     MISSING_COMMERCE_EVENT: _ClassVar[DemoScenario]
     MISSING_PAYMENT_EVENT: _ClassVar[DemoScenario]
+
+class BusinessScenario(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    BUSINESS_SCENARIO_NORMAL: _ClassVar[BusinessScenario]
+    BUSINESS_SCENARIO_MARGIN_SPIKE: _ClassVar[BusinessScenario]
+    BUSINESS_SCENARIO_SLA_BREACH: _ClassVar[BusinessScenario]
+    BUSINESS_SCENARIO_INVALID_ORDER: _ClassVar[BusinessScenario]
 NORMAL: DemoScenario
 PAYMENT_BEFORE_COMMERCE: DemoScenario
 MISSING_COMMERCE_EVENT: DemoScenario
 MISSING_PAYMENT_EVENT: DemoScenario
+BUSINESS_SCENARIO_NORMAL: BusinessScenario
+BUSINESS_SCENARIO_MARGIN_SPIKE: BusinessScenario
+BUSINESS_SCENARIO_SLA_BREACH: BusinessScenario
+BUSINESS_SCENARIO_INVALID_ORDER: BusinessScenario
 
 class ScenarioOptions(_message.Message):
     __slots__ = ()
@@ -56,12 +67,14 @@ class CreateCommerceOrderRequest(_message.Message):
     SHIPPING_ADDRESS_FIELD_NUMBER: _ClassVar[int]
     SELECTED_SHIPMENT_FIELD_NUMBER: _ClassVar[int]
     SCENARIO_OPTIONS_FIELD_NUMBER: _ClassVar[int]
+    FORCE_INVALID_ORDER_ID_FIELD_NUMBER: _ClassVar[int]
     customer_id: str
     items: _containers.RepeatedCompositeFieldContainer[_values_pb2.Item]
     shipping_address: _values_pb2_1.Address
     selected_shipment: _values_pb2_1.Shipment
     scenario_options: ScenarioOptions
-    def __init__(self, customer_id: _Optional[str] = ..., items: _Optional[_Iterable[_Union[_values_pb2.Item, _Mapping]]] = ..., shipping_address: _Optional[_Union[_values_pb2_1.Address, _Mapping]] = ..., selected_shipment: _Optional[_Union[_values_pb2_1.Shipment, _Mapping]] = ..., scenario_options: _Optional[_Union[ScenarioOptions, _Mapping]] = ...) -> None: ...
+    force_invalid_order_id: bool
+    def __init__(self, customer_id: _Optional[str] = ..., items: _Optional[_Iterable[_Union[_values_pb2.Item, _Mapping]]] = ..., shipping_address: _Optional[_Union[_values_pb2_1.Address, _Mapping]] = ..., selected_shipment: _Optional[_Union[_values_pb2_1.Shipment, _Mapping]] = ..., scenario_options: _Optional[_Union[ScenarioOptions, _Mapping]] = ..., force_invalid_order_id: _Optional[bool] = ...) -> None: ...
 
 class CommerceInventoryState(_message.Message):
     __slots__ = ()

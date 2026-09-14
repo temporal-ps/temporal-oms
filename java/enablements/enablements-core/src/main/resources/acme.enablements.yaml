@@ -10,11 +10,11 @@ enablements:
     base-url: ${ENABLEMENTS_API_BASE_URL:http://localhost:8050}
   apps-api:
     # Real apps-api. No longer called directly by WorkerVersionEnablement;
-    # it is the target of PublishCartOrders' webhook subscribers once the
-    # follow-on spec registers them.
+    # it is the target of PublishCartOrders' webhook subscribers (see
+    # webhooks.subscribers below, which reference this base-url).
     # Local development: http://localhost:8080
     # Kubernetes: http://apps-api.temporal-oms-apps.svc.cluster.local:8080
-    base-url: http://localhost:8080
+    base-url: ${APPS_API_BASE_URL:http://localhost:8080}
   processing-api:
     # Base URL for the processing-api service
     # Local development: http://localhost:8081
@@ -34,7 +34,16 @@ enablements:
   publishing:
     tick-interval: PT10S       # PublishCartOrders Temporal Schedule interval
   webhooks:
-    subscribers: {}            # event-type -> list of URLs; empty until the follow-on spec wires apps-api
+    # event-type -> subscriber endpoints (url + method). {orderId} in a url is
+    # substituted with the event's order ID before delivery.
+    subscribers:
+      commerce.order.submitted:
+        - url: ${enablements.apps-api.base-url}/api/v1/commerce-app/orders/{orderId}
+          method: PUT
+      payment.captured:
+        - url: ${enablements.apps-api.base-url}/api/v1/payments-app/orders
+          method: POST
+      # payment.authorized has no real consumer yet; left unmapped (inspection-only via WebhookEventLog).
     retry:
       initial-interval: PT1S
       backoff-coefficient: 2.0

@@ -12,5 +12,5 @@ import io.temporal.activity.ActivityMethod;
 public interface WebhookPublisher {
 
     @ActivityMethod
-    void publish(String eventType, String payloadJson);
+    void publish(String eventType, String orderId, String payloadJson);
 }

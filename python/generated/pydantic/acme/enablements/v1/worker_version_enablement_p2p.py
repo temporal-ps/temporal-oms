@@ -2,6 +2,7 @@
 # gen by protobuf_to_pydantic[v0.3.3.1](https://github.com/so1n/protobuf_to_pydantic)
 # Protobuf Version: 6.33.6 
 # Pydantic Version: 2.13.0 
+from ..domain.v1.commerce_p2p import BusinessScenario
 from ..domain.v1.commerce_p2p import DemoScenario
 from datetime import datetime
 from datetime import timedelta
@@ -25,6 +26,15 @@ class ScenarioWeight(BaseModel):
     scenario: DemoScenario = Field(default=0)
     weight: int = Field(default=0)
 
+class BusinessScenarioWeight(BaseModel):
+    """
+     Weight for one BusinessScenario in the generated load's scenario mix.
+    """
+
+    model_config = ConfigDict(validate_default=True)
+    scenario: BusinessScenario = Field(default=0)
+    weight: int = Field(default=0)
+
 class StartWorkerVersionEnablementRequest(BaseModel):
     """
      Start a worker versioning enablement demonstration
@@ -36,6 +46,7 @@ class StartWorkerVersionEnablementRequest(BaseModel):
     timeout: Annotated[timedelta, BeforeValidator(Timedelta.validate)] = Field(default_factory=timedelta)# How long to run (e.g., 5 minutes)
     order_id_seed: typing.Optional[str] = Field(default="")
     scenario_weights: typing.List[ScenarioWeight] = Field(default_factory=list)# weighted mix of DemoScenario; empty defaults to mostly NORMAL
+    business_scenario_weights: typing.List[BusinessScenarioWeight] = Field(default_factory=list)# weighted mix of BusinessScenario; empty defaults to mostly NORMAL
 
 class DeployWorkerVersionRequest(BaseModel):
     deployment_name: str = Field(default="")
@@ -84,6 +95,7 @@ class SubmitOneOrderRequest(BaseModel):
     enablement_id: str = Field(default="")
     order_id_prefix: str = Field(default="")
     scenario: DemoScenario = Field(default=0)
+    business_scenario: BusinessScenario = Field(default=0)
 
 class SubmitOneOrderResponse(BaseModel):
     order_id: str = Field(default="")

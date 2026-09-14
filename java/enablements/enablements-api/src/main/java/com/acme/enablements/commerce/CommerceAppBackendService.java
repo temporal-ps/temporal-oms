@@ -34,7 +34,7 @@ public class CommerceAppBackendService {
     }
 
     public CommerceOrderState createOrder(CreateCommerceOrderRequest request) {
-        String orderId = "order-" + UUID.randomUUID();
+        String orderId = (request.getForceInvalidOrderId() ? "order-invalid-" : "order-") + UUID.randomUUID();
         logger.info("createOrder orderId={}, customerId={}", orderId, request.getCustomerId());
 
         CommerceOrder stub = workflowClient.newWorkflowStub(

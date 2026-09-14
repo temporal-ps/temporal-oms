@@ -108,7 +108,7 @@ public final class CommerceProto extends com.google.protobuf.GeneratedFile {
       "f.TimestampR\010placedAt\022b\n\020scenario_option" +
       "s\030\010 \001(\01327.acme.enablements.domain.enable" +
       "ments.v1.ScenarioOptionsR\017scenarioOption" +
-      "sB\024\n\022_selected_shipment\"\360\002\n\032CreateCommer" +
+      "sB\024\n\022_selected_shipment\"\245\003\n\032CreateCommer" +
       "ceOrderRequest\022\037\n\013customer_id\030\001 \001(\tR\ncus" +
       "tomerId\022\'\n\005items\030\002 \003(\0132\021.acme.oms.v1.Ite" +
       "mR\005items\022B\n\020shipping_address\030\003 \001(\0132\027.acm" +
@@ -117,45 +117,50 @@ public final class CommerceProto extends com.google.protobuf.GeneratedFile {
       ".ShipmentH\000R\020selectedShipment\210\001\001\022b\n\020scen" +
       "ario_options\030\005 \001(\01327.acme.enablements.do" +
       "main.enablements.v1.ScenarioOptionsR\017sce" +
-      "narioOptionsB\024\n\022_selected_shipment\"\326\001\n\026C" +
-      "ommerceInventoryState\022z\n\020stock_by_item_i" +
-      "d\030\001 \003(\0132Q.acme.enablements.domain.enable" +
-      "ments.v1.CommerceInventoryState.StockByI" +
-      "temIdEntryR\rstockByItemId\032@\n\022StockByItem" +
-      "IdEntry\022\020\n\003key\030\001 \001(\tR\003key\022\024\n\005value\030\002 \001(\005" +
-      "R\005value:\0028\001\"Z\n\024HoldInventoryRequest\022\031\n\010o" +
-      "rder_id\030\001 \001(\tR\007orderId\022\'\n\005items\030\002 \003(\0132\021." +
-      "acme.oms.v1.ItemR\005items\"\313\001\n\023CommerceCata" +
-      "logItem\022\027\n\007item_id\030\001 \001(\tR\006itemId\022\022\n\004name" +
-      "\030\002 \001(\tR\004name\022 \n\013description\030\003 \001(\tR\013descr" +
-      "iption\022\037\n\013price_cents\030\004 \001(\003R\npriceCents\022" +
-      "\033\n\timage_url\030\005 \001(\tR\010imageUrl\022\'\n\017availabl" +
-      "e_stock\030\006 \001(\005R\016availableStock\"o\n\032GetComm" +
-      "erceCatalogResponse\022Q\n\005items\030\001 \003(\0132;.acm" +
-      "e.enablements.domain.enablements.v1.Comm" +
-      "erceCatalogItemR\005items\"\306\001\n\032CommerceShipp" +
-      "ingRateOption\022\027\n\007rate_id\030\001 \001(\tR\006rateId\022\030" +
-      "\n\007carrier\030\002 \001(\tR\007carrier\022#\n\rservice_leve" +
-      "l\030\003 \001(\tR\014serviceLevel\022)\n\004cost\030\004 \001(\0132\025.ac" +
-      "me.common.v1.MoneyR\004cost\022%\n\016estimated_da" +
-      "ys\030\005 \001(\005R\restimatedDays\"\216\001\n\037GetCommerceS" +
-      "hippingRatesRequest\022B\n\020shipping_address\030" +
-      "\001 \001(\0132\027.acme.common.v1.AddressR\017shipping" +
-      "Address\022\'\n\005items\030\002 \003(\0132\021.acme.oms.v1.Ite" +
-      "mR\005items\"\200\001\n GetCommerceShippingRatesRes" +
-      "ponse\022\\\n\007options\030\001 \003(\0132B.acme.enablement" +
-      "s.domain.enablements.v1.CommerceShipping" +
-      "RateOptionR\007options*n\n\014DemoScenario\022\n\n\006N" +
-      "ORMAL\020\000\022\033\n\027PAYMENT_BEFORE_COMMERCE\020\001\022\032\n\026" +
-      "MISSING_COMMERCE_EVENT\020\002\022\031\n\025MISSING_PAYM" +
-      "ENT_EVENT\020\003B\203\002\n5com.acme.proto.acme.enab" +
-      "lements.domain.enablements.v1B\rCommerceP" +
-      "rotoP\001\242\002\004AEDE\252\002&Acme.Enablements.Domain." +
-      "Enablements.V1\312\002&Acme\\Enablements\\Domain" +
-      "\\Enablements\\V1\342\0022Acme\\Enablements\\Domai" +
-      "n\\Enablements\\V1\\GPBMetadata\352\002*Acme::Ena" +
-      "blements::Domain::Enablements::V1b\006proto" +
-      "3"
+      "narioOptions\0223\n\026force_invalid_order_id\030\006" +
+      " \001(\010R\023forceInvalidOrderIdB\024\n\022_selected_s" +
+      "hipment\"\326\001\n\026CommerceInventoryState\022z\n\020st" +
+      "ock_by_item_id\030\001 \003(\0132Q.acme.enablements." +
+      "domain.enablements.v1.CommerceInventoryS" +
+      "tate.StockByItemIdEntryR\rstockByItemId\032@" +
+      "\n\022StockByItemIdEntry\022\020\n\003key\030\001 \001(\tR\003key\022\024" +
+      "\n\005value\030\002 \001(\005R\005value:\0028\001\"Z\n\024HoldInventor" +
+      "yRequest\022\031\n\010order_id\030\001 \001(\tR\007orderId\022\'\n\005i" +
+      "tems\030\002 \003(\0132\021.acme.oms.v1.ItemR\005items\"\313\001\n" +
+      "\023CommerceCatalogItem\022\027\n\007item_id\030\001 \001(\tR\006i" +
+      "temId\022\022\n\004name\030\002 \001(\tR\004name\022 \n\013description" +
+      "\030\003 \001(\tR\013description\022\037\n\013price_cents\030\004 \001(\003" +
+      "R\npriceCents\022\033\n\timage_url\030\005 \001(\tR\010imageUr" +
+      "l\022\'\n\017available_stock\030\006 \001(\005R\016availableSto" +
+      "ck\"o\n\032GetCommerceCatalogResponse\022Q\n\005item" +
+      "s\030\001 \003(\0132;.acme.enablements.domain.enable" +
+      "ments.v1.CommerceCatalogItemR\005items\"\306\001\n\032" +
+      "CommerceShippingRateOption\022\027\n\007rate_id\030\001 " +
+      "\001(\tR\006rateId\022\030\n\007carrier\030\002 \001(\tR\007carrier\022#\n" +
+      "\rservice_level\030\003 \001(\tR\014serviceLevel\022)\n\004co" +
+      "st\030\004 \001(\0132\025.acme.common.v1.MoneyR\004cost\022%\n" +
+      "\016estimated_days\030\005 \001(\005R\restimatedDays\"\216\001\n" +
+      "\037GetCommerceShippingRatesRequest\022B\n\020ship" +
+      "ping_address\030\001 \001(\0132\027.acme.common.v1.Addr" +
+      "essR\017shippingAddress\022\'\n\005items\030\002 \003(\0132\021.ac" +
+      "me.oms.v1.ItemR\005items\"\200\001\n GetCommerceShi" +
+      "ppingRatesResponse\022\\\n\007options\030\001 \003(\0132B.ac" +
+      "me.enablements.domain.enablements.v1.Com" +
+      "merceShippingRateOptionR\007options*n\n\014Demo" +
+      "Scenario\022\n\n\006NORMAL\020\000\022\033\n\027PAYMENT_BEFORE_C" +
+      "OMMERCE\020\001\022\032\n\026MISSING_COMMERCE_EVENT\020\002\022\031\n" +
+      "\025MISSING_PAYMENT_EVENT\020\003*\233\001\n\020BusinessSce" +
+      "nario\022\034\n\030BUSINESS_SCENARIO_NORMAL\020\000\022\"\n\036B" +
+      "USINESS_SCENARIO_MARGIN_SPIKE\020\001\022 \n\034BUSIN" +
+      "ESS_SCENARIO_SLA_BREACH\020\002\022#\n\037BUSINESS_SC" +
+      "ENARIO_INVALID_ORDER\020\003B\203\002\n5com.acme.prot" +
+      "o.acme.enablements.domain.enablements.v1" +
+      "B\rCommerceProtoP\001\242\002\004AEDE\252\002&Acme.Enableme" +
+      "nts.Domain.Enablements.V1\312\002&Acme\\Enablem" +
+      "ents\\Domain\\Enablements\\V1\342\0022Acme\\Enable" +
+      "ments\\Domain\\Enablements\\V1\\GPBMetadata\352" +
+      "\002*Acme::Enablements::Domain::Enablements" +
+      "::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -181,7 +186,7 @@ public final class CommerceProto extends com.google.protobuf.GeneratedFile {
     internal_static_acme_enablements_domain_enablements_v1_CreateCommerceOrderRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_domain_enablements_v1_CreateCommerceOrderRequest_descriptor,
-        new java.lang.String[] { "CustomerId", "Items", "ShippingAddress", "SelectedShipment", "ScenarioOptions", });
+        new java.lang.String[] { "CustomerId", "Items", "ShippingAddress", "SelectedShipment", "ScenarioOptions", "ForceInvalidOrderId", });
     internal_static_acme_enablements_domain_enablements_v1_CommerceInventoryState_descriptor =
       getDescriptor().getMessageType(3);
     internal_static_acme_enablements_domain_enablements_v1_CommerceInventoryState_fieldAccessorTable = new

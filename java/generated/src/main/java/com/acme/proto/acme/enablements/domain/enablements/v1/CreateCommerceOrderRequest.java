@@ -221,6 +221,23 @@ private static final long serialVersionUID = 0L;
     return scenarioOptions_ == null ? com.acme.proto.acme.enablements.domain.enablements.v1.ScenarioOptions.getDefaultInstance() : scenarioOptions_;
   }
 
+  public static final int FORCE_INVALID_ORDER_ID_FIELD_NUMBER = 6;
+  private boolean forceInvalidOrderId_ = false;
+  /**
+   * <pre>
+   * When true, the generated order ID contains "invalid" so the legacy processing
+   * validation logic (string-matches on order ID) forces a validation failure.
+   * Order ID is otherwise always server-generated; this is the only way to influence it.
+   * </pre>
+   *
+   * <code>bool force_invalid_order_id = 6 [json_name = "forceInvalidOrderId"];</code>
+   * @return The forceInvalidOrderId.
+   */
+  @java.lang.Override
+  public boolean getForceInvalidOrderId() {
+    return forceInvalidOrderId_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -249,6 +266,9 @@ private static final long serialVersionUID = 0L;
     }
     if (((bitField0_ & 0x00000004) != 0)) {
       output.writeMessage(5, getScenarioOptions());
+    }
+    if (forceInvalidOrderId_ != false) {
+      output.writeBool(6, forceInvalidOrderId_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -282,6 +302,10 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000004) != 0)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(5, getScenarioOptions());
+    }
+    if (forceInvalidOrderId_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(6, forceInvalidOrderId_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -317,6 +341,8 @@ private static final long serialVersionUID = 0L;
       if (!getScenarioOptions()
           .equals(other.getScenarioOptions())) return false;
     }
+    if (getForceInvalidOrderId()
+        != other.getForceInvalidOrderId()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -346,6 +372,9 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + SCENARIO_OPTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getScenarioOptions().hashCode();
     }
+    hash = (37 * hash) + FORCE_INVALID_ORDER_ID_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getForceInvalidOrderId());
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -509,6 +538,7 @@ private static final long serialVersionUID = 0L;
         scenarioOptionsBuilder_.dispose();
         scenarioOptionsBuilder_ = null;
       }
+      forceInvalidOrderId_ = false;
       return this;
     }
 
@@ -577,6 +607,9 @@ private static final long serialVersionUID = 0L;
             : scenarioOptionsBuilder_.build();
         to_bitField0_ |= 0x00000004;
       }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.forceInvalidOrderId_ = forceInvalidOrderId_;
+      }
       result.bitField0_ |= to_bitField0_;
     }
 
@@ -631,6 +664,9 @@ private static final long serialVersionUID = 0L;
       }
       if (other.hasScenarioOptions()) {
         mergeScenarioOptions(other.getScenarioOptions());
+      }
+      if (other.getForceInvalidOrderId() != false) {
+        setForceInvalidOrderId(other.getForceInvalidOrderId());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -697,6 +733,11 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000010;
               break;
             } // case 42
+            case 48: {
+              forceInvalidOrderId_ = input.readBool();
+              bitField0_ |= 0x00000020;
+              break;
+            } // case 48
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1423,6 +1464,56 @@ private static final long serialVersionUID = 0L;
         scenarioOptions_ = null;
       }
       return scenarioOptionsBuilder_;
+    }
+
+    private boolean forceInvalidOrderId_ ;
+    /**
+     * <pre>
+     * When true, the generated order ID contains "invalid" so the legacy processing
+     * validation logic (string-matches on order ID) forces a validation failure.
+     * Order ID is otherwise always server-generated; this is the only way to influence it.
+     * </pre>
+     *
+     * <code>bool force_invalid_order_id = 6 [json_name = "forceInvalidOrderId"];</code>
+     * @return The forceInvalidOrderId.
+     */
+    @java.lang.Override
+    public boolean getForceInvalidOrderId() {
+      return forceInvalidOrderId_;
+    }
+    /**
+     * <pre>
+     * When true, the generated order ID contains "invalid" so the legacy processing
+     * validation logic (string-matches on order ID) forces a validation failure.
+     * Order ID is otherwise always server-generated; this is the only way to influence it.
+     * </pre>
+     *
+     * <code>bool force_invalid_order_id = 6 [json_name = "forceInvalidOrderId"];</code>
+     * @param value The forceInvalidOrderId to set.
+     * @return This builder for chaining.
+     */
+    public Builder setForceInvalidOrderId(boolean value) {
+
+      forceInvalidOrderId_ = value;
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * When true, the generated order ID contains "invalid" so the legacy processing
+     * validation logic (string-matches on order ID) forces a validation failure.
+     * Order ID is otherwise always server-generated; this is the only way to influence it.
+     * </pre>
+     *
+     * <code>bool force_invalid_order_id = 6 [json_name = "forceInvalidOrderId"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearForceInvalidOrderId() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      forceInvalidOrderId_ = false;
+      onChanged();
+      return this;
     }
 
     // @@protoc_insertion_point(builder_scope:acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest)

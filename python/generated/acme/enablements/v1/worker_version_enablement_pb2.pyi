@@ -20,13 +20,15 @@ class StartWorkerVersionEnablementRequest(_message.Message):
     TIMEOUT_FIELD_NUMBER: _ClassVar[int]
     ORDER_ID_SEED_FIELD_NUMBER: _ClassVar[int]
     SCENARIO_WEIGHTS_FIELD_NUMBER: _ClassVar[int]
+    BUSINESS_SCENARIO_WEIGHTS_FIELD_NUMBER: _ClassVar[int]
     enablement_id: str
     order_count: int
     submit_rate_per_min: int
     timeout: _duration_pb2.Duration
     order_id_seed: str
     scenario_weights: _containers.RepeatedCompositeFieldContainer[ScenarioWeight]
-    def __init__(self, enablement_id: _Optional[str] = ..., order_count: _Optional[int] = ..., submit_rate_per_min: _Optional[int] = ..., timeout: _Optional[_Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]] = ..., order_id_seed: _Optional[str] = ..., scenario_weights: _Optional[_Iterable[_Union[ScenarioWeight, _Mapping]]] = ...) -> None: ...
+    business_scenario_weights: _containers.RepeatedCompositeFieldContainer[BusinessScenarioWeight]
+    def __init__(self, enablement_id: _Optional[str] = ..., order_count: _Optional[int] = ..., submit_rate_per_min: _Optional[int] = ..., timeout: _Optional[_Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]] = ..., order_id_seed: _Optional[str] = ..., scenario_weights: _Optional[_Iterable[_Union[ScenarioWeight, _Mapping]]] = ..., business_scenario_weights: _Optional[_Iterable[_Union[BusinessScenarioWeight, _Mapping]]] = ...) -> None: ...
 
 class ScenarioWeight(_message.Message):
     __slots__ = ()
@@ -35,6 +37,14 @@ class ScenarioWeight(_message.Message):
     scenario: _commerce_pb2.DemoScenario
     weight: int
     def __init__(self, scenario: _Optional[_Union[_commerce_pb2.DemoScenario, str]] = ..., weight: _Optional[int] = ...) -> None: ...
+
+class BusinessScenarioWeight(_message.Message):
+    __slots__ = ()
+    SCENARIO_FIELD_NUMBER: _ClassVar[int]
+    WEIGHT_FIELD_NUMBER: _ClassVar[int]
+    scenario: _commerce_pb2.BusinessScenario
+    weight: int
+    def __init__(self, scenario: _Optional[_Union[_commerce_pb2.BusinessScenario, str]] = ..., weight: _Optional[int] = ...) -> None: ...
 
 class WorkerVersionEnablementState(_message.Message):
     __slots__ = ()
@@ -75,10 +85,12 @@ class SubmitOneOrderRequest(_message.Message):
     ENABLEMENT_ID_FIELD_NUMBER: _ClassVar[int]
     ORDER_ID_PREFIX_FIELD_NUMBER: _ClassVar[int]
     SCENARIO_FIELD_NUMBER: _ClassVar[int]
+    BUSINESS_SCENARIO_FIELD_NUMBER: _ClassVar[int]
     enablement_id: str
     order_id_prefix: str
     scenario: _commerce_pb2.DemoScenario
-    def __init__(self, enablement_id: _Optional[str] = ..., order_id_prefix: _Optional[str] = ..., scenario: _Optional[_Union[_commerce_pb2.DemoScenario, str]] = ...) -> None: ...
+    business_scenario: _commerce_pb2.BusinessScenario
+    def __init__(self, enablement_id: _Optional[str] = ..., order_id_prefix: _Optional[str] = ..., scenario: _Optional[_Union[_commerce_pb2.DemoScenario, str]] = ..., business_scenario: _Optional[_Union[_commerce_pb2.BusinessScenario, str]] = ...) -> None: ...
 
 class SubmitOneOrderResponse(_message.Message):
     __slots__ = ()

@@ -1,7 +1,33 @@
 <script lang="ts">
 	import type { PageData } from './$types';
+	import { orderTrackingLinks } from '$lib/temporalLinks';
+	import { api } from '$lib/api/client';
+	import { customerId } from '$lib/stores/customer';
 
 	export let data: PageData;
+
+	$: trackingLinks = data.order
+		? orderTrackingLinks(data.order.orderId, data.charge?.chargeId ?? null)
+		: [];
+
+	let cancelling = false;
+	let cancelError = '';
+	let cancelled = false;
+
+	async function handleCancelOrder() {
+		if (!data.order || cancelling) return;
+		cancelling = true;
+		cancelError = '';
+		try {
+			await api.cancelOrder(data.order.orderId, 'Customer requested cancellation', $customerId);
+			cancelled = true;
+		} catch (err) {
+			cancelError = 'Failed to cancel order. It may have already completed.';
+			console.error(err);
+		} finally {
+			cancelling = false;
+		}
+	}
 
 	function formatPrice(priceCents: number): string {
 		return `$${(priceCents / 100).toFixed(2)}`;
@@ -53,8 +79,20 @@
 							{data.order.status}
 						</span>
 					</div>
+					<button
+						onclick={handleCancelOrder}
+						disabled={cancelling || cancelled}
+						class="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						{cancelled ? 'Cancellation requested' : cancelling ? 'Cancelling...' : 'Cancel Order'}
+					</button>
 				</div>
 			</div>
+			{#if cancelError}
+				<div class="px-6 py-3 bg-red-50 border-t border-red-200">
+					<p class="text-sm text-red-800">{cancelError}</p>
+				</div>
+			{/if}
 			<div class="px-6 py-4">
 				<div class="space-y-3">
 					{#each data.order.items as item}
@@ -82,5 +120,33 @@
 				{/if}
 			</div>
 		{/if}
+
+		<div class="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
+			<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+				<h3 class="text-lg font-semibold text-gray-900">Track this order</h3>
+				<p class="text-sm text-gray-600">
+					The order ID is the Temporal workflow ID at every stage. Follow it through each
+					namespace, in order, to see the full submission-to-fulfillment history.
+				</p>
+			</div>
+			<ul class="divide-y divide-gray-200">
+				{#each trackingLinks as link}
+					<li class="px-6 py-3 flex items-center justify-between">
+						<div>
+							<p class="text-gray-900">{link.label}</p>
+							<p class="text-sm text-gray-500">namespace: {link.namespace} · workflow: {link.workflowId}</p>
+						</div>
+						<a
+							href={link.url}
+							target="_blank"
+							rel="noreferrer"
+							class="text-primary-600 hover:text-primary-700 font-medium text-sm"
+						>
+							View in Temporal UI
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</div>
 	{/if}
 </div>

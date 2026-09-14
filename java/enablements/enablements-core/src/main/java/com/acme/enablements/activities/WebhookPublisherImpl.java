@@ -12,6 +12,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -36,11 +37,13 @@ public class WebhookPublisherImpl implements WebhookPublisher {
     }
 
     @Override
-    public void publish(String eventType, String payloadJson) {
-        List<String> urls = subscribers.getSubscribers().getOrDefault(eventType, List.of());
+    public void publish(String eventType, String orderId, String payloadJson) {
+        List<WebhookSubscribersProperties.Subscriber> subscriberConfigs =
+                subscribers.getSubscribers().getOrDefault(eventType, List.of());
         List<String> deliveredTo = new ArrayList<>();
-        for (String url : urls) {
-            restClient.post()
+        for (var subscriber : subscriberConfigs) {
+            String url = subscriber.getUrl().replace("{orderId}", orderId);
+            restClient.method(HttpMethod.valueOf(subscriber.getMethod().toUpperCase()))
                     .uri(url)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payloadJson)

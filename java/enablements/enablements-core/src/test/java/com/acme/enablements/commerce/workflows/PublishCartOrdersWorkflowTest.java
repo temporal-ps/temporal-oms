@@ -52,10 +52,12 @@ class PublishCartOrdersWorkflowTest {
 
     private static class RecordingWebhookPublisher implements WebhookPublisher {
         final List<String> publishedEventTypes = new ArrayList<>();
+        final List<String> publishedOrderIds = new ArrayList<>();
 
         @Override
-        public void publish(String eventType, String payloadJson) {
+        public void publish(String eventType, String orderId, String payloadJson) {
             publishedEventTypes.add(eventType);
+            publishedOrderIds.add(orderId);
         }
     }
 

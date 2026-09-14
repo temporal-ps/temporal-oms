@@ -15,11 +15,18 @@ message StartWorkerVersionEnablementRequest {
   google.protobuf.Duration timeout = 4;  // How long to run (e.g., 5 minutes)
   optional string order_id_seed = 5;
   repeated ScenarioWeight scenario_weights = 6; // weighted mix of DemoScenario; empty defaults to mostly NORMAL
+  repeated BusinessScenarioWeight business_scenario_weights = 7; // weighted mix of BusinessScenario; empty defaults to mostly NORMAL
 }
 
 // Weight for one DemoScenario in the generated load's scenario mix.
 message ScenarioWeight {
   acme.enablements.domain.enablements.v1.DemoScenario scenario = 1;
+  int32 weight = 2;
+}
+
+// Weight for one BusinessScenario in the generated load's scenario mix.
+message BusinessScenarioWeight {
+  acme.enablements.domain.enablements.v1.BusinessScenario scenario = 1;
   int32 weight = 2;
 }
 
@@ -56,6 +63,7 @@ message SubmitOneOrderRequest {
   string enablement_id = 1;
   string order_id_prefix = 2;
   acme.enablements.domain.enablements.v1.DemoScenario scenario = 3;
+  acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4;
 }
 message SubmitOneOrderResponse {
   string order_id = 1;

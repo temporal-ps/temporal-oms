@@ -3,6 +3,10 @@ package com.acme.enablements.activities;
 import com.acme.enablements.commerce.CommerceCatalogFixtureService;
 import com.acme.proto.acme.common.v1.Address;
 import com.acme.proto.acme.common.v1.EasyPostAddress;
+import com.acme.proto.acme.common.v1.EasyPostRate;
+import com.acme.proto.acme.common.v1.EasyPostShipment;
+import com.acme.proto.acme.common.v1.Money;
+import com.acme.proto.acme.common.v1.Shipment;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CommerceOrderState;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CreateChargeRequest;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest;
@@ -32,11 +36,14 @@ public class OrderActivitiesImpl implements OrderActivities {
     private record CannedAddress(String street1, String city, String state, String zip, String country) {
     }
 
+    // Must match an entry in enablements-api's shipping fixture
+    // (java/enablements/enablements-api/src/main/resources/fixtures/shipping-fixtures.json)
+    // or fulfillment's address verification rejects the order outright.
     private static final List<CannedAddress> CANNED_ADDRESSES = List.of(
             new CannedAddress("388 Townsend St", "San Francisco", "CA", "94107", "US"),
-            new CannedAddress("500 W 2nd St", "Austin", "TX", "78701", "US"),
-            new CannedAddress("1 Microsoft Way", "Redmond", "WA", "98052", "US"),
-            new CannedAddress("350 5th Ave", "New York", "NY", "10118", "US"));
+            new CannedAddress("301 Congress Ave", "Austin", "TX", "78701", "US"),
+            new CannedAddress("401 5th Ave", "Seattle", "WA", "98104", "US"),
+            new CannedAddress("11 Wall St", "New York", "NY", "10005", "US"));
 
     private final RestClient enablementsApiClient;
     private final CommerceCatalogFixtureService catalogFixture;
@@ -58,7 +65,7 @@ public class OrderActivitiesImpl implements OrderActivities {
 
         String customerId = cmd.getOrderIdPrefix() + "-" + cmd.getEnablementId();
 
-        var orderRequest = CreateCommerceOrderRequest.newBuilder()
+        var orderRequestBuilder = CreateCommerceOrderRequest.newBuilder()
                 .setCustomerId(customerId)
                 .addItems(Item.newBuilder().setItemId(item.itemId()).setQuantity(1).build())
                 .setShippingAddress(Address.newBuilder()
@@ -70,8 +77,9 @@ public class OrderActivitiesImpl implements OrderActivities {
                                 .setCountry(address.country())
                                 .build())
                         .build())
-                .setScenarioOptions(ScenarioOptions.newBuilder().setScenario(cmd.getScenario()).build())
-                .build();
+                .setScenarioOptions(ScenarioOptions.newBuilder().setScenario(cmd.getScenario()).build());
+        applyBusinessScenario(orderRequestBuilder, cmd.getBusinessScenario());
+        var orderRequest = orderRequestBuilder.build();
 
         CommerceOrderState order = post("/api/v1/integrations/commerce/orders", orderRequest, CommerceOrderState.newBuilder());
         logger.debug("Submitted order {} (scenario={})", order.getOrderId(), cmd.getScenario());
@@ -90,6 +98,26 @@ public class OrderActivitiesImpl implements OrderActivities {
                 .setOrderId(order.getOrderId())
                 .setChargeId(charge.getChargeId())
                 .build();
+    }
+
+    // Mirrors scripts/scenarios/{margin-spike,sla-breach,invalid-order}/1-submit-order.sh.
+    private void applyBusinessScenario(
+            CreateCommerceOrderRequest.Builder builder,
+            com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario businessScenario) {
+        switch (businessScenario) {
+            case BUSINESS_SCENARIO_MARGIN_SPIKE -> builder.setSelectedShipment(Shipment.newBuilder()
+                    .setPaidPrice(Money.newBuilder().setCurrency("USD").setUnits(1).build())
+                    .build());
+            case BUSINESS_SCENARIO_SLA_BREACH -> builder.setSelectedShipment(Shipment.newBuilder()
+                    .setPaidPrice(Money.newBuilder().setCurrency("USD").setUnits(995).build())
+                    .setEasypost(EasyPostShipment.newBuilder()
+                            .setSelectedRate(EasyPostRate.newBuilder().setDeliveryDays(0).build())
+                            .build())
+                    .build());
+            case BUSINESS_SCENARIO_INVALID_ORDER -> builder.setForceInvalidOrderId(true);
+            default -> {
+            }
+        }
     }
 
     private <T extends com.google.protobuf.Message> T post(String path, com.google.protobuf.Message request, com.google.protobuf.Message.Builder responseBuilder) {

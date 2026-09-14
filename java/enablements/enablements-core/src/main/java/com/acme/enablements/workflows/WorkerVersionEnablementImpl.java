@@ -2,7 +2,9 @@ package com.acme.enablements.workflows;
 
 import com.acme.enablements.activities.DeploymentActivities;
 import com.acme.enablements.activities.OrderActivities;
+import com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario;
 import com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario;
+import com.acme.proto.acme.enablements.v1.BusinessScenarioWeight;
 import com.acme.proto.acme.enablements.v1.DeployWorkerVersionRequest;
 import com.acme.proto.acme.enablements.v1.ScenarioWeight;
 import com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest;
@@ -36,6 +38,12 @@ public class WorkerVersionEnablementImpl implements WorkerVersionEnablement {
             ScenarioWeight.newBuilder().setScenario(DemoScenario.PAYMENT_BEFORE_COMMERCE).setWeight(5).build(),
             ScenarioWeight.newBuilder().setScenario(DemoScenario.MISSING_COMMERCE_EVENT).setWeight(5).build(),
             ScenarioWeight.newBuilder().setScenario(DemoScenario.MISSING_PAYMENT_EVENT).setWeight(5).build());
+
+    private static final List<BusinessScenarioWeight> DEFAULT_BUSINESS_SCENARIO_WEIGHTS = List.of(
+            BusinessScenarioWeight.newBuilder().setScenario(BusinessScenario.BUSINESS_SCENARIO_NORMAL).setWeight(85).build(),
+            BusinessScenarioWeight.newBuilder().setScenario(BusinessScenario.BUSINESS_SCENARIO_MARGIN_SPIKE).setWeight(5).build(),
+            BusinessScenarioWeight.newBuilder().setScenario(BusinessScenario.BUSINESS_SCENARIO_SLA_BREACH).setWeight(5).build(),
+            BusinessScenarioWeight.newBuilder().setScenario(BusinessScenario.BUSINESS_SCENARIO_INVALID_ORDER).setWeight(5).build());
 
     private final OrderActivities orderActivities = Workflow.newActivityStub(
             OrderActivities.class,
@@ -84,12 +92,15 @@ public class WorkerVersionEnablementImpl implements WorkerVersionEnablement {
             }
 
             var scenario = pickWeightedScenario(req.getScenarioWeightsList());
+            var businessScenario = pickWeightedBusinessScenario(req.getBusinessScenarioWeightsList());
             var response = orderActivities.submitOneOrder(SubmitOneOrderRequest.newBuilder()
                     .setEnablementId(req.getEnablementId())
                     .setOrderIdPrefix(req.hasOrderIdSeed() ? req.getOrderIdSeed() : req.getEnablementId())
                     .setScenario(scenario)
+                    .setBusinessScenario(businessScenario)
                     .build());
-            logger.debug("Submitted order {} / charge {} (scenario={})", response.getOrderId(), response.getChargeId(), scenario);
+            logger.debug("Submitted order {} / charge {} (scenario={}, businessScenario={})",
+                    response.getOrderId(), response.getChargeId(), scenario, businessScenario);
 
             state = state.toBuilder().setOrdersSubmittedCount(state.getOrdersSubmittedCount() + 1).build();
             ordersSubmittedThisExecution++;
@@ -164,6 +175,23 @@ public class WorkerVersionEnablementImpl implements WorkerVersionEnablement {
             }
         }
         return DemoScenario.NORMAL;
+    }
+
+    private BusinessScenario pickWeightedBusinessScenario(List<BusinessScenarioWeight> configured) {
+        List<BusinessScenarioWeight> weights = configured.isEmpty() ? DEFAULT_BUSINESS_SCENARIO_WEIGHTS : configured;
+        int total = weights.stream().mapToInt(BusinessScenarioWeight::getWeight).sum();
+        if (total <= 0) {
+            return BusinessScenario.BUSINESS_SCENARIO_NORMAL;
+        }
+        int pick = Workflow.newRandom().nextInt(total);
+        int cumulative = 0;
+        for (var weight : weights) {
+            cumulative += weight.getWeight();
+            if (pick < cumulative) {
+                return weight.getScenario();
+            }
+        }
+        return BusinessScenario.BUSINESS_SCENARIO_NORMAL;
     }
 
     private static Timestamp nowTimestamp() {

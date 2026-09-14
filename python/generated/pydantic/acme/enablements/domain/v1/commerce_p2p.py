@@ -20,6 +20,18 @@ class DemoScenario(IntEnum):
     MISSING_COMMERCE_EVENT = 2
     MISSING_PAYMENT_EVENT = 3
 
+
+class BusinessScenario(IntEnum):
+    """
+     Business-logic conditions mirroring scripts/scenarios/*, selectable through the
+ Commerce App simulator (checkout UI, load generator) instead of only via the
+ standalone shell scripts.
+    """
+    BUSINESS_SCENARIO_NORMAL = 0
+    BUSINESS_SCENARIO_MARGIN_SPIKE = 1
+    BUSINESS_SCENARIO_SLA_BREACH = 2
+    BUSINESS_SCENARIO_INVALID_ORDER = 3
+
 class ScenarioOptions(BaseModel):
     model_config = ConfigDict(validate_default=True)
     scenario: DemoScenario = Field(default=0)
@@ -40,6 +52,10 @@ class CreateCommerceOrderRequest(BaseModel):
     shipping_address: Address = Field(default_factory=Address)
     selected_shipment: typing.Optional[Shipment] = Field(default_factory=Shipment)
     scenario_options: ScenarioOptions = Field(default_factory=ScenarioOptions)# from the Svelte checkout's floating scenario selector
+# When true, the generated order ID contains "invalid" so the legacy processing
+# validation logic (string-matches on order ID) forces a validation failure.
+# Order ID is otherwise always server-generated; this is the only way to influence it.
+    force_invalid_order_id: bool = Field(default=False)
 
 class CommerceInventoryState(BaseModel):
     stock_by_item_id: "typing.Dict[str, int]" = Field(default_factory=dict)

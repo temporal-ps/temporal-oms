@@ -102,4 +102,16 @@ public interface CreateCommerceOrderRequestOrBuilder extends
    * <code>.acme.enablements.domain.enablements.v1.ScenarioOptions scenario_options = 5 [json_name = "scenarioOptions"];</code>
    */
   com.acme.proto.acme.enablements.domain.enablements.v1.ScenarioOptionsOrBuilder getScenarioOptionsOrBuilder();
+
+  /**
+   * <pre>
+   * When true, the generated order ID contains "invalid" so the legacy processing
+   * validation logic (string-matches on order ID) forces a validation failure.
+   * Order ID is otherwise always server-generated; this is the only way to influence it.
+   * </pre>
+   *
+   * <code>bool force_invalid_order_id = 6 [json_name = "forceInvalidOrderId"];</code>
+   * @return The forceInvalidOrderId.
+   */
+  boolean getForceInvalidOrderId();
 }

@@ -44,4 +44,15 @@ public interface SubmitOneOrderRequestOrBuilder extends
    * @return The scenario.
    */
   com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario getScenario();
+
+  /**
+   * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+   * @return The enum numeric value on the wire for businessScenario.
+   */
+  int getBusinessScenarioValue();
+  /**
+   * <code>.acme.enablements.domain.enablements.v1.BusinessScenario business_scenario = 4 [json_name = "businessScenario"];</code>
+   * @return The businessScenario.
+   */
+  com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario getBusinessScenario();
 }

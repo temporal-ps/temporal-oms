@@ -37,6 +37,11 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_ScenarioWeight_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_BusinessScenarioWeight_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_BusinessScenarioWeight_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor;
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -74,7 +79,7 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       "blement.proto\022\023acme.enablements.v1\032\036goog" +
       "le/protobuf/duration.proto\032\037google/proto" +
       "buf/timestamp.proto\032)acme/enablements/do" +
-      "main/v1/commerce.proto\"\332\002\n#StartWorkerVe" +
+      "main/v1/commerce.proto\"\303\003\n#StartWorkerVe" +
       "rsionEnablementRequest\022#\n\renablement_id\030" +
       "\001 \001(\tR\014enablementId\022\037\n\013order_count\030\002 \001(\005" +
       "R\norderCount\022-\n\023submit_rate_per_min\030\003 \001(" +
@@ -82,46 +87,55 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       "oogle.protobuf.DurationR\007timeout\022\'\n\rorde" +
       "r_id_seed\030\005 \001(\tH\000R\013orderIdSeed\210\001\001\022N\n\020sce" +
       "nario_weights\030\006 \003(\0132#.acme.enablements.v" +
-      "1.ScenarioWeightR\017scenarioWeightsB\020\n\016_or" +
-      "der_id_seed\"z\n\016ScenarioWeight\022P\n\010scenari" +
-      "o\030\001 \001(\01624.acme.enablements.domain.enable" +
-      "ments.v1.DemoScenarioR\010scenario\022\026\n\006weigh" +
-      "t\030\002 \001(\005R\006weight\"\355\005\n\034WorkerVersionEnablem" +
-      "entState\022#\n\renablement_id\030\001 \001(\tR\014enablem" +
-      "entId\022L\n\004args\030\002 \001(\01328.acme.enablements.v" +
-      "1.StartWorkerVersionEnablementRequestR\004a" +
-      "rgs\022`\n\rcurrent_phase\030\003 \001(\0162;.acme.enable" +
-      "ments.v1.WorkerVersionEnablementState.De" +
-      "moPhaseR\014currentPhase\0224\n\026orders_submitte" +
-      "d_count\030\004 \001(\005R\024ordersSubmittedCount\022*\n\021o" +
-      "rders_per_minute\030\005 \001(\002R\017ordersPerMinute\022" +
-      "\'\n\017active_versions\030\006 \003(\tR\016activeVersions" +
-      "\022H\n\022last_transition_at\030\007 \001(\0132\032.google.pr" +
-      "otobuf.TimestampR\020lastTransitionAt\022X\n\017de" +
-      "ploy_requests\030\010 \003(\0132/.acme.enablements.v" +
-      "1.DeployWorkerVersionRequestR\016deployRequ" +
-      "ests\022R\n\013deployments\030\t \003(\01320.acme.enablem" +
-      "ents.v1.DeployWorkerVersionResponseR\013dep" +
-      "loyments\"u\n\tDemoPhase\022\032\n\026DEMO_PHASE_UNSP" +
-      "ECIFIED\020\000\022\023\n\017RUNNING_V1_ONLY\020\001\022\027\n\023TRANSI" +
-      "TIONING_TO_V2\020\002\022\020\n\014RUNNING_BOTH\020\003\022\014\n\010COM" +
-      "PLETE\020\004\"\266\001\n\025SubmitOneOrderRequest\022#\n\rena" +
-      "blement_id\030\001 \001(\tR\014enablementId\022&\n\017order_" +
-      "id_prefix\030\002 \001(\tR\rorderIdPrefix\022P\n\010scenar" +
-      "io\030\003 \001(\01624.acme.enablements.domain.enabl" +
-      "ements.v1.DemoScenarioR\010scenario\"P\n\026Subm" +
-      "itOneOrderResponse\022\031\n\010order_id\030\001 \001(\tR\007or" +
-      "derId\022\033\n\tcharge_id\030\002 \001(\tR\010chargeId\"\266\001\n\032D" +
-      "eployWorkerVersionRequest\022\'\n\017deployment_" +
-      "name\030\001 \001(\tR\016deploymentName\022\031\n\010build_id\030\002" +
-      " \001(\tR\007buildId\022\030\n\007version\030\003 \001(\tR\007version\022" +
-      "(\n\rreplica_count\030\004 \001(\005H\000R\014replicaCount\210\001" +
-      "\001B\020\n\016_replica_count\"\035\n\033DeployWorkerVersi" +
-      "onResponseB\260\001\n\"com.acme.proto.acme.enabl" +
-      "ements.v1B\034WorkerVersionEnablementProtoP" +
-      "\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002\023Acme\\Ena" +
-      "blements\\V1\342\002\037Acme\\Enablements\\V1\\GPBMet" +
-      "adata\352\002\025Acme::Enablements::V1b\006proto3"
+      "1.ScenarioWeightR\017scenarioWeights\022g\n\031bus" +
+      "iness_scenario_weights\030\007 \003(\0132+.acme.enab" +
+      "lements.v1.BusinessScenarioWeightR\027busin" +
+      "essScenarioWeightsB\020\n\016_order_id_seed\"z\n\016" +
+      "ScenarioWeight\022P\n\010scenario\030\001 \001(\01624.acme." +
+      "enablements.domain.enablements.v1.DemoSc" +
+      "enarioR\010scenario\022\026\n\006weight\030\002 \001(\005R\006weight" +
+      "\"\206\001\n\026BusinessScenarioWeight\022T\n\010scenario\030" +
+      "\001 \001(\01628.acme.enablements.domain.enableme" +
+      "nts.v1.BusinessScenarioR\010scenario\022\026\n\006wei" +
+      "ght\030\002 \001(\005R\006weight\"\355\005\n\034WorkerVersionEnabl" +
+      "ementState\022#\n\renablement_id\030\001 \001(\tR\014enabl" +
+      "ementId\022L\n\004args\030\002 \001(\01328.acme.enablements" +
+      ".v1.StartWorkerVersionEnablementRequestR" +
+      "\004args\022`\n\rcurrent_phase\030\003 \001(\0162;.acme.enab" +
+      "lements.v1.WorkerVersionEnablementState." +
+      "DemoPhaseR\014currentPhase\0224\n\026orders_submit" +
+      "ted_count\030\004 \001(\005R\024ordersSubmittedCount\022*\n" +
+      "\021orders_per_minute\030\005 \001(\002R\017ordersPerMinut" +
+      "e\022\'\n\017active_versions\030\006 \003(\tR\016activeVersio" +
+      "ns\022H\n\022last_transition_at\030\007 \001(\0132\032.google." +
+      "protobuf.TimestampR\020lastTransitionAt\022X\n\017" +
+      "deploy_requests\030\010 \003(\0132/.acme.enablements" +
+      ".v1.DeployWorkerVersionRequestR\016deployRe" +
+      "quests\022R\n\013deployments\030\t \003(\01320.acme.enabl" +
+      "ements.v1.DeployWorkerVersionResponseR\013d" +
+      "eployments\"u\n\tDemoPhase\022\032\n\026DEMO_PHASE_UN" +
+      "SPECIFIED\020\000\022\023\n\017RUNNING_V1_ONLY\020\001\022\027\n\023TRAN" +
+      "SITIONING_TO_V2\020\002\022\020\n\014RUNNING_BOTH\020\003\022\014\n\010C" +
+      "OMPLETE\020\004\"\235\002\n\025SubmitOneOrderRequest\022#\n\re" +
+      "nablement_id\030\001 \001(\tR\014enablementId\022&\n\017orde" +
+      "r_id_prefix\030\002 \001(\tR\rorderIdPrefix\022P\n\010scen" +
+      "ario\030\003 \001(\01624.acme.enablements.domain.ena" +
+      "blements.v1.DemoScenarioR\010scenario\022e\n\021bu" +
+      "siness_scenario\030\004 \001(\01628.acme.enablements" +
+      ".domain.enablements.v1.BusinessScenarioR" +
+      "\020businessScenario\"P\n\026SubmitOneOrderRespo" +
+      "nse\022\031\n\010order_id\030\001 \001(\tR\007orderId\022\033\n\tcharge" +
+      "_id\030\002 \001(\tR\010chargeId\"\266\001\n\032DeployWorkerVers" +
+      "ionRequest\022\'\n\017deployment_name\030\001 \001(\tR\016dep" +
+      "loymentName\022\031\n\010build_id\030\002 \001(\tR\007buildId\022\030" +
+      "\n\007version\030\003 \001(\tR\007version\022(\n\rreplica_coun" +
+      "t\030\004 \001(\005H\000R\014replicaCount\210\001\001B\020\n\016_replica_c" +
+      "ount\"\035\n\033DeployWorkerVersionResponseB\260\001\n\"" +
+      "com.acme.proto.acme.enablements.v1B\034Work" +
+      "erVersionEnablementProtoP\001\242\002\003AEX\252\002\023Acme." +
+      "Enablements.V1\312\002\023Acme\\Enablements\\V1\342\002\037A" +
+      "cme\\Enablements\\V1\\GPBMetadata\352\002\025Acme::E" +
+      "nablements::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -135,39 +149,45 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
     internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_descriptor,
-        new java.lang.String[] { "EnablementId", "OrderCount", "SubmitRatePerMin", "Timeout", "OrderIdSeed", "ScenarioWeights", });
+        new java.lang.String[] { "EnablementId", "OrderCount", "SubmitRatePerMin", "Timeout", "OrderIdSeed", "ScenarioWeights", "BusinessScenarioWeights", });
     internal_static_acme_enablements_v1_ScenarioWeight_descriptor =
       getDescriptor().getMessageType(1);
     internal_static_acme_enablements_v1_ScenarioWeight_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_ScenarioWeight_descriptor,
         new java.lang.String[] { "Scenario", "Weight", });
-    internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor =
+    internal_static_acme_enablements_v1_BusinessScenarioWeight_descriptor =
       getDescriptor().getMessageType(2);
+    internal_static_acme_enablements_v1_BusinessScenarioWeight_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_BusinessScenarioWeight_descriptor,
+        new java.lang.String[] { "Scenario", "Weight", });
+    internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor =
+      getDescriptor().getMessageType(3);
     internal_static_acme_enablements_v1_WorkerVersionEnablementState_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor,
         new java.lang.String[] { "EnablementId", "Args", "CurrentPhase", "OrdersSubmittedCount", "OrdersPerMinute", "ActiveVersions", "LastTransitionAt", "DeployRequests", "Deployments", });
     internal_static_acme_enablements_v1_SubmitOneOrderRequest_descriptor =
-      getDescriptor().getMessageType(3);
+      getDescriptor().getMessageType(4);
     internal_static_acme_enablements_v1_SubmitOneOrderRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_SubmitOneOrderRequest_descriptor,
-        new java.lang.String[] { "EnablementId", "OrderIdPrefix", "Scenario", });
+        new java.lang.String[] { "EnablementId", "OrderIdPrefix", "Scenario", "BusinessScenario", });
     internal_static_acme_enablements_v1_SubmitOneOrderResponse_descriptor =
-      getDescriptor().getMessageType(4);
+      getDescriptor().getMessageType(5);
     internal_static_acme_enablements_v1_SubmitOneOrderResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_SubmitOneOrderResponse_descriptor,
         new java.lang.String[] { "OrderId", "ChargeId", });
     internal_static_acme_enablements_v1_DeployWorkerVersionRequest_descriptor =
-      getDescriptor().getMessageType(5);
+      getDescriptor().getMessageType(6);
     internal_static_acme_enablements_v1_DeployWorkerVersionRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_DeployWorkerVersionRequest_descriptor,
         new java.lang.String[] { "DeploymentName", "BuildId", "Version", "ReplicaCount", });
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor =
-      getDescriptor().getMessageType(6);
+      getDescriptor().getMessageType(7);
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor,

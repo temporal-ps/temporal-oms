@@ -137,4 +137,48 @@ public interface StartWorkerVersionEnablementRequestOrBuilder extends
    */
   com.acme.proto.acme.enablements.v1.ScenarioWeightOrBuilder getScenarioWeightsOrBuilder(
       int index);
+
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> 
+      getBusinessScenarioWeightsList();
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  com.acme.proto.acme.enablements.v1.BusinessScenarioWeight getBusinessScenarioWeights(int index);
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  int getBusinessScenarioWeightsCount();
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  java.util.List<? extends com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder> 
+      getBusinessScenarioWeightsOrBuilderList();
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder getBusinessScenarioWeightsOrBuilder(
+      int index);
 }

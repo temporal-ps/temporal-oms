@@ -5,7 +5,7 @@
 	import { orderId as currentOrderId } from '$lib/stores/order';
 	import { chargeId as currentChargeId } from '$lib/stores/charge';
 	import { api } from '$lib/api/client';
-	import type { DemoScenario, ShippingAddress } from '$lib/types';
+	import type { BusinessScenario, DemoScenario, SelectedShipmentOverride, ShippingAddress } from '$lib/types';
 
 	// Redirect if no customer ID
 	$: if (!$customerId) {
@@ -18,13 +18,23 @@
 	let paymentStatus = '';
 	let cardNumber = '4242424242424242';
 	let scenario: DemoScenario = 'NORMAL';
+	let businessScenario: BusinessScenario = 'NORMAL';
 
-	// A few canned addresses so the demo doesn't require typing one in by hand.
+	// Mirrors scripts/scenarios/{margin-spike,sla-breach}/1-submit-order.sh exactly.
+	function selectedShipmentFor(bs: BusinessScenario): SelectedShipmentOverride | undefined {
+		if (bs === 'MARGIN_SPIKE') return { paidPriceCents: 1 };
+		if (bs === 'SLA_BREACH') return { paidPriceCents: 995, deliveryDays: 0 };
+		return undefined;
+	}
+
+	// Canned addresses must match an entry in enablements-api's shipping fixture
+	// (java/enablements/enablements-api/src/main/resources/fixtures/shipping-fixtures.json)
+	// or fulfillment's address verification rejects the order outright.
 	const CANNED_ADDRESSES: ShippingAddress[] = [
 		{ street: '388 Townsend St', city: 'San Francisco', state: 'CA', postalCode: '94107', country: 'US' },
-		{ street: '500 W 2nd St', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' },
-		{ street: '1 Microsoft Way', city: 'Redmond', state: 'WA', postalCode: '98052', country: 'US' },
-		{ street: '350 5th Ave', city: 'New York', state: 'NY', postalCode: '10118', country: 'US' }
+		{ street: '301 Congress Ave', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' },
+		{ street: '401 5th Ave', city: 'Seattle', state: 'WA', postalCode: '98104', country: 'US' },
+		{ street: '11 Wall St', city: 'New York', state: 'NY', postalCode: '10005', country: 'US' }
 	];
 
 	const TEST_CARDS: Array<{ number: string; label: string }> = [
@@ -88,7 +98,9 @@
 				$customerId,
 				$cart.map((item) => ({ itemId: item.itemId, quantity: item.quantity })),
 				shippingAddress,
-				scenario
+				scenario,
+				selectedShipmentFor(businessScenario),
+				businessScenario === 'INVALID_ORDER'
 			);
 			currentOrderId.set(order.orderId);
 
@@ -130,6 +142,21 @@
 	</select>
 	<p class="mt-2 text-xs text-gray-500">
 		Governs how this order's webhook events are delivered by PublishCartOrders.
+	</p>
+
+	<h4 class="text-sm font-semibold text-gray-900 mt-4 mb-2">Business Scenario</h4>
+	<select
+		bind:value={businessScenario}
+		class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+	>
+		<option value="NORMAL">Normal</option>
+		<option value="MARGIN_SPIKE">Margin spike (forces alternate warehouse)</option>
+		<option value="SLA_BREACH">SLA breach (same-day, no carrier can meet it)</option>
+		<option value="INVALID_ORDER">Invalid order (fails validation)</option>
+	</select>
+	<p class="mt-2 text-xs text-gray-500">
+		Triggers the same conditions as scripts/scenarios/{'{'}margin-spike,sla-breach,invalid-order{'}'},
+		through this checkout instead of the standalone script.
 	</p>
 </div>
 

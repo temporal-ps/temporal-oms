@@ -18,6 +18,16 @@ message ScenarioOptions {
   DemoScenario scenario = 1;
 }
 
+// Business-logic conditions mirroring scripts/scenarios/*, selectable through the
+// Commerce App simulator (checkout UI, load generator) instead of only via the
+// standalone shell scripts.
+enum BusinessScenario {
+  BUSINESS_SCENARIO_NORMAL = 0;
+  BUSINESS_SCENARIO_MARGIN_SPIKE = 1;   // paid_price_cents=1: every fixture rate exceeds it
+  BUSINESS_SCENARIO_SLA_BREACH = 2;     // delivery_days=0: no carrier can meet it
+  BUSINESS_SCENARIO_INVALID_ORDER = 3;  // forces an "invalid"-containing order ID
+}
+
 message CommerceOrderState {
   string order_id = 1;
   string customer_id = 2;
@@ -35,6 +45,10 @@ message CreateCommerceOrderRequest {
   acme.common.v1.Address shipping_address = 3;
   optional acme.common.v1.Shipment selected_shipment = 4;
   ScenarioOptions scenario_options = 5; // from the Svelte checkout's floating scenario selector
+  // When true, the generated order ID contains "invalid" so the legacy processing
+  // validation logic (string-matches on order ID) forces a validation failure.
+  // Order ID is otherwise always server-generated; this is the only way to influence it.
+  bool force_invalid_order_id = 6;
 }
 
 message CommerceInventoryState {

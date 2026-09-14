@@ -35,6 +35,7 @@ private static final long serialVersionUID = 0L;
     enablementId_ = "";
     orderIdSeed_ = "";
     scenarioWeights_ = java.util.Collections.emptyList();
+    businessScenarioWeights_ = java.util.Collections.emptyList();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -279,6 +280,67 @@ private static final long serialVersionUID = 0L;
     return scenarioWeights_.get(index);
   }
 
+  public static final int BUSINESS_SCENARIO_WEIGHTS_FIELD_NUMBER = 7;
+  @SuppressWarnings("serial")
+  private java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> businessScenarioWeights_;
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> getBusinessScenarioWeightsList() {
+    return businessScenarioWeights_;
+  }
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public java.util.List<? extends com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder> 
+      getBusinessScenarioWeightsOrBuilderList() {
+    return businessScenarioWeights_;
+  }
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public int getBusinessScenarioWeightsCount() {
+    return businessScenarioWeights_.size();
+  }
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.enablements.v1.BusinessScenarioWeight getBusinessScenarioWeights(int index) {
+    return businessScenarioWeights_.get(index);
+  }
+  /**
+   * <pre>
+   * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+   * </pre>
+   *
+   * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder getBusinessScenarioWeightsOrBuilder(
+      int index) {
+    return businessScenarioWeights_.get(index);
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -310,6 +372,9 @@ private static final long serialVersionUID = 0L;
     }
     for (int i = 0; i < scenarioWeights_.size(); i++) {
       output.writeMessage(6, scenarioWeights_.get(i));
+    }
+    for (int i = 0; i < businessScenarioWeights_.size(); i++) {
+      output.writeMessage(7, businessScenarioWeights_.get(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -347,6 +412,15 @@ private static final long serialVersionUID = 0L;
           }
           size += 1 * count;
         }
+
+        {
+          final int count = businessScenarioWeights_.size();
+          for (int i = 0; i < count; i++) {
+            size += com.google.protobuf.CodedOutputStream
+              .computeMessageSizeNoTag(businessScenarioWeights_.get(i));
+          }
+          size += 1 * count;
+        }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -380,6 +454,8 @@ private static final long serialVersionUID = 0L;
     }
     if (!getScenarioWeightsList()
         .equals(other.getScenarioWeightsList())) return false;
+    if (!getBusinessScenarioWeightsList()
+        .equals(other.getBusinessScenarioWeightsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -408,6 +484,10 @@ private static final long serialVersionUID = 0L;
     if (getScenarioWeightsCount() > 0) {
       hash = (37 * hash) + SCENARIO_WEIGHTS_FIELD_NUMBER;
       hash = (53 * hash) + getScenarioWeightsList().hashCode();
+    }
+    if (getBusinessScenarioWeightsCount() > 0) {
+      hash = (37 * hash) + BUSINESS_SCENARIO_WEIGHTS_FIELD_NUMBER;
+      hash = (53 * hash) + getBusinessScenarioWeightsList().hashCode();
     }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
@@ -545,6 +625,7 @@ private static final long serialVersionUID = 0L;
               .alwaysUseFieldBuilders) {
         internalGetTimeoutFieldBuilder();
         internalGetScenarioWeightsFieldBuilder();
+        internalGetBusinessScenarioWeightsFieldBuilder();
       }
     }
     @java.lang.Override
@@ -567,6 +648,13 @@ private static final long serialVersionUID = 0L;
         scenarioWeightsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
+      if (businessScenarioWeightsBuilder_ == null) {
+        businessScenarioWeights_ = java.util.Collections.emptyList();
+      } else {
+        businessScenarioWeights_ = null;
+        businessScenarioWeightsBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
       return this;
     }
 
@@ -608,6 +696,15 @@ private static final long serialVersionUID = 0L;
         result.scenarioWeights_ = scenarioWeights_;
       } else {
         result.scenarioWeights_ = scenarioWeightsBuilder_.build();
+      }
+      if (businessScenarioWeightsBuilder_ == null) {
+        if (((bitField0_ & 0x00000040) != 0)) {
+          businessScenarioWeights_ = java.util.Collections.unmodifiableList(businessScenarioWeights_);
+          bitField0_ = (bitField0_ & ~0x00000040);
+        }
+        result.businessScenarioWeights_ = businessScenarioWeights_;
+      } else {
+        result.businessScenarioWeights_ = businessScenarioWeightsBuilder_.build();
       }
     }
 
@@ -693,6 +790,32 @@ private static final long serialVersionUID = 0L;
           }
         }
       }
+      if (businessScenarioWeightsBuilder_ == null) {
+        if (!other.businessScenarioWeights_.isEmpty()) {
+          if (businessScenarioWeights_.isEmpty()) {
+            businessScenarioWeights_ = other.businessScenarioWeights_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+          } else {
+            ensureBusinessScenarioWeightsIsMutable();
+            businessScenarioWeights_.addAll(other.businessScenarioWeights_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.businessScenarioWeights_.isEmpty()) {
+          if (businessScenarioWeightsBuilder_.isEmpty()) {
+            businessScenarioWeightsBuilder_.dispose();
+            businessScenarioWeightsBuilder_ = null;
+            businessScenarioWeights_ = other.businessScenarioWeights_;
+            bitField0_ = (bitField0_ & ~0x00000040);
+            businessScenarioWeightsBuilder_ = 
+              com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                 internalGetBusinessScenarioWeightsFieldBuilder() : null;
+          } else {
+            businessScenarioWeightsBuilder_.addAllMessages(other.businessScenarioWeights_);
+          }
+        }
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -759,6 +882,19 @@ private static final long serialVersionUID = 0L;
               }
               break;
             } // case 50
+            case 58: {
+              com.acme.proto.acme.enablements.v1.BusinessScenarioWeight m =
+                  input.readMessage(
+                      com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.parser(),
+                      extensionRegistry);
+              if (businessScenarioWeightsBuilder_ == null) {
+                ensureBusinessScenarioWeightsIsMutable();
+                businessScenarioWeights_.add(m);
+              } else {
+                businessScenarioWeightsBuilder_.addMessage(m);
+              }
+              break;
+            } // case 58
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1502,6 +1638,318 @@ private static final long serialVersionUID = 0L;
         scenarioWeights_ = null;
       }
       return scenarioWeightsBuilder_;
+    }
+
+    private java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> businessScenarioWeights_ =
+      java.util.Collections.emptyList();
+    private void ensureBusinessScenarioWeightsIsMutable() {
+      if (!((bitField0_ & 0x00000040) != 0)) {
+        businessScenarioWeights_ = new java.util.ArrayList<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight>(businessScenarioWeights_);
+        bitField0_ |= 0x00000040;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilder<
+        com.acme.proto.acme.enablements.v1.BusinessScenarioWeight, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder> businessScenarioWeightsBuilder_;
+
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> getBusinessScenarioWeightsList() {
+      if (businessScenarioWeightsBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(businessScenarioWeights_);
+      } else {
+        return businessScenarioWeightsBuilder_.getMessageList();
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public int getBusinessScenarioWeightsCount() {
+      if (businessScenarioWeightsBuilder_ == null) {
+        return businessScenarioWeights_.size();
+      } else {
+        return businessScenarioWeightsBuilder_.getCount();
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.BusinessScenarioWeight getBusinessScenarioWeights(int index) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        return businessScenarioWeights_.get(index);
+      } else {
+        return businessScenarioWeightsBuilder_.getMessage(index);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder setBusinessScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight value) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.set(index, value);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder setBusinessScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder builderForValue) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder addBusinessScenarioWeights(com.acme.proto.acme.enablements.v1.BusinessScenarioWeight value) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.add(value);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder addBusinessScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight value) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.add(index, value);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder addBusinessScenarioWeights(
+        com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder builderForValue) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.add(builderForValue.build());
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder addBusinessScenarioWeights(
+        int index, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder builderForValue) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder addAllBusinessScenarioWeights(
+        java.lang.Iterable<? extends com.acme.proto.acme.enablements.v1.BusinessScenarioWeight> values) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        ensureBusinessScenarioWeightsIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, businessScenarioWeights_);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder clearBusinessScenarioWeights() {
+      if (businessScenarioWeightsBuilder_ == null) {
+        businessScenarioWeights_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000040);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public Builder removeBusinessScenarioWeights(int index) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        ensureBusinessScenarioWeightsIsMutable();
+        businessScenarioWeights_.remove(index);
+        onChanged();
+      } else {
+        businessScenarioWeightsBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder getBusinessScenarioWeightsBuilder(
+        int index) {
+      return internalGetBusinessScenarioWeightsFieldBuilder().getBuilder(index);
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder getBusinessScenarioWeightsOrBuilder(
+        int index) {
+      if (businessScenarioWeightsBuilder_ == null) {
+        return businessScenarioWeights_.get(index);  } else {
+        return businessScenarioWeightsBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public java.util.List<? extends com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder> 
+         getBusinessScenarioWeightsOrBuilderList() {
+      if (businessScenarioWeightsBuilder_ != null) {
+        return businessScenarioWeightsBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(businessScenarioWeights_);
+      }
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder addBusinessScenarioWeightsBuilder() {
+      return internalGetBusinessScenarioWeightsFieldBuilder().addBuilder(
+          com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder addBusinessScenarioWeightsBuilder(
+        int index) {
+      return internalGetBusinessScenarioWeightsFieldBuilder().addBuilder(
+          index, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.getDefaultInstance());
+    }
+    /**
+     * <pre>
+     * weighted mix of BusinessScenario; empty defaults to mostly NORMAL
+     * </pre>
+     *
+     * <code>repeated .acme.enablements.v1.BusinessScenarioWeight business_scenario_weights = 7 [json_name = "businessScenarioWeights"];</code>
+     */
+    public java.util.List<com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder> 
+         getBusinessScenarioWeightsBuilderList() {
+      return internalGetBusinessScenarioWeightsFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilder<
+        com.acme.proto.acme.enablements.v1.BusinessScenarioWeight, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder> 
+        internalGetBusinessScenarioWeightsFieldBuilder() {
+      if (businessScenarioWeightsBuilder_ == null) {
+        businessScenarioWeightsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+            com.acme.proto.acme.enablements.v1.BusinessScenarioWeight, com.acme.proto.acme.enablements.v1.BusinessScenarioWeight.Builder, com.acme.proto.acme.enablements.v1.BusinessScenarioWeightOrBuilder>(
+                businessScenarioWeights_,
+                ((bitField0_ & 0x00000040) != 0),
+                getParentForChildren(),
+                isClean());
+        businessScenarioWeights_ = null;
+      }
+      return businessScenarioWeightsBuilder_;
     }
 
     // @@protoc_insertion_point(builder_scope:acme.enablements.v1.StartWorkerVersionEnablementRequest)

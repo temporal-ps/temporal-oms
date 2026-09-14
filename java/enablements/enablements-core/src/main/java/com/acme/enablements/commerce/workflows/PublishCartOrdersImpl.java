@@ -36,7 +36,7 @@ public class PublishCartOrdersImpl implements PublishCartOrders {
 
     private void deliverAuthorized(PendingPublishEntry entry) {
         if (entry.authorizedPayloadJson().isPresent() && !entry.authorizedDelivered()) {
-            webhookPublisher.publish("payment.authorized", entry.authorizedPayloadJson().get());
+            webhookPublisher.publish("payment.authorized", entry.orderId(), entry.authorizedPayloadJson().get());
             registry.markDelivered(entry.orderId(), PublishSide.AUTHORIZED);
         }
     }
@@ -64,11 +64,11 @@ public class PublishCartOrdersImpl implements PublishCartOrders {
         }
 
         if (commerceDue) {
-            webhookPublisher.publish("commerce.order.submitted", entry.commercePayloadJson().orElseThrow());
+            webhookPublisher.publish("commerce.order.submitted", entry.orderId(), entry.commercePayloadJson().orElseThrow());
             registry.markDelivered(entry.orderId(), PublishSide.COMMERCE);
         }
         if (paymentDue) {
-            webhookPublisher.publish("payment.captured", entry.paymentPayloadJson().orElseThrow());
+            webhookPublisher.publish("payment.captured", entry.orderId(), entry.paymentPayloadJson().orElseThrow());
             registry.markDelivered(entry.orderId(), PublishSide.PAYMENT);
         }
     }
