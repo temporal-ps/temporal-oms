@@ -10,16 +10,33 @@
 
 ## Current Status
 
+**Correction (2026-09-14):** this table previously said "Not started" for
+Phase 1/2, which was stale. Real code already exists
+(`WorkerVersionEnablement`, `WorkerVersionEnablementImpl`,
+`OrderActivitiesImpl`, `DeploymentActivitiesImpl` in
+`java/enablements/enablements-core`) and had diverged from the spec
+(different interface method names, direct HTTP calls into `apps-api`
+instead of the Commerce App/Payments Processor simulators, and four real
+bugs). See `spec.md`'s "Reconciliation Note" and "Fixes Applied in This
+Reconciliation" sections.
+
 | Component | Status | Owner |
 |-----------|--------|-------|
-| Spec document | ✅ Complete | [Your Name] |
+| Spec document | ✅ Complete, reconciled with `SPECS/commerce-payments-apps/spec.md` | [Your Name] |
 | API path clarification | ✅ Complete (endpoints → apps-api controller) | [Your Name] |
-| Tech lead review | ⏳ Awaiting | [Tech Lead] |
+| Tech lead review | ⏳ Awaiting (now including the reconciliation) | [Tech Lead] |
 | Implementation planning | ⏳ Blocked (pending approval) | TBD |
-| Phase 1: Proto + Workflow | ⏳ Not started | TBD |
-| Phase 2: EnablementsWorkers | ⏳ Not started | TBD |
+| Phase 1: Proto + Workflow | 🔶 Partially implemented, with known bugs (see below); needs the `scenario_weights` field and the four fixes | TBD |
+| Phase 2: EnablementsWorkers | 🔶 Partially implemented (`OrderActivitiesImpl` calls `apps-api` directly today; needs to be repointed at the Commerce App/Payments Processor backends) | TBD |
 | Phase 3: EnablementsController | ⏳ Not started | TBD |
-| Phase 4: V2 + Demo scripts | ⏳ Not started | TBD |
+| Phase 4: V2 + Demo scripts | 🔶 `ENABLEMENT.md` runbook exists and was updated for `scenario_weights`; formal demo scripts (`scripts/start-enablement-workflow.sh` etc.) not started | TBD |
+
+### Known bugs in the existing implementation (to fix as part of this reconciliation)
+- [ ] `execute()`'s deploy-request replay loop off-by-one throws `IndexOutOfBoundsException` on any `deployWorkerVersion` signal (`WorkerVersionEnablementImpl.java:86-91`)
+- [ ] `pause()`/`resume()` signals are no-ops; they don't gate the submission loop (`WorkerVersionEnablementImpl.java:102-110`)
+- [ ] `DeploymentActivitiesImpl.deployWorkerVersion` hardcodes `v2`/replicas=1, ignoring the signal's real fields (`DeploymentActivitiesImpl.java:37-50`)
+- [ ] No `continueAsNew`; workflow blocks forever via `Workflow.await(() -> false)` (`WorkerVersionEnablementImpl.java:93-94`)
+- [ ] `OrderActivitiesImpl.submitOrders` PUTs/POSTs directly into `apps-api`'s real webhooks instead of going through the Commerce App/Payments Processor simulators; its only "scenario" is a crude `orderIdSeed.contains("invalid")` string match
 
 ---
 
@@ -141,11 +158,16 @@ Approved By: ________________    Date: ________________
 
 ### Blocked By
 - ⏳ Tech lead approval
+- ⏳ `PublishCartOrders`' webhook subscribers pointed at `apps-api` (new,
+  per this reconciliation; required for this workflow specifically, see
+  `spec.md`'s Dependencies section)
 
 ### External Dependencies
 - ✅ Temporal cluster deployed
 - ✅ apps-api service available
 - ✅ KinD cluster running
+- ⏳ `SPECS/commerce-payments-apps/spec.md`'s Commerce App/Payments
+  Processor backends built and running (new, per this reconciliation)
 
 ---
 
@@ -194,3 +216,4 @@ This spec defines the core enablement workflow + activities + local runner. Vers
 | 2026-03-18 | [Your Name] | **Major clarification:** Enablement workflow is external caller of OMS, doesn't duplicate OMS state tracking. Workflow owns execution state only, OMS owns order state. | In Progress |
 | 2026-03-18 | [Your Name] | **Namespace correction:** Enablement workflows run in `apps` namespace (external caller), not `processing` namespace. Task queue: `enablements`. | In Progress |
 | 2026-03-18 | [Your Name] | **Deployment model clarified:** Enablement runs locally on host (not in K8s). Calls OMS APIs in K8s/KinD. No K8s deployment manifests needed. | In Progress |
+| 2026-09-14 | Temporal PSE Team | **Reconciliation:** corrected the spec to match the real (already-built) code, fixed four real bugs, and repointed order generation at the Commerce App/Payments Processor simulators from `SPECS/commerce-payments-apps/spec.md`, adding a weighted `scenario_weights` mix in place of the old `orderIdSeed`-string-match hack. | In Progress |
