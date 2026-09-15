@@ -15,7 +15,7 @@
 			A distributed order management system powered by Temporal workflows
 		</p>
 
-		<div class="mt-12 grid gap-8 md:grid-cols-2">
+		<div class="mt-12 grid gap-8 md:grid-cols-3">
 			<div class="bg-white p-8 rounded-lg shadow-md">
 				<div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
 					<svg
@@ -71,6 +71,34 @@
 				>
 					View Swagger UI
 				</a>
+			</div>
+
+			<div class="bg-white p-8 rounded-lg shadow-md">
+				<div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
+					<svg
+						class="w-8 h-8 text-primary-600"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13 10V3L4 14h7v7l9-11h-7z"
+						/>
+					</svg>
+				</div>
+				<h2 class="mt-6 text-2xl font-semibold text-gray-900">Demo Load Control</h2>
+				<p class="mt-4 text-gray-600">
+					Drive order traffic for the safe-deploys / worker-versioning workshop
+				</p>
+				<button
+					onclick={() => goto('/demo')}
+					class="mt-6 w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+				>
+					Open Demo Control
+				</button>
 			</div>
 		</div>
 

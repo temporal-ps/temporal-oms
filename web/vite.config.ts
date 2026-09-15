@@ -10,6 +10,10 @@ export default defineConfig({
 				target: 'http://localhost:8050',
 				changeOrigin: true
 			},
+			'/api/v1/enablements': {
+				target: 'http://localhost:8050',
+				changeOrigin: true
+			},
 			'/api': {
 				target: 'http://localhost:8080',
 				changeOrigin: true
