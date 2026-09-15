@@ -1,22 +1,24 @@
 package com.acme.enablements.activities;
 
-import com.acme.proto.acme.enablements.v1.SubmitOneOrderRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOneOrderResponse;
+import com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
 /**
- * Submits one order to the Commerce App / Payments Processor backends
+ * Submits orders to the Commerce App / Payments Processor backends
  * (SPECS/commerce-payments-apps/spec.md) during enablement demonstrations.
  */
 @ActivityInterface
 public interface OrderActivities {
 
     /**
-     * Submit one order and its charge, carrying the workflow-chosen
-     * DemoScenario. Real delivery into apps-api's webhooks happens later,
-     * asynchronously, via PublishCartOrders' scheduled tick.
+     * Runs the order-submission loop until order_count or the request's
+     * timeout is reached, heartbeating after every order so the calling
+     * workflow can cancel it (pause) or preempt it (a queued deploy
+     * request). Does not catch its own cancellation: the calling workflow
+     * recovers progress from the resulting CanceledFailure's heartbeat
+     * details, not from a return value.
      */
     @ActivityMethod
-    SubmitOneOrderResponse submitOneOrder(SubmitOneOrderRequest cmd);
+    int runSubmissionLoop(StartWorkerVersionEnablementRequest req);
 }

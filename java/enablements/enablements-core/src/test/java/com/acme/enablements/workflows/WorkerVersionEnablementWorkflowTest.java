@@ -2,12 +2,13 @@ package com.acme.enablements.workflows;
 
 import com.acme.enablements.activities.DeploymentActivities;
 import com.acme.enablements.activities.OrderActivities;
+import com.acme.proto.acme.enablements.domain.enablements.v1.BusinessScenario;
+import com.acme.proto.acme.enablements.v1.BusinessScenarioWeight;
 import com.acme.proto.acme.enablements.v1.DeployWorkerVersionRequest;
 import com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse;
 import com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOneOrderRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOneOrderResponse;
 import com.acme.proto.acme.enablements.v1.WorkerVersionEnablementState;
+import io.temporal.activity.Activity;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,14 +29,41 @@ class WorkerVersionEnablementWorkflowTest {
 
     private static final String TASK_QUEUE = "enablements";
 
-    /** See PaymentChargeWorkflowTest for why this is a hand-written fake, not a Mockito mock. */
+    /**
+     * See PaymentChargeWorkflowTest for why this is a hand-written fake, not a Mockito
+     * mock. Loops and heartbeats for real (a short, real Thread.sleep per order) so
+     * TestWorkflowEnvironment can actually deliver cancellation to it. Deliberately does
+     * NOT catch the resulting cancellation exception, matching production code: progress
+     * is recovered by the workflow from the CanceledFailure's heartbeat details, not from
+     * a graceful return value, so this fake must actually let it propagate to be a valid test.
+     */
     private static class RecordingOrderActivities implements OrderActivities {
         final AtomicInteger callCount = new AtomicInteger();
+        final List<String> completedValidations = new ArrayList<>();
 
         @Override
-        public SubmitOneOrderResponse submitOneOrder(SubmitOneOrderRequest cmd) {
-            callCount.incrementAndGet();
-            return SubmitOneOrderResponse.newBuilder().setOrderId("order-x").setChargeId("charge-x").build();
+        public int runSubmissionLoop(StartWorkerVersionEnablementRequest req) {
+            var ctx = Activity.getExecutionContext();
+            boolean allInvalid = req.getBusinessScenarioWeightsList().stream()
+                    .anyMatch(w -> w.getScenario() == BusinessScenario.BUSINESS_SCENARIO_INVALID_ORDER && w.getWeight() > 0);
+            int submitted = 0;
+            while (submitted < req.getOrderCount()) {
+                ctx.heartbeat(submitted);
+                String orderId = "order-" + callCount.incrementAndGet();
+                if (allInvalid) {
+                    synchronized (this) {
+                        completedValidations.add(orderId);
+                    }
+                }
+                submitted++;
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return submitted;
+                }
+            }
+            return submitted;
         }
     }
 
@@ -116,19 +143,39 @@ class WorkerVersionEnablementWorkflowTest {
     }
 
     @Test
-    void pauseGatesSubmissionUntilResumed() throws Exception {
+    void pauseDoesNotFailTheWorkflowAndResumeReachesOrderCount() throws Exception {
         var stub = newStub("enablement-pause");
         var request = StartWorkerVersionEnablementRequest.newBuilder()
                 .setEnablementId("demo-3").setOrderCount(5).setSubmitRatePerMin(60)
                 .build();
 
         WorkflowStub.fromTyped(stub).start(request);
+        Thread.sleep(200); // real wall-clock: let the fake's real-threaded loop start submitting
         stub.pause();
-        testEnv.sleep(Duration.ofSeconds(10));
-        assertThat(stub.getState().getOrdersSubmittedCount()).isZero();
+        Thread.sleep(500); // let cancellation land; the workflow must stay open, not fail
+
+        assertThat(stub.getState().getOrdersSubmittedCount())
+                .as("pause must not complete the run early")
+                .isLessThan(5);
 
         stub.resume();
         WorkflowStub.fromTyped(stub).getResult(30, TimeUnit.SECONDS, Void.class);
         assertThat(stub.getState().getOrdersSubmittedCount()).isEqualTo(5);
+        assertThat(stub.getState().getCurrentPhase()).isEqualTo(WorkerVersionEnablementState.DemoPhase.COMPLETE);
+    }
+
+    @Test
+    void invalidOrderScenarioTriggersValidationCompletionBeforeWorkflowCompletes() throws Exception {
+        var stub = newStub("enablement-invalid-order");
+        var request = StartWorkerVersionEnablementRequest.newBuilder()
+                .setEnablementId("demo-4").setOrderCount(2).setSubmitRatePerMin(600)
+                .addBusinessScenarioWeights(BusinessScenarioWeight.newBuilder()
+                        .setScenario(BusinessScenario.BUSINESS_SCENARIO_INVALID_ORDER).setWeight(1).build())
+                .build();
+
+        WorkflowClient.execute(stub::execute, request).get(30, TimeUnit.SECONDS);
+
+        assertThat(stub.getState().getCurrentPhase()).isEqualTo(WorkerVersionEnablementState.DemoPhase.COMPLETE);
+        assertThat(orderActivities.completedValidations).containsExactlyInAnyOrder("order-1", "order-2");
     }
 }
