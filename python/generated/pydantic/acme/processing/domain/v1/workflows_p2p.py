@@ -15,6 +15,9 @@ import typing
 class ProcessOrderRequestExecutionOptions(BaseModel):
     processing_timeout_secs: typing.Optional[int] = Field(default=0)
     oms_properties: typing.Optional[OmsProperties] = Field(default_factory=OmsProperties)
+# WORKSHOP: the send_fulfillment field is added to allow callers
+# to forward processing.Order data downstream to Fulfillment.
+# DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
     send_fulfillment: typing.Optional[bool] = Field(default=False)
 
 class ProcessOrderRequest(BaseModel):

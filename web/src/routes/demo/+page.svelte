@@ -3,7 +3,7 @@
 	import { loadGenApi } from '$lib/api/loadgen';
 	import type { LoadGeneratorState, ScenarioWeight, BusinessScenarioWeight } from '$lib/api/loadgen';
 	import { loadGenSession } from '$lib/stores/loadgen';
-	import { temporalWorkflowUrl } from '$lib/temporalLinks';
+	import { temporalActivityUrl } from '$lib/temporalLinks';
 	import LoadShapePanel from '$lib/components/LoadShapePanel.svelte';
 
 	const SHAPES: Record<string, { scenarioWeights: ScenarioWeight[]; businessScenarioWeights: BusinessScenarioWeight[] }> = {
@@ -46,8 +46,10 @@
 	const ORDER_COUNT = 5000;
 	const TIMEOUT = '3600s';
 
+	const TERMINAL_STATUSES = new Set(['COMPLETED', 'CANCELED', 'FAILED']);
+
 	let state: LoadGeneratorState | null = null;
-	let paused = false;
+	let ratePerMinute = 0;
 	let busy = false;
 	let error = '';
 	let pollHandle: ReturnType<typeof setInterval> | undefined;
@@ -68,7 +70,7 @@
 	async function poll(enablementId: string) {
 		try {
 			state = await loadGenApi.getState(enablementId);
-			if (state.currentPhase === 'COMPLETE') {
+			if (TERMINAL_STATUSES.has(state.status)) {
 				stopPolling();
 				loadGenSession.clear();
 				state = null;
@@ -77,7 +79,6 @@
 			stopPolling();
 			loadGenSession.clear();
 			state = null;
-			paused = false;
 		}
 	}
 
@@ -86,46 +87,18 @@
 		error = '';
 		try {
 			const picked = SHAPES[shape];
+			ratePerMinute = RATES[rate];
 			const result = await loadGenApi.start({
 				orderCount: ORDER_COUNT,
-				submitRatePerMin: RATES[rate],
+				submitRatePerMin: ratePerMinute,
 				timeout: TIMEOUT,
 				scenarioWeights: picked.scenarioWeights,
 				businessScenarioWeights: picked.businessScenarioWeights
 			});
 			loadGenSession.set(result.enablementId);
-			paused = false;
 			startPolling(result.enablementId);
 		} catch (err) {
 			error = 'Failed to start the load generator. Please try again.';
-			console.error(err);
-		} finally {
-			busy = false;
-		}
-	}
-
-	async function handlePause() {
-		if (!$loadGenSession) return;
-		busy = true;
-		try {
-			await loadGenApi.pause($loadGenSession.enablementId);
-			paused = true;
-		} catch (err) {
-			error = 'Failed to pause the load generator.';
-			console.error(err);
-		} finally {
-			busy = false;
-		}
-	}
-
-	async function handleResume() {
-		if (!$loadGenSession) return;
-		busy = true;
-		try {
-			await loadGenApi.resume($loadGenSession.enablementId);
-			paused = false;
-		} catch (err) {
-			error = 'Failed to resume the load generator.';
 			console.error(err);
 		} finally {
 			busy = false;
@@ -140,7 +113,6 @@
 			stopPolling();
 			loadGenSession.clear();
 			state = null;
-			paused = false;
 		} catch (err) {
 			error = 'Failed to stop the load generator.';
 			console.error(err);
@@ -155,7 +127,7 @@
 
 	onDestroy(stopPolling);
 
-	$: temporalUrl = $loadGenSession ? temporalWorkflowUrl('default', $loadGenSession.enablementId) : '';
+	$: temporalUrl = $loadGenSession ? temporalActivityUrl('default', $loadGenSession.enablementId) : '';
 	// Referencing `state` keeps this recomputing on each poll tick, not just on session start/stop.
 	$: elapsedSeconds = $loadGenSession && state ? Math.floor((Date.now() - $loadGenSession.startedAt) / 1000) : 0;
 </script>
@@ -177,15 +149,7 @@
 		</div>
 	{/if}
 
-	<LoadShapePanel
-		{state}
-		{paused}
-		{busy}
-		onStart={handleStart}
-		onPause={handlePause}
-		onResume={handleResume}
-		onStop={handleStop}
-	/>
+	<LoadShapePanel {state} {ratePerMinute} {busy} onStart={handleStart} onStop={handleStop} />
 
 	{#if $loadGenSession}
 		<div class="mt-6 flex items-center justify-between text-sm text-gray-500">

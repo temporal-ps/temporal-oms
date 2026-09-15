@@ -1,7 +1,7 @@
 # Worker Version Enablement Workflow - Progress Tracking
 
 **Spec:** [spec.md](./spec.md)
-**Status:** ✅ Reconciliation implemented (2026-09-14); see "Implementation Notes" below
+**Status:** ✅ Reconciliation implemented (2026-09-14); load-gen control path moved off the workflow onto a Standalone Activity (2026-09-15); see "Implementation Notes" below and spec.md's "Reconciliation Note (2026-09-15)"
 **Owner:** [Your Name]
 **Initiative:** [Worker Version Enablement](../INDEX.md)
 **Subdirectory:** `load-generation/` (historical name; contains core workflow + core module)
@@ -261,6 +261,43 @@ This spec defines the core enablement workflow + activities + local runner. Vers
   rejects a Mockito-mocked activity interface (Byte Buddy copies the
   interface's `@ActivityMethod` annotations onto the mock's overriding
   methods, which Temporal's own validation then flags as invalid).
+
+---
+
+## Load-Generation Control Path Change (2026-09-15)
+
+`enablements-api`'s `LoadGeneratorService`/`EnablementsController` no longer
+start/signal the `WorkerVersionEnablement` workflow to run load generation.
+They now start `OrderActivities.runSubmissionLoop` directly as a
+[Standalone Activity](https://docs.temporal.io/standalone-activity) via
+`ActivityClient`, observe it via `describe()`/heartbeat details, and cancel
+it via `ActivityHandle.cancel()`. See spec.md's "Reconciliation Note
+(2026-09-15)" for the full rationale.
+
+- `WorkerVersionEnablementImpl`, `WorkerVersionEnablement`,
+  `DeploymentActivities`/`DeploymentActivitiesImpl`, the `deployWorkerVersion`
+  signal, `pause()`/`resume()`, and `WorkerVersionEnablementWorkflowTest` are
+  **untouched** -- still present, still passing, still usable via
+  `temporal workflow start` (`ENABLEMENT.md`) for the version-transition
+  demo. They are simply no longer in the load-gen API/UI's call path.
+- `OrderActivities`/`OrderActivitiesImpl` are **untouched** -- the same
+  activity code and Worker registration run whether invoked from the
+  workflow or as a Standalone Activity.
+- `pause`/`resume` REST endpoints and UI controls are removed: Standalone
+  Activity Pause/Unpause exist server-side but aren't exposed as Client SDK
+  methods, so there's no clean way to wire them up. `stop` now calls
+  `cancel()` (cooperative, matches `runSubmissionLoop`'s existing
+  heartbeat-driven cancellation) instead of `terminate()`.
+- New proto message `LoadGenerationState` (`enablement_id`, `status`,
+  `orders_submitted_count`) replaces `WorkerVersionEnablementState` as this
+  path's REST response shape; `WorkerVersionEnablementState` is unchanged and
+  still serves the workflow path.
+- Frontend (`web/src/lib/api/loadgen.ts`,
+  `web/src/routes/demo/+page.svelte`, `web/src/lib/components/LoadShapePanel.svelte`):
+  Pause/Resume controls removed; polling now stops on a terminal
+  `ExecutionStatus` (`COMPLETED`/`CANCELED`/`FAILED`) instead of
+  `DemoPhase.COMPLETE`; the "Temporal UI" link now points at the Standalone
+  Activity, not a workflow.
 
 ---
 

@@ -31,12 +31,9 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
 	return response.json();
 }
 
-export type DemoPhase =
-	| 'DEMO_PHASE_UNSPECIFIED'
-	| 'RUNNING_V1_ONLY'
-	| 'TRANSITIONING_TO_V2'
-	| 'RUNNING_BOTH'
-	| 'COMPLETE';
+// Standalone Activity execution status (runSubmissionLoop has no owning workflow, so there is
+// no DemoPhase/active_versions -- those were WorkerVersionEnablement-workflow concepts).
+export type ExecutionStatus = 'EXECUTION_STATUS_UNSPECIFIED' | 'RUNNING' | 'COMPLETED' | 'CANCELED' | 'FAILED';
 
 export interface ScenarioWeight {
 	scenario: 'NORMAL' | 'PAYMENT_BEFORE_COMMERCE' | 'MISSING_COMMERCE_EVENT' | 'MISSING_PAYMENT_EVENT';
@@ -65,10 +62,8 @@ export interface StartLoadGeneratorRequest {
 
 export interface LoadGeneratorState {
 	enablementId: string;
-	currentPhase: DemoPhase;
+	status: ExecutionStatus;
 	ordersSubmittedCount: number;
-	ordersPerMinute: number;
-	activeVersions: string[];
 }
 
 export const loadGenApi = {
@@ -77,14 +72,6 @@ export const loadGenApi = {
 			method: 'POST',
 			body: JSON.stringify(payload)
 		});
-	},
-
-	async pause(enablementId: string): Promise<void> {
-		await fetchJson(`${API_BASE}/${enablementId}/pause`, { method: 'POST' });
-	},
-
-	async resume(enablementId: string): Promise<void> {
-		await fetchJson(`${API_BASE}/${enablementId}/resume`, { method: 'POST' });
 	},
 
 	async stop(enablementId: string, reason?: string): Promise<void> {

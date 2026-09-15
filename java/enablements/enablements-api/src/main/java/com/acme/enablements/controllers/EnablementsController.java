@@ -1,10 +1,11 @@
 package com.acme.enablements.controllers;
 
 import com.acme.enablements.loadgen.LoadGeneratorService;
+import com.acme.proto.acme.enablements.v1.LoadGenerationState;
 import com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest;
-import com.acme.proto.acme.enablements.v1.WorkerVersionEnablementState;
-import io.temporal.client.WorkflowException;
-import io.temporal.client.WorkflowExecutionAlreadyStarted;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.temporal.client.ActivityAlreadyStartedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Lets the web UI drive the WorkerVersionEnablement load generator
- * (start/pause/resume/stop, and poll its state) instead of the Temporal CLI.
+ * Lets the web UI drive the load generator (start/stop, and poll its state)
+ * instead of the Temporal CLI. The load generator runs as a Standalone
+ * Activity started directly by {@link LoadGeneratorService}, not through a
+ * workflow, so there is no pause/resume: Temporal exposes Activity
+ * Pause/Unpause only as CLI/gRPC operator commands, not as Client SDK
+ * methods callable from here.
+ *
  * Does not expose deployWorkerVersion; worker-version transition control is
  * a separate concern.
  *
@@ -36,31 +42,11 @@ public class EnablementsController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<WorkerVersionEnablementState> start(@RequestBody StartWorkerVersionEnablementRequest request) {
+    public ResponseEntity<LoadGenerationState> start(@RequestBody StartWorkerVersionEnablementRequest request) {
         try {
             return ResponseEntity.ok(loadGenerator.start(request));
-        } catch (WorkflowExecutionAlreadyStarted e) {
+        } catch (ActivityAlreadyStartedException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
-
-    @PostMapping("/{enablementId}/pause")
-    public ResponseEntity<Void> pause(@PathVariable String enablementId) {
-        try {
-            loadGenerator.pause(enablementId);
-            return ResponseEntity.accepted().build();
-        } catch (WorkflowException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/{enablementId}/resume")
-    public ResponseEntity<Void> resume(@PathVariable String enablementId) {
-        try {
-            loadGenerator.resume(enablementId);
-            return ResponseEntity.accepted().build();
-        } catch (WorkflowException e) {
-            return ResponseEntity.notFound().build();
         }
     }
 
@@ -70,17 +56,23 @@ public class EnablementsController {
         try {
             loadGenerator.stop(enablementId, reason);
             return ResponseEntity.accepted().build();
-        } catch (WorkflowException e) {
-            return ResponseEntity.notFound().build();
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                return ResponseEntity.notFound().build();
+            }
+            throw e;
         }
     }
 
     @GetMapping("/{enablementId}")
-    public ResponseEntity<WorkerVersionEnablementState> getState(@PathVariable String enablementId) {
+    public ResponseEntity<LoadGenerationState> getState(@PathVariable String enablementId) {
         try {
             return ResponseEntity.ok(loadGenerator.getState(enablementId));
-        } catch (WorkflowException e) {
-            return ResponseEntity.notFound().build();
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                return ResponseEntity.notFound().build();
+            }
+            throw e;
         }
     }
 }

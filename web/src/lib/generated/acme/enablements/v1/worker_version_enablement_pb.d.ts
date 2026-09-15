@@ -324,3 +324,71 @@ export declare type DeployWorkerVersionResponse = Message<"acme.enablements.v1.D
  */
 export declare const DeployWorkerVersionResponseSchema: GenMessage<DeployWorkerVersionResponse>;
 
+/**
+ * Current state of the runSubmissionLoop Standalone Activity Execution that
+ * enablements-api starts, observes, and cancels directly (no owning
+ * workflow). Distinct from WorkerVersionEnablementState, which serves the
+ * separate WorkerVersionEnablement workflow path.
+ *
+ * @generated from message acme.enablements.v1.LoadGenerationState
+ */
+export declare type LoadGenerationState = Message<"acme.enablements.v1.LoadGenerationState"> & {
+  /**
+   * @generated from field: string enablement_id = 1;
+   */
+  enablementId: string;
+
+  /**
+   * @generated from field: acme.enablements.v1.LoadGenerationState.ExecutionStatus status = 2;
+   */
+  status: LoadGenerationState_ExecutionStatus;
+
+  /**
+   * from the activity's last heartbeat details
+   *
+   * @generated from field: int32 orders_submitted_count = 3;
+   */
+  ordersSubmittedCount: number;
+};
+
+/**
+ * Describes the message acme.enablements.v1.LoadGenerationState.
+ * Use `create(LoadGenerationStateSchema)` to create a new message.
+ */
+export declare const LoadGenerationStateSchema: GenMessage<LoadGenerationState>;
+
+/**
+ * @generated from enum acme.enablements.v1.LoadGenerationState.ExecutionStatus
+ */
+export enum LoadGenerationState_ExecutionStatus {
+  /**
+   * @generated from enum value: EXECUTION_STATUS_UNSPECIFIED = 0;
+   */
+  EXECUTION_STATUS_UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: RUNNING = 1;
+   */
+  RUNNING = 1,
+
+  /**
+   * @generated from enum value: COMPLETED = 2;
+   */
+  COMPLETED = 2,
+
+  /**
+   * @generated from enum value: CANCELED = 3;
+   */
+  CANCELED = 3,
+
+  /**
+   * @generated from enum value: FAILED = 4;
+   */
+  FAILED = 4,
+}
+
+/**
+ * Describes the enum acme.enablements.v1.LoadGenerationState.ExecutionStatus.
+ */
+export declare const LoadGenerationState_ExecutionStatusSchema: GenEnum<LoadGenerationState_ExecutionStatus>;
+

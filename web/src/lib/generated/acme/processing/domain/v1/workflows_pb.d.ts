@@ -68,14 +68,13 @@ export declare type ProcessOrderRequestExecutionOptions = Message<"acme.processi
   processingTimeoutSecs?: bigint;
 
   /**
-   * WORKSHOP: the send_fulfillment field is added to allow callers
-   * to forward processing.Order data downstream to Fulfillment.
-   *
    * @generated from field: optional acme.oms.v1.OmsProperties oms_properties = 2;
    */
   omsProperties?: OmsProperties;
 
   /**
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
    * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
    *
    * @generated from field: optional bool send_fulfillment = 3;

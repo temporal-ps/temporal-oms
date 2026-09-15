@@ -30,6 +30,49 @@ existing code (see "Fixes Applied in This Reconciliation" below).
 
 ---
 
+## Reconciliation Note (2026-09-15)
+
+Load generation's control path no longer goes through the `WorkerVersionEnablement`
+workflow described below. `enablements-api`'s `LoadGeneratorService` now
+starts, observes, and cancels `OrderActivities.runSubmissionLoop` directly as
+a [Standalone Activity](https://docs.temporal.io/standalone-activity) via
+`ActivityClient`, addressed by Activity ID (the `enablement_id`) on the same
+`enablements` task queue -- no owning workflow, no workflow signals. This
+lets the web UI control the submission job's lifecycle (start, observe
+progress, cancel) directly, exactly matching the SDK cancellation already
+built into `runSubmissionLoop`, without the workflow layer in between.
+
+**The `WorkerVersionEnablement` workflow itself, `deployWorkerVersion`, and
+`pause()`/`resume()` are untouched** and remain available exactly as
+documented below (e.g. via `temporal workflow start`, see
+`java/enablements/ENABLEMENT.md`) for the worker-version-transition
+demonstration. They are simply no longer what `enablements-api`'s load-gen
+endpoints drive.
+
+**Pause/resume have no equivalent on this path and are dropped from the API
+and UI.** Temporal's Activity Pause/Unpause operations exist for Standalone
+Activities, but per
+[Activity Operations](https://docs.temporal.io/activity-operations), they
+are "operational controls designed for the CLI, UI, and gRPC API -- not for
+programmatic use" via the Client SDK, so there's no clean way to wire a
+`pause()`/`resume()` REST endpoint to them. Cancellation
+(`ActivityHandle.cancel()`) is a normal, GA SDK operation and replaces the
+old `stop()`'s `terminate()` call: it's cooperative, matching
+`runSubmissionLoop`'s existing heartbeat-driven cancellation handling, and
+preserves the heartbeat-reported submitted count instead of discarding it.
+
+**Endpoints** (`EnablementsController`, `/api/v1/enablements/worker-version`):
+`POST /start`, `POST /{enablement_id}/stop`, `GET /{enablement_id}` only.
+State is a new, separate `LoadGenerationState` message (`enablement_id`,
+`status`, `orders_submitted_count`, sourced from the Standalone Activity's
+`describe()`/heartbeat details) -- not `WorkerVersionEnablementState`, whose
+`DemoPhase`/`active_versions`/deploy-request fields are workflow/
+version-transition concepts that don't apply to a bare activity execution.
+`WorkerVersionEnablementState` and its query still serve the workflow path
+described in the rest of this document unchanged.
+
+---
+
 ## Overview
 
 ### Executive Summary
@@ -123,11 +166,12 @@ Enablements Application
 │       • v2 build-id: enablements-worker:v2
 │
 └── enablements-api endpoints (dedicated java/enablements/enablements-api module)
-    └─ EnablementsController: Query workflow state + control signals
-       • GET /api/v1/enablements/worker-version/{enablement_id} - Get workflow state
-       • POST /api/v1/enablements/worker-version/{enablement_id}/start - Trigger workflow
-       • POST /api/v1/enablements/worker-version/{enablement_id}/pause - Pause workflow
-       • POST /api/v1/enablements/worker-version/{enablement_id}/transition-to-v2 - Signal v2 transition
+    └─ EnablementsController: start/observe/cancel the runSubmissionLoop
+       Standalone Activity directly (see "Reconciliation Note (2026-09-15)"
+       above) -- not workflow signals
+       • POST /api/v1/enablements/worker-version/start - Start the load-gen Standalone Activity
+       • GET /api/v1/enablements/worker-version/{enablement_id} - Get its LoadGenerationState (status, orders submitted)
+       • POST /api/v1/enablements/worker-version/{enablement_id}/stop - Cancel it
 ```
 
 **Data Layer (Protobuf):**

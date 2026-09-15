@@ -7,7 +7,7 @@ export interface LoadGenSession {
 }
 
 // Current load-generator session (enablementId + start time), persisted so a
-// page refresh mid-demo doesn't lose track of the running workflow.
+// page refresh mid-demo doesn't lose track of the running load-generation activity.
 function createLoadGenStore() {
 	const initial: LoadGenSession | null = browser
 		? JSON.parse(localStorage.getItem('loadGenSession') || 'null')

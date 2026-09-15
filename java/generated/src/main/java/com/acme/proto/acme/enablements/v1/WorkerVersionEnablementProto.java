@@ -28,44 +28,49 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_ScenarioWeight_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_ScenarioWeight_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_BusinessScenarioWeight_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_BusinessScenarioWeight_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_WorkerVersionEnablementState_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_SubmitOneOrderRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_SubmitOneOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_SubmitOneOrderResponse_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_SubmitOneOrderResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_DeployWorkerVersionRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_DeployWorkerVersionRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_DeployWorkerVersionResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_LoadGenerationState_descriptor;
+  static final
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_LoadGenerationState_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -130,12 +135,20 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       "loymentName\022\031\n\010build_id\030\002 \001(\tR\007buildId\022\030" +
       "\n\007version\030\003 \001(\tR\007version\022(\n\rreplica_coun" +
       "t\030\004 \001(\005H\000R\014replicaCount\210\001\001B\020\n\016_replica_c" +
-      "ount\"\035\n\033DeployWorkerVersionResponseB\260\001\n\"" +
-      "com.acme.proto.acme.enablements.v1B\034Work" +
-      "erVersionEnablementProtoP\001\242\002\003AEX\252\002\023Acme." +
-      "Enablements.V1\312\002\023Acme\\Enablements\\V1\342\002\037A" +
-      "cme\\Enablements\\V1\\GPBMetadata\352\002\025Acme::E" +
-      "nablements::V1b\006proto3"
+      "ount\"\035\n\033DeployWorkerVersionResponse\"\255\002\n\023" +
+      "LoadGenerationState\022#\n\renablement_id\030\001 \001" +
+      "(\tR\014enablementId\022P\n\006status\030\002 \001(\01628.acme." +
+      "enablements.v1.LoadGenerationState.Execu" +
+      "tionStatusR\006status\0224\n\026orders_submitted_c" +
+      "ount\030\003 \001(\005R\024ordersSubmittedCount\"i\n\017Exec" +
+      "utionStatus\022 \n\034EXECUTION_STATUS_UNSPECIF" +
+      "IED\020\000\022\013\n\007RUNNING\020\001\022\r\n\tCOMPLETED\020\002\022\014\n\010CAN" +
+      "CELED\020\003\022\n\n\006FAILED\020\004B\260\001\n\"com.acme.proto.a" +
+      "cme.enablements.v1B\034WorkerVersionEnablem" +
+      "entProtoP\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002" +
+      "\023Acme\\Enablements\\V1\342\002\037Acme\\Enablements\\" +
+      "V1\\GPBMetadata\352\002\025Acme::Enablements::V1b\006" +
+      "proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -192,6 +205,12 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor,
         new java.lang.String[] { });
+    internal_static_acme_enablements_v1_LoadGenerationState_descriptor =
+      getDescriptor().getMessageType(8);
+    internal_static_acme_enablements_v1_LoadGenerationState_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_LoadGenerationState_descriptor,
+        new java.lang.String[] { "EnablementId", "Status", "OrdersSubmittedCount", });
     descriptor.resolveAllFeaturesImmutable();
     com.google.protobuf.DurationProto.getDescriptor();
     com.google.protobuf.TimestampProto.getDescriptor();

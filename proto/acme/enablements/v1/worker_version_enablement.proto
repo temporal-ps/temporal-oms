@@ -79,3 +79,21 @@ message DeployWorkerVersionRequest {
 message DeployWorkerVersionResponse {
 
 }
+
+// Current state of the runSubmissionLoop Standalone Activity Execution that
+// enablements-api starts, observes, and cancels directly (no owning
+// workflow). Distinct from WorkerVersionEnablementState, which serves the
+// separate WorkerVersionEnablement workflow path.
+message LoadGenerationState {
+  enum ExecutionStatus {
+    EXECUTION_STATUS_UNSPECIFIED = 0;
+    RUNNING = 1;
+    COMPLETED = 2;
+    CANCELED = 3;
+    FAILED = 4;
+  }
+
+  string enablement_id = 1;
+  ExecutionStatus status = 2;
+  int32 orders_submitted_count = 3; // from the activity's last heartbeat details
+}

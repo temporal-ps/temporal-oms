@@ -100,3 +100,22 @@ class SubmitOneOrderRequest(BaseModel):
 class SubmitOneOrderResponse(BaseModel):
     order_id: str = Field(default="")
     charge_id: str = Field(default="")
+
+class LoadGenerationState(BaseModel):
+    """
+     Current state of the runSubmissionLoop Standalone Activity Execution that
+ enablements-api starts, observes, and cancels directly (no owning
+ workflow). Distinct from WorkerVersionEnablementState, which serves the
+ separate WorkerVersionEnablement workflow path.
+    """
+    class ExecutionStatus(IntEnum):
+        EXECUTION_STATUS_UNSPECIFIED = 0
+        RUNNING = 1
+        COMPLETED = 2
+        CANCELED = 3
+        FAILED = 4
+
+    model_config = ConfigDict(validate_default=True)
+    enablement_id: str = Field(default="")
+    status: "LoadGenerationState.ExecutionStatus" = Field(default=0)
+    orders_submitted_count: int = Field(default=0)# from the activity's last heartbeat details

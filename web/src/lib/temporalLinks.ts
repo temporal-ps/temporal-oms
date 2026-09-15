@@ -10,6 +10,13 @@ export function temporalWorkflowUrl(namespace: string, workflowId: string): stri
 	return `${TEMPORAL_UI_BASE_URL}/namespaces/${encodeURIComponent(namespace)}/workflows/${encodeURIComponent(workflowId)}`;
 }
 
+// Standalone Activities (no owning workflow) get their own Temporal Web UI list/detail path,
+// separate from /workflows/{id}. Verify this path against the deployed Temporal UI version if
+// the link 404s -- Standalone Activities are a newer, still-evolving UI surface.
+export function temporalActivityUrl(namespace: string, activityId: string): string {
+	return `${TEMPORAL_UI_BASE_URL}/namespaces/${encodeURIComponent(namespace)}/activities/${encodeURIComponent(activityId)}`;
+}
+
 export interface OrderTrackingLink {
 	label: string;
 	namespace: string;

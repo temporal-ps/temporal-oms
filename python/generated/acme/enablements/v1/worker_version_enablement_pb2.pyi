@@ -115,3 +115,25 @@ class DeployWorkerVersionRequest(_message.Message):
 class DeployWorkerVersionResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class LoadGenerationState(_message.Message):
+    __slots__ = ()
+    class ExecutionStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        EXECUTION_STATUS_UNSPECIFIED: _ClassVar[LoadGenerationState.ExecutionStatus]
+        RUNNING: _ClassVar[LoadGenerationState.ExecutionStatus]
+        COMPLETED: _ClassVar[LoadGenerationState.ExecutionStatus]
+        CANCELED: _ClassVar[LoadGenerationState.ExecutionStatus]
+        FAILED: _ClassVar[LoadGenerationState.ExecutionStatus]
+    EXECUTION_STATUS_UNSPECIFIED: LoadGenerationState.ExecutionStatus
+    RUNNING: LoadGenerationState.ExecutionStatus
+    COMPLETED: LoadGenerationState.ExecutionStatus
+    CANCELED: LoadGenerationState.ExecutionStatus
+    FAILED: LoadGenerationState.ExecutionStatus
+    ENABLEMENT_ID_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    ORDERS_SUBMITTED_COUNT_FIELD_NUMBER: _ClassVar[int]
+    enablement_id: str
+    status: LoadGenerationState.ExecutionStatus
+    orders_submitted_count: int
+    def __init__(self, enablement_id: _Optional[str] = ..., status: _Optional[_Union[LoadGenerationState.ExecutionStatus, str]] = ..., orders_submitted_count: _Optional[int] = ...) -> None: ...
