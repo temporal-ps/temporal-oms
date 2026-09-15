@@ -15,6 +15,7 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateStage;
 import io.temporal.nexus.Nexus;
+import io.temporal.nexus.TemporalOperationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,33 +57,31 @@ public class FulfillmentImpl {
                     validateRequest,
                     UpdateOptions.<ValidateOrderResponse>newBuilder()
                             .setWaitForStage(WorkflowUpdateStage.COMPLETED)
+                            .setUpdateName(details.getRequestId())
                             .build(),
                     new WithStartWorkflowOperation<>(orderWorkflow::execute, request));
         });
     }
 
+    // Dispatch fulfillOrder Update to the running fulfillment.Order workflow.
+    // We wait only for ACCEPTED — fulfillOrder awaits delivery status (long-running)
+    // and apps.Order does not need the result; fulfillment.Order is the source of truth.
     @OperationImpl
     public OperationHandler<FulfillOrderRequest, FulfillOrderResponse> fulfillOrder() {
-        // Dispatch fulfillOrder Update to the running fulfillment.Order workflow.
-        // We wait only for ACCEPTED — fulfillOrder awaits delivery status (long-running)
-        // and apps.Order does not need the result; fulfillment.Order is the source of truth.
-        return OperationHandler.sync((ctx, details, request) -> {
-            var orderId = request.getProcessedOrder().getOrderId();
-            logger.info("fulfillOrder Nexus operation for order_id={}", orderId);
-
-            WorkflowClient client = Nexus.getOperationContext().getWorkflowClient();
-            Order orderWorkflow = client.newWorkflowStub(Order.class, orderId);
-
-            WorkflowStub.fromTyped(orderWorkflow).startUpdate(
-                    UpdateOptions.<FulfillOrderResponse>newBuilder()
-                            .setUpdateName("fulfillOrder")
-                            .setResultClass(FulfillOrderResponse.class)
-                            .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
-                            .build(),
-                    request);
-
-            return FulfillOrderResponse.getDefaultInstance();
-        });
+        return TemporalOperationHandler.create(
+                (context, client, input) -> {
+                    var orderId = input.getProcessedOrder().getOrderId();
+                    logger.info("fulfillOrder Nexus operation for order_id={}", orderId);
+                    UpdateOptions.Builder<FulfillOrderResponse> optionsBuilder =
+                            UpdateOptions.newBuilder(FulfillOrderResponse.class)
+                                    .setUpdateName("fulfillOrder")
+                                    .setWaitForStage(WorkflowUpdateStage.ACCEPTED);
+                    // TODO support this for idempotency
+//                    if (input.getUpdateId() != null) {
+//                        optionsBuilder.setUpdateId(input.getUpdateId());
+//                    }
+                    return client.startWorkflowUpdate(Order.class, orderId, Order::fulfillOrder, input, optionsBuilder.build());
+                });
     }
 
     private com.acme.proto.acme.common.v1.Address toCommonAddress(StartOrderFulfillmentRequest request) {
