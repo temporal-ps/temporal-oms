@@ -3,38 +3,58 @@
 	import { cart, cartTotal } from '$lib/stores/cart';
 	import { customerId } from '$lib/stores/customer';
 	import { orderId as currentOrderId } from '$lib/stores/order';
+	import { chargeId as currentChargeId } from '$lib/stores/charge';
 	import { api } from '$lib/api/client';
-	import { loadStripe } from '@stripe/stripe-js';
-	import type { Stripe, StripeElements, StripePaymentElement } from '@stripe/stripe-js';
-	import { onMount } from 'svelte';
-	import type { ShippingAddress } from '$lib/types';
+	import type { BusinessScenario, DemoScenario, SelectedShipmentOverride, ShippingAddress } from '$lib/types';
 
 	// Redirect if no customer ID
 	$: if (!$customerId) {
 		goto('/shop/home');
 	}
 
-	let stripe: Stripe | null = null;
-	let elements: StripeElements | null = null;
-	let paymentElement: StripePaymentElement | null = null;
-	let clientSecret = '';
 	let showCheckout = false;
 	let processing = false;
 	let error = '';
+	let paymentStatus = '';
+	let cardNumber = '4242424242424242';
+	let scenario: DemoScenario = 'NORMAL';
+	let businessScenario: BusinessScenario = 'NORMAL';
 
-	// Shipping address form
-	let shippingAddress: ShippingAddress = {
-		street: '',
-		city: '',
-		state: '',
-		postalCode: '',
-		country: 'US'
-	};
+	// Mirrors scripts/scenarios/{margin-spike,sla-breach}/1-submit-order.sh exactly.
+	function selectedShipmentFor(bs: BusinessScenario): SelectedShipmentOverride | undefined {
+		if (bs === 'MARGIN_SPIKE') return { paidPriceCents: 1 };
+		if (bs === 'SLA_BREACH') return { paidPriceCents: 995, deliveryDays: 0 };
+		return undefined;
+	}
 
-	onMount(async () => {
-		// Load Stripe (use test key for local dev)
-		stripe = await loadStripe('pk_test_PLACEHOLDER'); // Replace with actual test key
-	});
+	// Canned addresses must match an entry in enablements-api's shipping fixture
+	// (java/enablements/enablements-api/src/main/resources/fixtures/shipping-fixtures.json)
+	// or fulfillment's address verification rejects the order outright.
+	const CANNED_ADDRESSES: ShippingAddress[] = [
+		{ street: '200 N Spring St', city: 'Los Angeles', state: 'CA', postalCode: '90012', country: 'US' },
+		{ street: '301 Congress Ave', city: 'Austin', state: 'TX', postalCode: '78701', country: 'US' },
+		{ street: '401 5th Ave', city: 'Seattle', state: 'WA', postalCode: '98104', country: 'US' },
+		{ street: '11 Wall St', city: 'New York', state: 'NY', postalCode: '10005', country: 'US' }
+	];
+
+	const TEST_CARDS: Array<{ number: string; label: string }> = [
+		{ number: '4242424242424242', label: 'Authorizes and captures normally' },
+		{ number: '4000000000000002', label: 'Declined' },
+		{ number: '4000000000009995', label: 'Insufficient funds' },
+		{ number: '4000000000000069', label: 'Expired card' },
+		{ number: '4000000000000259', label: 'Authorizes, then capture fails' }
+	];
+
+	// Shipping address form, prefilled with a random canned address
+	let shippingAddress: ShippingAddress = randomAddress();
+
+	function randomAddress(): ShippingAddress {
+		return { ...CANNED_ADDRESSES[Math.floor(Math.random() * CANNED_ADDRESSES.length)] };
+	}
+
+	function useTestCard(number: string) {
+		cardNumber = number;
+	}
 
 	function formatPrice(priceCents: number): string {
 		return `$${(priceCents / 100).toFixed(2)}`;
@@ -48,75 +68,54 @@
 		cart.updateQuantity(itemId, quantity);
 	}
 
-	async function handlePlaceOrder() {
+	function handlePlaceOrder() {
 		if ($cart.length === 0) {
 			error = 'Your cart is empty';
 			return;
 		}
-
+		shippingAddress = randomAddress();
 		showCheckout = true;
-
-		// Create payment intent
-		try {
-			const { clientSecret: secret } = await api.createPaymentIntent($currentOrderId, $cartTotal);
-			clientSecret = secret;
-
-			// Initialize Stripe Elements
-			if (stripe && clientSecret) {
-				elements = stripe.elements({ clientSecret });
-				paymentElement = elements.create('payment', {
-					layout: 'tabs'
-				});
-				paymentElement.mount('#payment-element');
-			}
-		} catch (err) {
-			error = 'Failed to initialize payment. Please try again.';
-			console.error(err);
-		}
 	}
 
 	async function handleSubmitOrder() {
-		if (!stripe || !elements || processing) return;
+		if (processing) return;
 
-		// Validate shipping address
 		if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.state || !shippingAddress.postalCode) {
 			error = 'Please fill in all shipping address fields';
+			return;
+		}
+		if (!cardNumber.trim()) {
+			error = 'Please enter a card number';
 			return;
 		}
 
 		processing = true;
 		error = '';
+		paymentStatus = '';
 
 		try {
-			// First submit commerce order
-			await api.submitCommerceOrder(
-				$currentOrderId,
+			const order = await api.submitCommerceOrder(
 				$customerId,
-				$cart.map((item) => ({
-					itemId: item.itemId,
-					quantity: item.quantity
-				})),
-				shippingAddress
+				$cart.map((item) => ({ itemId: item.itemId, quantity: item.quantity })),
+				shippingAddress,
+				scenario,
+				selectedShipmentFor(businessScenario),
+				businessScenario === 'INVALID_ORDER'
 			);
+			currentOrderId.set(order.orderId);
 
-			// Then confirm payment with Stripe
-			const { error: stripeError } = await stripe.confirmPayment({
-				elements,
-				confirmParams: {
-					return_url: `${window.location.origin}/shop/orders`,
-					payment_method_data: {
-						metadata: {
-							order_id: $currentOrderId
-						}
-					}
-				}
-			});
+			const charge = await api.createCharge(order.orderId, $customerId, $cartTotal, cardNumber.trim());
+			currentChargeId.set(charge.chargeId);
+			paymentStatus = charge.status;
 
-			if (stripeError) {
-				error = stripeError.message || 'Payment failed';
+			if (charge.status === 'DECLINED' || charge.status === 'INSUFFICIENT_FUNDS' || charge.status === 'EXPIRED_CARD') {
+				error = `Payment ${charge.status.toLowerCase().replace('_', ' ')}${charge.declineReason ? ': ' + charge.declineReason : ''}. Please try a different card.`;
 				processing = false;
+				return;
 			}
-			// If successful, Stripe will redirect to return_url
+
+			cart.clear();
+			goto('/shop/orders');
 		} catch (err) {
 			error = 'Failed to process order. Please try again.';
 			processing = false;
@@ -128,6 +127,38 @@
 <svelte:head>
 	<title>Shopping Cart - Temporal OMS</title>
 </svelte:head>
+
+<!-- Floating demo scenario selector -->
+<div class="fixed bottom-4 right-4 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-72">
+	<h4 class="text-sm font-semibold text-gray-900 mb-2">Demo Scenario</h4>
+	<select
+		bind:value={scenario}
+		class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+	>
+		<option value="NORMAL">Normal (commerce, then payment)</option>
+		<option value="PAYMENT_BEFORE_COMMERCE">Payment before commerce</option>
+		<option value="MISSING_COMMERCE_EVENT">Missing commerce event</option>
+		<option value="MISSING_PAYMENT_EVENT">Missing payment event</option>
+	</select>
+	<p class="mt-2 text-xs text-gray-500">
+		Governs how this order's webhook events are delivered by PublishCartOrders.
+	</p>
+
+	<h4 class="text-sm font-semibold text-gray-900 mt-4 mb-2">Business Scenario</h4>
+	<select
+		bind:value={businessScenario}
+		class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2"
+	>
+		<option value="NORMAL">Normal</option>
+		<option value="MARGIN_SPIKE">Margin spike (forces alternate warehouse)</option>
+		<option value="SLA_BREACH">SLA breach (same-day, no carrier can meet it)</option>
+		<option value="INVALID_ORDER">Invalid order (fails validation)</option>
+	</select>
+	<p class="mt-2 text-xs text-gray-500">
+		Triggers the same conditions as scripts/scenarios/{'{'}margin-spike,sla-breach,invalid-order{'}'},
+		through this checkout instead of the standalone script.
+	</p>
+</div>
 
 <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
 	<h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
@@ -310,24 +341,46 @@
 								id="country"
 								bind:value={shippingAddress.country}
 								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-								value="US"
 								readonly
 							/>
 						</div>
 					</div>
+				</div>
 
-					<div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-						<p class="text-sm text-yellow-800">
-							<strong>Note:</strong> Entering "123 Fraud Street" will trigger a fraud alert for testing purposes.
-						</p>
+				<!-- Card Number (Payments Processor simulator) -->
+				<div class="mb-6">
+					<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
+					<label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">
+						Card Number
+					</label>
+					<input
+						type="text"
+						id="cardNumber"
+						bind:value={cardNumber}
+						class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono"
+						placeholder="4242424242424242"
+						required
+					/>
+					<p class="mt-2 mb-2 text-sm text-gray-500">Or click a test card to autofill it:</p>
+					<div class="space-y-2">
+						{#each TEST_CARDS as testCard}
+							<button
+								type="button"
+								onclick={() => useTestCard(testCard.number)}
+								class="w-full flex items-center justify-between px-4 py-2 border rounded-lg text-sm text-left transition-colors {cardNumber === testCard.number ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:bg-gray-50'}"
+							>
+								<code class="font-mono">{testCard.number}</code>
+								<span class="text-gray-600">{testCard.label}</span>
+							</button>
+						{/each}
 					</div>
 				</div>
 
-				<!-- Stripe Payment Element -->
-				<div class="mb-6">
-					<h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
-					<div id="payment-element"></div>
-				</div>
+				{#if paymentStatus && !error}
+					<div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+						<p class="text-sm text-blue-800">Payment status: {paymentStatus}</p>
+					</div>
+				{/if}
 
 				{#if error}
 					<div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">

@@ -5,10 +5,71 @@
 **Status:** Draft - Ready for Tech Lead Review
 **Owner:** [Your Name]
 **Created:** 2026-03-18
-**Updated:** 2026-03-18
+**Updated:** 2026-09-14
 
 **Part of:** [Worker Version Enablement Initiative](../INDEX.md)
 **Application Structure:** `java/enablements/enablements-core/`
+
+---
+
+## Reconciliation Note (2026-09-14)
+
+Real code already exists for this workflow (`WorkerVersionEnablement`,
+`WorkerVersionEnablementImpl`, `OrderActivitiesImpl`,
+`DeploymentActivitiesImpl` in `java/enablements/enablements-core`), ahead
+of this spec's own tracked progress and diverged from several details
+below (interface method names, whether payment submission happens here).
+This update does two things at once: corrects the sections that had
+drifted from the real code, and reconciles this workflow's order
+generation with `SPECS/commerce-payments-apps/spec.md`'s Commerce App and
+Payments Processor simulators, so that the same `ScenarioOptions`-driven
+delivery behavior (normal, out-of-order, missing-event) used for the
+human-driven Svelte checkout demo becomes a reusable, weighted-mix stress
+test for worker-version rollouts. It also fixes real bugs found in the
+existing code (see "Fixes Applied in This Reconciliation" below).
+
+---
+
+## Reconciliation Note (2026-09-15)
+
+Load generation's control path no longer goes through the `WorkerVersionEnablement`
+workflow described below. `enablements-api`'s `LoadGeneratorService` now
+starts, observes, and cancels `OrderActivities.runSubmissionLoop` directly as
+a [Standalone Activity](https://docs.temporal.io/standalone-activity) via
+`ActivityClient`, addressed by Activity ID (the `enablement_id`) on the same
+`enablements` task queue -- no owning workflow, no workflow signals. This
+lets the web UI control the submission job's lifecycle (start, observe
+progress, cancel) directly, exactly matching the SDK cancellation already
+built into `runSubmissionLoop`, without the workflow layer in between.
+
+**The `WorkerVersionEnablement` workflow itself, `deployWorkerVersion`, and
+`pause()`/`resume()` are untouched** and remain available exactly as
+documented below (e.g. via `temporal workflow start`, see
+`java/enablements/ENABLEMENT.md`) for the worker-version-transition
+demonstration. They are simply no longer what `enablements-api`'s load-gen
+endpoints drive.
+
+**Pause/resume have no equivalent on this path and are dropped from the API
+and UI.** Temporal's Activity Pause/Unpause operations exist for Standalone
+Activities, but per
+[Activity Operations](https://docs.temporal.io/activity-operations), they
+are "operational controls designed for the CLI, UI, and gRPC API -- not for
+programmatic use" via the Client SDK, so there's no clean way to wire a
+`pause()`/`resume()` REST endpoint to them. Cancellation
+(`ActivityHandle.cancel()`) is a normal, GA SDK operation and replaces the
+old `stop()`'s `terminate()` call: it's cooperative, matching
+`runSubmissionLoop`'s existing heartbeat-driven cancellation handling, and
+preserves the heartbeat-reported submitted count instead of discarding it.
+
+**Endpoints** (`EnablementsController`, `/api/v1/enablements/worker-version`):
+`POST /start`, `POST /{enablement_id}/stop`, `GET /{enablement_id}` only.
+State is a new, separate `LoadGenerationState` message (`enablement_id`,
+`status`, `orders_submitted_count`, sourced from the Standalone Activity's
+`describe()`/heartbeat details) -- not `WorkerVersionEnablementState`, whose
+`DemoPhase`/`active_versions`/deploy-request fields are workflow/
+version-transition concepts that don't apply to a bare activity execution.
+`WorkerVersionEnablementState` and its query still serve the workflow path
+described in the rest of this document unchanged.
 
 ---
 
@@ -80,11 +141,23 @@ This clarity separates "how we invoke the system" (enablement workflow running l
 ### Architecture Overview
 
 ```
-Enablements Application (new bounded context)
+Enablements Application
 ├── enablements-core/
-│   └── WorkerVersionEnablementWorkflow (v1 & v2)
-│       ├─ Activity: submitOrder (→ apps-api)
-│       │   (OMS handles enrichment + payments internally)
+│   └── WorkerVersionEnablement workflow (task queue: enablements)
+│       ├─ Workflow drives the submission loop directly (Workflow.sleep
+│       │  between orders, checks a real paused flag each cycle,
+│       │  continueAsNew periodically to keep history bounded)
+│       ├─ Per order: pick a DemoScenario from scenario_weights (default:
+│       │  mostly NORMAL), then call a short "submit one order" activity
+│       ├─ That activity calls the SAME Commerce App / Payments Processor
+│       │  REST surface from SPECS/commerce-payments-apps/spec.md:
+│       │    POST /api/v1/integrations/commerce/orders   (with ScenarioOptions)
+│       │    POST /api/v1/integrations/payments/charges   (+ capture)
+│       │  It no longer PUTs/POSTs directly into apps-api's real
+│       │  webhooks; real delivery into apps-api now happens later, via
+│       │  PublishCartOrders' scheduled tick (see Dependencies below)
+│       ├─ Signal: deployWorkerVersion(buildId, replicas) → DeploymentActivities
+│       ├─ Signal: pause() / resume() → actually gate the loop
 │       └─ Query: getState()
 │
 ├── enablements-workers/
@@ -93,11 +166,12 @@ Enablements Application (new bounded context)
 │       • v2 build-id: enablements-worker:v2
 │
 └── enablements-api endpoints (dedicated java/enablements/enablements-api module)
-    └─ EnablementsController: Query workflow state + control signals
-       • GET /api/v1/enablements/worker-version/{enablement_id} - Get workflow state
-       • POST /api/v1/enablements/worker-version/{enablement_id}/start - Trigger workflow
-       • POST /api/v1/enablements/worker-version/{enablement_id}/pause - Pause workflow
-       • POST /api/v1/enablements/worker-version/{enablement_id}/transition-to-v2 - Signal v2 transition
+    └─ EnablementsController: start/observe/cancel the runSubmissionLoop
+       Standalone Activity directly (see "Reconciliation Note (2026-09-15)"
+       above) -- not workflow signals
+       • POST /api/v1/enablements/worker-version/start - Start the load-gen Standalone Activity
+       • GET /api/v1/enablements/worker-version/{enablement_id} - Get its LoadGenerationState (status, orders submitted)
+       • POST /api/v1/enablements/worker-version/{enablement_id}/stop - Cancel it
 ```
 
 **Data Layer (Protobuf):**
@@ -109,11 +183,25 @@ All workflow inputs, outputs, and state are protobuf messages. This is the singl
 
 // Start a worker versioning enablement demonstration
 message StartWorkerVersionEnablementRequest {
-  string demonstration_id = 1;      // e.g., "demo-session-2026-03-18"
-  int32 order_count = 2;            // How many orders to process (e.g., 20)
-  int32 submit_rate_per_min = 3;    // Orders per minute (e.g., 12)
-  google.protobuf.Duration timeout = 4;  // How long to run (e.g., 5 minutes)
+  string enablement_id = 1;         // e.g., "demo-session-2026-03-18" (real field name; corrects this spec's earlier "demonstration_id")
+  string order_id_seed = 2;         // prefix for generated order IDs; no longer has any behavioral meaning (see Fixes Applied)
+  int32 order_count = 3;            // How many orders to process (e.g., 20); currently logged but not enforced, fixed as part of this reconciliation (see Fixes Applied)
+  int32 submit_rate_per_min = 4;    // Orders per minute (e.g., 12)
+  google.protobuf.Duration timeout = 5;  // How long to run (e.g., 5 minutes); currently logged but not enforced, fixed as part of this reconciliation
+  repeated ScenarioWeight scenario_weights = 6; // NEW: weighted mix of DemoScenario for generated orders; empty defaults to mostly NORMAL
 }
+
+// Weight for one DemoScenario (from proto/acme/enablements/domain/v1/commerce.proto,
+// defined in SPECS/commerce-payments-apps/spec.md) in the generated load's scenario mix.
+message ScenarioWeight {
+  acme.enablements.domain.v1.DemoScenario scenario = 1;
+  int32 weight = 2;
+}
+
+// Default scenario mix when scenario_weights is empty: mostly NORMAL, a small
+// trickle of the other three, so sustained load exercises realistic messy
+// delivery without most orders failing to complete:
+//   NORMAL: 85, PAYMENT_BEFORE_COMMERCE: 5, MISSING_COMMERCE_EVENT: 5, MISSING_PAYMENT_EVENT: 5
 
 // Current state of the worker versioning enablement demonstration
 // (Order tracking is the responsibility of the OMS application, not this workflow)
@@ -162,14 +250,18 @@ message WorkerVersionEnablementState {
 
 ### Component Design
 
-#### WorkerVersionEnablementWorkflow
-- **Purpose:** Orchestrate orders through system while team manually controls v2 deployment, demonstrating safe worker versioning interactively
-- **Interface:**
+#### `WorkerVersionEnablement` workflow
+- **Purpose:** Orchestrate orders through the system while a team manually
+  controls v2 deployment, demonstrating safe worker versioning
+  interactively.
+- **Interface** (real interface; corrects this spec's earlier
+  `WorkerVersionEnablementWorkflow`/`startDemonstration`/`transitionToV2`,
+  which never matched the actual code):
   ```java
   @WorkflowInterface
-  public interface WorkerVersionEnablementWorkflow {
+  public interface WorkerVersionEnablement {
     @WorkflowMethod
-    void startDemonstration(StartWorkerVersionEnablementRequest request);
+    void execute(StartWorkerVersionEnablementRequest request);
 
     @QueryMethod
     WorkerVersionEnablementState getState();
@@ -182,38 +274,57 @@ message WorkerVersionEnablementState {
     void resume();
 
     @SignalMethod
-    void transitionToV2();  // Team triggers this manually during session
+    void deployWorkerVersion(DeployWorkerVersionRequest cmd); // generalized: carries buildId + replicas, not a fixed "v2"
   }
   ```
-- **Workflow Logic:**
-  - **Phase 1 (RUNNING_V1_ONLY):**
-    - Continuously submit orders to apps-api at configured rate
-    - OMS internally handles enrichment and payment capture
-    - Wait for signal: transitionToV2()
-
-  - **Phase 2 (On transitionToV2() signal):**
-    - Trigger activities:
-      - deployV2Workers() - kubectl apply WorkerDeployment v2 (via Temporal Worker Controller)
-      - registerCompatibility() - Temporal build-id setup
-    - Update DemoPhase → TRANSITIONING_TO_V2
-    - Continue submitting orders (now both v1 and v2 workers available)
-    - Update DemoPhase → RUNNING_BOTH when deployment complete
-
-  - **Responsibilities:**
-    - Submit orders to OMS via apps-api (just the submission boundary)
-    - Let OMS handle all processing: enrichment, payments, completion
-    - Track only workflow execution state (phase, submission count, rate)
-    - Respond to control signals (pause, resume, transitionToV2)
-    - Provide real-time workflow state via getState() query (not order tracking—that's the OMS app's job)
+- **Workflow Logic** (restructured in this reconciliation; the loop now
+  lives in the workflow itself, not inside one giant activity):
+  - **Submission loop:** for each order up to `order_count` (or until
+    `timeout` elapses, both are now actually enforced, see Fixes
+    Applied), `Workflow.sleep` to pace to `submit_rate_per_min`, check the
+    real `paused` flag (skip the sleep-and-submit cycle while paused,
+    honoring `pause()`/`resume()` for real), pick a `DemoScenario` from
+    `scenario_weights` by weighted random choice, then call the short
+    `submitOneOrder` activity (see Activities below) with that scenario.
+    Call `Workflow.continueAsNew` periodically (e.g. every 100 orders) to
+    keep workflow history bounded across a long sustained run.
+  - **On `deployWorkerVersion(cmd)` signal:** append `cmd` to a queue and
+    process it with a *correct* index (this reconciliation fixes the
+    existing off-by-one that throws `IndexOutOfBoundsException` on any
+    signal, see Fixes Applied): trigger
+    `deployWorkerVersion(cmd.getBuildId(), cmd.getReplicas())` (using the
+    signal's real fields, not hardcoded `v2`/`1`) and
+    `registerCompatibility()`. Update `DemoPhase` →
+    `TRANSITIONING_TO_V2` → `RUNNING_BOTH` once deployment completes.
+  - **Responsibilities:** drive order generation at the configured rate
+    and scenario mix; let the OMS handle all real processing
+    (enrichment, payment capture, completion); track only workflow
+    execution state (phase, submission count, rate, scenario mix);
+    respond to control signals for real; provide state via `getState()`
+    (order tracking remains the OMS app's job, queried separately).
 
 #### Activities (enablements-core)
 
-**SubmitOrderActivity:**
-- `submitOrder()` → HTTP POST to apps-api to create an order
-  - Calls standard commerce API (same as production order submission)
-  - Handle retry logic (exponential backoff)
-  - Return: order ID or failure
-- **Note:** Enrichment and payment capture are handled internally by the OMS (processing and payments workflows). The enablement workflow only orchestrates order submission. This demonstrates that version transitions don't affect the order submission boundary.
+**`submitOneOrder` activity** (replaces the old `submitOrders`'s internal
+infinite loop; this activity now does one order per call, is short and
+idempotent, and no longer needs a heartbeat since it doesn't loop):
+- Picks a real catalog item ID from `commerce-catalog.json` and one of a
+  small set of canned addresses (replacing the old single hardcoded
+  address), builds `CreateCommerceOrderRequest` with the `ScenarioOptions`
+  the workflow chose, and calls
+  `POST /api/v1/integrations/commerce/orders` (the Commerce App backend
+  from `SPECS/commerce-payments-apps/spec.md`), not `apps-api` directly.
+- Calls `POST /api/v1/integrations/payments/charges` (+ capture) on the
+  Payments Processor backend, using an "approved" test card number by
+  default.
+- Returns the generated order ID; real delivery into `apps-api`'s webhooks
+  happens later, asynchronously, via `PublishCartOrders`' scheduled tick
+  (not synchronously in this activity, unlike the old direct-PUT/POST
+  behavior).
+- Retains exponential-backoff retry on the HTTP calls to the Commerce
+  App / Payments Processor backends themselves (these can still fail
+  transiently; that's unrelated to the scenario system, which governs
+  *delivery into apps-api*, not *reachability of these backends*).
 
 #### Query Handler
 - **Purpose:** Expose workflow execution state during demo (not order tracking—that's the OMS app's job)
@@ -224,24 +335,56 @@ message WorkerVersionEnablementState {
   - Active worker versions (v1 only, or both v1+v2)
   - **Note:** Order tracking (completion, failure, state progression) is the OMS app's responsibility—query apps-api or processing-api for that
 
+### Fixes Applied in This Reconciliation
+
+The real code (`WorkerVersionEnablementImpl.java`,
+`OrderActivitiesImpl.java`, `DeploymentActivitiesImpl.java`) had drifted
+ahead of this spec and carried real bugs, confirmed by direct code
+reading. This reconciliation fixes all four in the same pass as the
+Commerce App/Payments Processor integration, since the submission loop
+was being rewritten anyway:
+
+| Bug | Where | Fix |
+|---|---|---|
+| `execute()`'s deploy-request replay loop starts at an out-of-bounds index (`deployRequestsCount()` instead of `deployRequestsCount() - 1`), throwing `IndexOutOfBoundsException` on any `deployWorkerVersion` signal | `WorkerVersionEnablementImpl.java:86-91` | Correct the loop bound; process each queued `DeployWorkerVersionRequest` exactly once, in order received |
+| `pause()`/`resume()` only log; they never gate the submission loop | `WorkerVersionEnablementImpl.java:102-110` | Moving the loop into the workflow (see Workflow Logic above) lets it check a real `paused` flag each cycle, set/cleared by these signals |
+| `DeploymentActivitiesImpl.deployWorkerVersion` hardcodes `{BUILD_ID}` → `"processing-worker:v2"` and `{REPLICAS}` → `1`, ignoring the signal's actual fields | `DeploymentActivitiesImpl.java:37-50` | Use `cmd.getBuildId()`/`cmd.getReplicas()` from the signal instead of the hardcoded constants |
+| No `continueAsNew` anywhere; the workflow blocks forever via `Workflow.await(() -> false)` once submission "completes" (which itself never happens, since the old `submitOrders` activity looped via `Thread.sleep` until cancelled) | `WorkerVersionEnablementImpl.java:93-94` | Loop lives in the workflow now, with `Workflow.continueAsNew` called periodically; `order_count`/`timeout` are enforced as real loop-exit conditions instead of being logged and ignored |
+
 ### Configuration Model
 
+Corrected to match the real `acme.enablements.yaml`: submission rate,
+order count, timeout, and scenario mix are **workflow input fields**
+(`StartWorkerVersionEnablementRequest`), not static config; this spec's
+earlier `order-rate`/`submission-timeout` yaml keys never existed in the
+actual configuration and are removed here. The real static config is:
+
 ```yaml
-# application.yaml (for enablements-workers)
+# java/enablements/enablements-core/src/main/resources/acme.enablements.yaml
 enablements:
-  # Submission rate
-  order-rate: 12                 # orders per minute (configurable for demo pacing)
-  submission-timeout: 5000       # ms to wait for submitOrder api response
+  api:
+    base-url: ${ENABLEMENTS_API_BASE_URL:http://localhost:8050}   # Commerce App / Payments Processor backend
+  apps-api:
+    base-url: http://localhost:8080                               # real apps-api (target of PublishCartOrders' subscribers, not called directly by this workflow anymore)
+  processing-api:
+    base-url: http://localhost:8070
+  deployment:
+    namespace: temporal-oms-processing
+    manifest-template: k8s/base/processing/processing-workers-deployment-template.yaml
+    kubeconfig: ""
 
-  # OMS API integration
-  apps-api-endpoint: ${APPS_API_ENDPOINT:http://localhost:8080}
-  processing-api-endpoint: ${PROCESSING_API_ENDPOINT:http://localhost:8070}
-  api-timeout: 10000             # ms per API call
-
-  # Temporal integration
-  temporal:
-    namespace: apps              # where enablement workflow runs (apps namespace, since enablement is external caller)
-    task-queue: enablements      # task queue for enablement workflows
+spring.temporal:
+  connection:
+    target: ${TEMPORAL_ENABLEMENTS_ADDRESS:localhost:7233}
+    api-key: ${TEMPORAL_ENABLEMENTS_API_KEY:}
+  namespace: ${TEMPORAL_ENABLEMENTS_NAMESPACE:default}
+  workers:
+    - task-queue: enablements
+      workflow-classes:
+        - com.acme.enablements.workflows.WorkerVersionEnablementImpl
+      activity-beans:
+        - order-activities
+        - deployment-activities
 ```
 
 ### Data Model
@@ -439,11 +582,18 @@ Deliverables:
 
 **Scenario: Worker Versioning Enablement Under Realistic Load**
 
-1. **Initialize:** Start WorkerVersionEnablementWorkflow v1
+1. **Initialize:** Start `WorkerVersionEnablement` v1
    - Script or curl: `POST http://localhost:8080/api/v1/enablements/worker-version/demo-session-1/start` (or use Temporal SDK directly)
-   - Request: 20 orders, 12/min rate, 5-minute duration
+   - Request: 20 orders, 12/min rate, 5-minute duration, default
+     `scenario_weights` (mostly `NORMAL`, a small trickle of the other
+     three presets); omit `scenario_weights` for the default mix, or
+     pass a fixed single-scenario list (e.g. all `MISSING_PAYMENT_EVENT`)
+     to stress-test one failure mode deliberately
    - DemoPhase: RUNNING_V1_ONLY
-   - Workflow begins submitting orders to apps-api `/api/v1/commerce/orders`
+   - Workflow begins generating orders through the Commerce App/Payments
+     Processor backends (`SPECS/commerce-payments-apps/spec.md`), which
+     deliver into apps-api's real webhooks on `PublishCartOrders`' next
+     scheduled tick
 
 2. **Monitor Workflow State:** Query workflow state every 10 seconds
    - Script or curl: `GET http://localhost:8080/api/v1/enablements/worker-version/demo-session-1` (or use Temporal SDK)
@@ -507,9 +657,16 @@ Deliverables:
 - Micrometer Prometheus (metrics)
 
 ### Cross-Cutting Concerns
-- **apps-api:** Must be running in K8s (for order submission)
+- **apps-api:** Must be running in K8s (order submission now happens
+  indirectly, via `PublishCartOrders`' scheduled delivery, not a direct
+  call from this workflow)
+- **`SPECS/commerce-payments-apps/spec.md`'s Commerce App / Payments
+  Processor backends:** Must be running and reachable at
+  `enablements.api.base-url`; this workflow is now their second consumer
+  alongside the Svelte checkout demo
 - **Temporal cluster:** Must be running (local K8s, or cloud Temporal)
-- **Networking:** Local machine must reach Temporal, apps-api, and processing-api (via tunnel or direct)
+- **Networking:** Local machine must reach Temporal, `enablements-api`,
+  apps-api, and processing-api (via tunnel or direct)
 
 ### Rollout Blockers
 - [ ] Temporal cluster deployed and running (K8s or cloud)
@@ -517,6 +674,14 @@ Deliverables:
 - [ ] apps-api deployed in K8s and accessible from local machine
 - [ ] processing-api deployed in K8s and accessible from local machine
 - [ ] Tunnel or port-forwarding setup (if using local K8s)
+- [ ] **`PublishCartOrders`' webhook subscriber list must include
+      `apps-api`'s `CommerceWebhookController`/`PaymentsWebhookController`
+      URLs** (`enablements.webhooks.subscribers` in
+      `acme.enablements.yaml`, per `SPECS/commerce-payments-apps/spec.md`).
+      This is required specifically for this workflow's purpose (proving
+      the real `apps.Order`/`processing.Order` workflows survive a
+      version transition); the general demo/UI checkout path can still
+      run with that list empty if desired.
 
 ---
 
@@ -547,6 +712,14 @@ Deliverables:
 ## References & Links
 
 - [Worker Version Enablement Initiative](../INDEX.md)
+- `SPECS/commerce-payments-apps/spec.md` - Commerce App/Payments
+  Processor simulators, `ScenarioOptions`/`DemoScenario`,
+  `PendingPublishRegistry`, `PublishCartOrders` (this workflow's
+  order-generation path since this reconciliation)
+- `java/enablements/ENABLEMENT.md` - live runbook that starts this
+  workflow (`temporal workflow start`); its example input was updated to
+  use `scenario_weights` instead of the removed `orderIdSeed: "invalid"`
+  hack
 - [Temporal Java SDK Docs](https://docs.temporal.io/dev-guide/java)
 - [Micrometer Prometheus](https://micrometer.io/docs/registry/prometheus)
 - [Spring Boot Health Checks](https://spring.io/guides/gs/actuator-service/)

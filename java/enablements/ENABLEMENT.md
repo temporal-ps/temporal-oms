@@ -62,10 +62,22 @@ while sustained load is running — without dropping in-flight workflows.
          "orderCount": 20,
          "submitRatePerMin": 5,
          "timeout": "600s",
-         "orderIdSeed": "invalid"
+         "orderIdSeed": "demo",
+         "scenarioWeights": [
+           {"scenario": "NORMAL", "weight": 85},
+           {"scenario": "PAYMENT_BEFORE_COMMERCE", "weight": 5},
+           {"scenario": "MISSING_COMMERCE_EVENT", "weight": 5},
+           {"scenario": "MISSING_PAYMENT_EVENT", "weight": 5}
+         ]
        }' \
        --input-meta 'encoding=json/protobuf'
    ```
+   `orderIdSeed` is now just a naming prefix with no behavioral meaning;
+   the old `"orderIdSeed": "invalid"` string-match hack is removed.
+   `scenarioWeights` drives the delivery-scenario mix (see
+   `SPECS/commerce-payments-apps/spec.md` and
+   `SPECS/enablements/load-generation/spec.md`); omit it to use the
+   default mostly-`NORMAL` mix.
 
 8. Verify traffic is flowing in the cloud UIs:
    - Cloud OMS Apps Namespace — confirm there is **no** `DeploymentVersion` field (unversioned)

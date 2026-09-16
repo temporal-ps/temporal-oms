@@ -56,30 +56,29 @@
 							stroke-linecap="round"
 							stroke-linejoin="round"
 							stroke-width="2"
-							d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+							d="M13 10V3L4 14h7v7l9-11h-7z"
 						/>
 					</svg>
 				</div>
-				<h2 class="mt-6 text-2xl font-semibold text-gray-900">API Documentation</h2>
+				<h2 class="mt-6 text-2xl font-semibold text-gray-900">Demo Load Control</h2>
 				<p class="mt-4 text-gray-600">
-					Explore the REST API and webhook endpoints
+					Drive order traffic for the safe-deploys / worker-versioning workshop
 				</p>
-				<a
-					href="/api/docs"
-					target="_blank"
-					class="mt-6 w-full inline-block text-center bg-gray-100 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+				<button
+					onclick={() => goto('/demo')}
+					class="mt-6 w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
 				>
-					View Swagger UI
-				</a>
+					Open Demo Control
+				</button>
 			</div>
 		</div>
 
 		<div class="mt-16 bg-blue-50 rounded-lg p-8">
 			<h3 class="text-lg font-semibold text-gray-900">Architecture</h3>
 			<p class="mt-2 text-gray-600">
-				This system demonstrates Domain-Driven Design with 4 Temporal namespaces:
+				This system demonstrates Domain-Driven Design with 3 Temporal namespaces:
 			</p>
-			<div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+			<div class="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
 				<div class="bg-white p-4 rounded-lg">
 					<div class="font-semibold text-primary-700">Apps</div>
 					<div class="text-gray-600 mt-1">Orchestration</div>
@@ -89,11 +88,7 @@
 					<div class="text-gray-600 mt-1">Order enrichment</div>
 				</div>
 				<div class="bg-white p-4 rounded-lg">
-					<div class="font-semibold text-primary-700">Risk</div>
-					<div class="text-gray-600 mt-1">Fraud detection</div>
-				</div>
-				<div class="bg-white p-4 rounded-lg">
-					<div class="font-semibold text-primary-700">Fulfillments</div>
+					<div class="font-semibold text-primary-700">Fulfillment</div>
 					<div class="text-gray-600 mt-1">AI-powered</div>
 				</div>
 			</div>

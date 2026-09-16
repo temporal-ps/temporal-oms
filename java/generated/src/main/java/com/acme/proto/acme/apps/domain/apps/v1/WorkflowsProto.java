@@ -28,42 +28,42 @@ public final class WorkflowsProto extends com.google.protobuf.GeneratedFile {
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_GetCompleteOrderStateResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_GetCompleteOrderStateResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_GetOptionsRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_GetOptionsRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CancelOrderRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CancelOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CancelOrderResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CancelOrderResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_fieldAccessorTable;
 

@@ -197,8 +197,8 @@ public class OrderImpl implements Order {
                 fulfillOrderBuilder.setSelectedShipment(order.getSelectedShipment());
             }
 
-            this.fulfillment.fulfillOrder(fulfillOrderBuilder.build());
 
+            this.fulfillment.fulfillOrder(fulfillOrderBuilder.build());
             Workflow.await(Workflow::isEveryHandlerFinished);
             return;
         }

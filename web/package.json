@@ -25,9 +25,5 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11"
   },
-  "dependencies": {
-    "@stripe/stripe-js": "^8.6.0",
-    "nanoid": "^5.0.9"
-  },
   "type": "module"
 }

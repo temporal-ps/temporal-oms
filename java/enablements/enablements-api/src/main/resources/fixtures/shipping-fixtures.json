@@ -173,9 +173,9 @@
   ],
   "warehouses": [
     {"warehouse_id": "WH-EAST-01", "address_id": "adr_wh_east_01", "sku_prefixes": ["ELEC-", "GADG-", "TECH-"]},
-    {"warehouse_id": "WH-WEST-01", "address_id": "adr_wh_west_01", "sku_prefixes": ["APRL-", "HOME-", "SPRT-"]},
+    {"warehouse_id": "WH-WEST-01", "address_id": "adr_wh_west_01", "sku_prefixes": ["APRL-", "HOME-", "SPRT-", "ACC-", "BAG-"]},
     {"warehouse_id": "WH-EAST-02", "address_id": "adr_wh_east_02", "sku_prefixes": ["ELEC-", "GADG-"]},
-    {"warehouse_id": "WH-WEST-02", "address_id": "adr_wh_west_02", "sku_prefixes": ["APRL-", "SPRT-"]},
+    {"warehouse_id": "WH-WEST-02", "address_id": "adr_wh_west_02", "sku_prefixes": ["APRL-", "SPRT-", "FOOT-", "ACC-"]},
     {"warehouse_id": "WH-CENT-01", "address_id": "adr_wh_cent_01", "sku_prefixes": ["TECH-", "HOME-"]}
   ],
   "shipments": [
@@ -248,6 +248,50 @@
         {"rate_id": "rate_wh_west_02_nyc_ground", "carrier": "UPS", "service_level": "Ground", "cost": {"currency": "USD", "units": 2030}, "estimated_days": 5, "delivery_days": 5},
         {"rate_id": "rate_wh_west_02_nyc_2day", "carrier": "FedEx", "service_level": "2Day", "cost": {"currency": "USD", "units": 2660}, "estimated_days": 2, "delivery_days": 2},
         {"rate_id": "rate_wh_west_02_nyc_priority", "carrier": "USPS", "service_level": "Priority", "cost": {"currency": "USD", "units": 1995}, "estimated_days": 4, "delivery_days": 4}
+      ],
+      "labels": []
+    },
+    {
+      "shipment_id": "shp_adr_wh_west_01_to_adr_dest_austin_01",
+      "from_address_id": "adr_wh_west_01",
+      "to_address_id": "adr_dest_austin_01",
+      "parcel": {"weight_oz": 16, "length_in": 6, "width_in": 6, "height_in": 4},
+      "rates": [
+        {"rate_id": "rate_wh_west_01_austin_ground", "carrier": "UPS", "service_level": "Ground", "cost": {"currency": "USD", "units": 1150}, "estimated_days": 3, "delivery_days": 3},
+        {"rate_id": "rate_wh_west_01_austin_2day", "carrier": "FedEx", "service_level": "2Day", "cost": {"currency": "USD", "units": 1695}, "estimated_days": 2, "delivery_days": 2}
+      ],
+      "labels": []
+    },
+    {
+      "shipment_id": "shp_adr_wh_west_02_to_adr_dest_seattle_01",
+      "from_address_id": "adr_wh_west_02",
+      "to_address_id": "adr_dest_seattle_01",
+      "parcel": {"weight_oz": 16, "length_in": 6, "width_in": 6, "height_in": 4},
+      "rates": [
+        {"rate_id": "rate_wh_west_02_seattle_ground", "carrier": "UPS", "service_level": "Ground", "cost": {"currency": "USD", "units": 985}, "estimated_days": 3, "delivery_days": 3},
+        {"rate_id": "rate_wh_west_02_seattle_2day", "carrier": "FedEx", "service_level": "2Day", "cost": {"currency": "USD", "units": 1560}, "estimated_days": 2, "delivery_days": 2}
+      ],
+      "labels": []
+    },
+    {
+      "shipment_id": "shp_adr_wh_west_02_to_adr_dest_austin_01",
+      "from_address_id": "adr_wh_west_02",
+      "to_address_id": "adr_dest_austin_01",
+      "parcel": {"weight_oz": 16, "length_in": 6, "width_in": 6, "height_in": 4},
+      "rates": [
+        {"rate_id": "rate_wh_west_02_austin_ground", "carrier": "UPS", "service_level": "Ground", "cost": {"currency": "USD", "units": 1195}, "estimated_days": 3, "delivery_days": 3},
+        {"rate_id": "rate_wh_west_02_austin_2day", "carrier": "FedEx", "service_level": "2Day", "cost": {"currency": "USD", "units": 1755}, "estimated_days": 2, "delivery_days": 2}
+      ],
+      "labels": []
+    },
+    {
+      "shipment_id": "shp_adr_wh_west_02_to_adr_dest_los_angeles_01",
+      "from_address_id": "adr_wh_west_02",
+      "to_address_id": "adr_dest_los_angeles_01",
+      "parcel": {"weight_oz": 16, "length_in": 6, "width_in": 6, "height_in": 4},
+      "rates": [
+        {"rate_id": "rate_wh_west_02_la_ground", "carrier": "UPS", "service_level": "Ground", "cost": {"currency": "USD", "units": 845}, "estimated_days": 2, "delivery_days": 2},
+        {"rate_id": "rate_wh_west_02_la_2day", "carrier": "FedEx", "service_level": "2Day", "cost": {"currency": "USD", "units": 1410}, "estimated_days": 2, "delivery_days": 2}
       ],
       "labels": []
     },

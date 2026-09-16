@@ -34,7 +34,7 @@ pid_is_running() {
   [[ -n "$pid" ]] && kill -0 "$pid" >/dev/null 2>&1
 }
 
-stop_service() {
+send_stop_signal() {
   local name="$1"
   local pid_file="$RUN_DIR/$name.pid"
   local pid
@@ -52,6 +52,18 @@ stop_service() {
 
   say "Stopping $name (pid $pid) ..."
   kill "$pid" >/dev/null 2>&1 || true
+}
+
+wait_for_stop() {
+  local name="$1"
+  local pid_file="$RUN_DIR/$name.pid"
+  local pid
+
+  if [[ ! -f "$pid_file" ]]; then
+    return 0
+  fi
+
+  pid="$(cat "$pid_file" 2>/dev/null || true)"
 
   local waited=0
   while pid_is_running "$pid" && [[ "$waited" -lt 20 ]]; do
@@ -79,7 +91,11 @@ main() {
     if [[ -f "$RUN_DIR/$name.pid" ]]; then
       found=1
     fi
-    stop_service "$name"
+    send_stop_signal "$name"
+  done
+
+  for name in "${service_names[@]}"; do
+    wait_for_stop "$name"
   done
 
   if [[ "$found" -eq 0 ]]; then

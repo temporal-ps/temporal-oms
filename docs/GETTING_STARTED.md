@@ -44,8 +44,13 @@ cd temporal-oms
 Run this in one terminal and leave it running:
 
 ```bash
-temporal server start-dev
+./scripts/start-temporal-dev.sh
 ```
+
+This wraps `temporal server start-dev` with the dynamic-config flags standalone Nexus
+operations and standalone activities need (Nexus callback endpoint template, allowed callback
+addresses, update callbacks, and the two `enableStandalone` flags). Pass through any extra
+`start-dev` flags, e.g. `./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0`.
 
 Temporal UI will be available at `http://localhost:8233`.
 
@@ -255,6 +260,70 @@ Other scenarios are available through the selector:
 ```
 
 See `scripts/scenarios/README.md` for detailed demo instructions.
+
+---
+
+## Web UI: Commerce + Payments Demo
+
+The fastest way to see what the OMS is about: a Svelte storefront backed by
+a simulated Commerce App and Payments Processor (both inside
+`enablements-api`/`enablements-workers`, already running from
+`./scripts/local-up.sh`).
+
+### 1. Install and start the web app
+
+Requires Node.js (see `web/package.json` for the toolchain; npm ships with
+Node). From the repo root, in a third terminal:
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+### 2. Walk through checkout
+
+1. **Home** (`/shop/home`): enter any customer ID (e.g. `demo-customer`) and continue.
+2. **Clothing**: browse the catalog (live stock counts come from the `CommerceInventory` workflow) and add an item to your cart.
+3. **Cart**: click "Place Order". A floating scenario selector appears
+   (bottom-right): `Normal`, `Payment before commerce`, `Missing commerce
+   event`, `Missing payment event`. These drive how `PublishCartOrders`
+   delivers this order's webhook events on its next scheduled tick (every
+   10s); pick one to see the effect, or leave it on `Normal`.
+4. Fill in a shipping address and a card number. Card number determines the
+   payment outcome:
+
+   | Card number | Outcome |
+   |---|---|
+   | any unrecognized number (e.g. `4242424242424242`) | Authorizes, auto-captures in ~5s |
+   | `4000000000000002` | Declined |
+   | `4000000000009995` | Insufficient funds |
+   | `4000000000000069` | Expired card |
+   | `4000000000000259` | Authorizes, then the capture attempt fails |
+
+   A declined/failing card leaves the checkout form open with an error so
+   you can retry with a different number.
+5. On success you land on **My Orders**, showing the order and charge status.
+
+### 3. Inspect webhook delivery
+
+`PublishCartOrders` delivers events on a 10-second Temporal Schedule.
+Watch it happen:
+
+```bash
+curl -s http://localhost:8050/api/v1/integrations/webhooks/events | jq
+```
+
+Or trigger one scenario directly without the UI:
+
+```bash
+./scripts/simulate-scenario.sh NORMAL
+./scripts/simulate-scenario.sh PAYMENT_BEFORE_COMMERCE
+```
+
+See `SPECS/commerce-payments-apps/spec.md` for the full design.
 
 ---
 

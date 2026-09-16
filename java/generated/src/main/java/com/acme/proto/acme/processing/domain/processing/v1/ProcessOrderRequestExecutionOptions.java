@@ -97,6 +97,12 @@ private static final long serialVersionUID = 0L;
   public static final int SEND_FULFILLMENT_FIELD_NUMBER = 3;
   private boolean sendFulfillment_ = false;
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return Whether the sendFulfillment field is set.
    */
@@ -105,6 +111,12 @@ private static final long serialVersionUID = 0L;
     return ((bitField0_ & 0x00000004) != 0);
   }
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return The sendFulfillment.
    */
@@ -651,6 +663,12 @@ private static final long serialVersionUID = 0L;
 
     private boolean sendFulfillment_ ;
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return Whether the sendFulfillment field is set.
      */
@@ -659,6 +677,12 @@ private static final long serialVersionUID = 0L;
       return ((bitField0_ & 0x00000004) != 0);
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return The sendFulfillment.
      */
@@ -667,6 +691,12 @@ private static final long serialVersionUID = 0L;
       return sendFulfillment_;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @param value The sendFulfillment to set.
      * @return This builder for chaining.
@@ -679,6 +709,12 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
+     * <pre>
+     * WORKSHOP: the send_fulfillment field is added to allow callers
+     * to forward processing.Order data downstream to Fulfillment.
+     * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+     * </pre>
+     *
      * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
      * @return This builder for chaining.
      */

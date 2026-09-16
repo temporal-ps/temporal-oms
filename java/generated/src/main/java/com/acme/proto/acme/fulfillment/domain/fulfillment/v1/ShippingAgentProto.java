@@ -28,77 +28,77 @@ public final class ShippingAgentProto extends com.google.protobuf.GeneratedFile 
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_GetLocationEventsRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_GetLocationEventsRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_GetLocationEventsResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_GetLocationEventsResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOption_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOption_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingRecommendation_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingRecommendation_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_StartShippingAgentRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_StartShippingAgentRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingAgentExecutionOptions_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingAgentExecutionOptions_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_RecommendShippingOptionRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_RecommendShippingOptionRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_RecommendShippingOptionResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_RecommendShippingOptionResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsResult_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsResult_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsCache_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsCache_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsCache_ResultsEntry_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_ShippingOptionsCache_ResultsEntry_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_GetShippingRatesRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_GetShippingRatesRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_GetShippingRatesResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_GetShippingRatesResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_BuildSystemPromptRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_BuildSystemPromptRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_fulfillment_domain_fulfillment_v1_BuildSystemPromptResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_fulfillment_domain_fulfillment_v1_BuildSystemPromptResponse_fieldAccessorTable;
 

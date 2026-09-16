@@ -1,17 +1,22 @@
 spring.config.import: classpath:acme.oms.yaml
 enablements:
   api:
-    # Base URL for the enablements-api service that owns workshop integration fixtures.
+    # Base URL for the enablements-api service: the Commerce App / Payments
+    # Processor backend (SPECS/commerce-payments-apps/spec.md) that
+    # WorkerVersionEnablement's submitOneOrder activity now calls, instead
+    # of apps-api directly.
     # Local development: http://localhost:8050
     # Kubernetes: set ENABLEMENTS_API_BASE_URL to the in-cluster enablements-api service URL.
     base-url: ${ENABLEMENTS_API_BASE_URL:http://localhost:8050}
   apps-api:
-    # Base URL for the apps-api service
+    # Real apps-api. No longer called directly by WorkerVersionEnablement;
+    # it is the target of PublishCartOrders' webhook subscribers (see
+    # webhooks.subscribers below, which reference this base-url).
     # Local development: http://localhost:8080
     # Kubernetes: http://apps-api.temporal-oms-apps.svc.cluster.local:8080
-    base-url: http://localhost:8080
+    base-url: ${APPS_API_BASE_URL:http://localhost:8080}
   processing-api:
-    # Base URL for the apps-api service
+    # Base URL for the processing-api service
     # Local development: http://localhost:8081
     # Kubernetes: http://processing-api.temporal-oms-apps.svc.cluster.local:8081
     base-url: http://localhost:8070
@@ -23,6 +28,27 @@ enablements:
     manifest-template: k8s/base/processing/processing-workers-deployment-template.yaml
     # Optional kubeconfig path (leave empty to use default)
     kubeconfig: ""
+
+  payments:
+    auto-capture-delay: PT5S   # documents the intended default; PaymentChargeImpl's timer duration is a code constant (see PROGRESS.md)
+  publishing:
+    tick-interval: PT10S       # PublishCartOrders Temporal Schedule interval
+  webhooks:
+    # event-type -> subscriber endpoints (url + method). {orderId} in a url is
+    # substituted with the event's order ID before delivery.
+    subscribers:
+      commerce.order.submitted:
+        - url: ${enablements.apps-api.base-url}/api/v1/commerce-app/orders/{orderId}
+          method: PUT
+      payment.captured:
+        - url: ${enablements.apps-api.base-url}/api/v1/payments-app/orders
+          method: POST
+      # payment.authorized has no real consumer yet; left unmapped (inspection-only via WebhookEventLog).
+    retry:
+      initial-interval: PT1S
+      backoff-coefficient: 2.0
+      maximum-interval: PT30S
+      maximum-attempts: 5
 
 spring.temporal:
     connection:
@@ -41,3 +67,20 @@ spring.temporal:
           - commerce-app-service
           - pims-service
           - inventory-service
+      - task-queue: commerce
+        workflow-classes:
+          - com.acme.enablements.commerce.workflows.CommerceOrderImpl
+          - com.acme.enablements.commerce.workflows.CommerceInventoryImpl
+          - com.acme.enablements.commerce.workflows.PendingPublishRegistryImpl
+          - com.acme.enablements.commerce.workflows.PublishCartOrdersImpl
+          - com.acme.enablements.webhooks.workflows.WebhookEventLogImpl
+        activity-beans:
+          - webhook-publisher-activities
+          - pending-publish-registry-activities
+          - commerce-inventory-activities
+      - task-queue: payments
+        workflow-classes:
+          - com.acme.enablements.payments.workflows.PaymentChargeImpl
+        activity-beans:
+          - webhook-publisher-activities
+          - pending-publish-registry-activities

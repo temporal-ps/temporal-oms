@@ -8,8 +8,11 @@ managed:
     - file_option: java_multiple_files
       value: true
 plugins:
-  # Java generation
-  - remote: buf.build/protocolbuffers/java
+  # Java generation: pinned to match the protobuf-java runtime version
+  # pinned in java/pom.xml's protobuf.version (4.34.1). An unpinned remote
+  # plugin resolves to the BSR's current latest and can outrun the runtime,
+  # which fails at class-init with a Gencode/Runtime version mismatch.
+  - remote: buf.build/protocolbuffers/java:v34.1
     out: java/generated/src/main/java
 
   # Python generation — pinned to match installed protobuf runtime (6.33.x / C++ 33.x)

@@ -506,7 +506,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequest request = 1 [json_name = "request"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequest, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequest.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequestOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequest, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequest.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.RecommendShippingOptionRequestOrBuilder> 
         internalGetRequestFieldBuilder() {
       if (requestBuilder_ == null) {
         requestBuilder_ = new com.google.protobuf.SingleFieldBuilder<

@@ -94,7 +94,7 @@ private static final long serialVersionUID = 0L;
    * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingOption options = 2 [json_name = "options"];</code>
    */
   @java.lang.Override
-  public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder>
+  public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder> 
       getOptionsOrBuilderList() {
     return options_;
   }
@@ -501,7 +501,7 @@ private static final long serialVersionUID = 0L;
             optionsBuilder_ = null;
             options_ = other.options_;
             bitField0_ = (bitField0_ & ~0x00000002);
-            optionsBuilder_ =
+            optionsBuilder_ = 
               com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                  internalGetOptionsFieldBuilder() : null;
           } else {
@@ -690,7 +690,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendation recommendation = 1 [json_name = "recommendation"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendation, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendation.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendationOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendation, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendation.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingRecommendationOrBuilder> 
         internalGetRecommendationFieldBuilder() {
       if (recommendationBuilder_ == null) {
         recommendationBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -898,7 +898,7 @@ private static final long serialVersionUID = 0L;
     /**
      * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingOption options = 2 [json_name = "options"];</code>
      */
-    public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder>
+    public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder> 
          getOptionsOrBuilderList() {
       if (optionsBuilder_ != null) {
         return optionsBuilder_.getMessageOrBuilderList();
@@ -924,12 +924,12 @@ private static final long serialVersionUID = 0L;
     /**
      * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingOption options = 2 [json_name = "options"];</code>
      */
-    public java.util.List<com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption.Builder>
+    public java.util.List<com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption.Builder> 
          getOptionsBuilderList() {
       return internalGetOptionsFieldBuilder().getBuilderList();
     }
     private com.google.protobuf.RepeatedFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOption.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingOptionOrBuilder> 
         internalGetOptionsFieldBuilder() {
       if (optionsBuilder_ == null) {
         optionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
@@ -1051,7 +1051,7 @@ private static final long serialVersionUID = 0L;
      * <code>.google.protobuf.Timestamp cached_at = 3 [json_name = "cachedAt"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
         internalGetCachedAtFieldBuilder() {
       if (cachedAtBuilder_ == null) {
         cachedAtBuilder_ = new com.google.protobuf.SingleFieldBuilder<

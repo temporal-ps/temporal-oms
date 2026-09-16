@@ -1,0 +1,33 @@
+// Payments Processor domain contracts (charge authorize/capture/void lifecycle)
+syntax = "proto3";
+
+package acme.enablements.domain.enablements.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message PaymentChargeState {
+  string charge_id = 1;
+  string order_id = 2;
+  string customer_id = 3;
+  int64 amount_cents = 4;
+  string card_last_four = 5;
+  string status = 6; // AUTHORIZED | CAPTURED | VOIDED | CAPTURE_FAILED | DECLINED | INSUFFICIENT_FUNDS | EXPIRED_CARD
+  string decline_reason = 7;
+  google.protobuf.Timestamp authorized_at = 8;
+  optional google.protobuf.Timestamp captured_at = 9;
+}
+
+message CreateChargeRequest {
+  string order_id = 1;
+  string customer_id = 2;
+  int64 amount_cents = 3;
+  string card_number = 4;
+}
+
+message CaptureChargeRequest {
+  string charge_id = 1;
+}
+
+message VoidChargeRequest {
+  string charge_id = 1;
+}

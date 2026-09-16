@@ -37,11 +37,23 @@ public interface ProcessOrderRequestExecutionOptionsOrBuilder extends
   com.acme.proto.acme.oms.v1.OmsPropertiesOrBuilder getOmsPropertiesOrBuilder();
 
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return Whether the sendFulfillment field is set.
    */
   boolean hasSendFulfillment();
   /**
+   * <pre>
+   * WORKSHOP: the send_fulfillment field is added to allow callers
+   * to forward processing.Order data downstream to Fulfillment.
+   * DO NOT DUPLICATE `send_fulfillment` FIELD if it is already present.
+   * </pre>
+   *
    * <code>optional bool send_fulfillment = 3 [json_name = "sendFulfillment"];</code>
    * @return The sendFulfillment.
    */

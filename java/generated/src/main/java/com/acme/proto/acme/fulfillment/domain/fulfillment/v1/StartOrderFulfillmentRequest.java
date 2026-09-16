@@ -70,7 +70,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs =
+      com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       orderId_ = s;
@@ -86,7 +86,7 @@ private static final long serialVersionUID = 0L;
       getOrderIdBytes() {
     java.lang.Object ref = orderId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
+      com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       orderId_ = b;
@@ -109,7 +109,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs =
+      com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       customerId_ = s;
@@ -125,7 +125,7 @@ private static final long serialVersionUID = 0L;
       getCustomerIdBytes() {
     java.lang.Object ref = customerId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
+      com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       customerId_ = b;
@@ -683,7 +683,7 @@ private static final long serialVersionUID = 0L;
         getOrderIdBytes() {
       java.lang.Object ref = orderId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         orderId_ = b;
@@ -755,7 +755,7 @@ private static final long serialVersionUID = 0L;
         getCustomerIdBytes() {
       java.lang.Object ref = customerId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         customerId_ = b;
@@ -910,7 +910,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptions options = 3 [json_name = "options"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptions, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptions.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptionsOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptions, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptions.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.StartOrderFulfillmentOptionsOrBuilder> 
         internalGetOptionsFieldBuilder() {
       if (optionsBuilder_ == null) {
         optionsBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -1031,7 +1031,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.common.v1.Shipment selected_shipment = 4 [json_name = "selectedShipment"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder>
+        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder> 
         internalGetSelectedShipmentFieldBuilder() {
       if (selectedShipmentBuilder_ == null) {
         selectedShipmentBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -1152,7 +1152,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.fulfillment.domain.fulfillment.v1.PlacedOrder placed_order = 5 [json_name = "placedOrder"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrder.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrderOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrder.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.PlacedOrderOrBuilder> 
         internalGetPlacedOrderFieldBuilder() {
       if (placedOrderBuilder_ == null) {
         placedOrderBuilder_ = new com.google.protobuf.SingleFieldBuilder<

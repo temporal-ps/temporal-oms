@@ -1,28 +1,24 @@
 package com.acme.enablements.activities;
 
-import com.acme.proto.acme.enablements.v1.SubmitOrdersRequest;
-import com.acme.proto.acme.enablements.v1.SubmitOrdersResponse;
+import com.acme.proto.acme.enablements.v1.StartWorkerVersionEnablementRequest;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
 /**
- * Activities for submitting orders to the OMS during enablement demonstrations.
+ * Submits orders to the Commerce App / Payments Processor backends
+ * (SPECS/commerce-payments-apps/spec.md) during enablement demonstrations.
  */
 @ActivityInterface
 public interface OrderActivities {
 
-  /**
-   * Submit a single order to the OMS via apps-api.
-   * <p>
-   * This activity calls the apps-api endpoint to create an order, simulating
-   * an external client making order submissions. The order flows through the
-   * OMS's normal processing pipelines (enrichment, payment capture).
-   *
-   * @return Order ID if successful
-   * @throws RuntimeException if order submission fails after retries
-   */
-  @ActivityMethod
-  SubmitOrdersResponse submitOrders(SubmitOrdersRequest cmd);
-
-
+    /**
+     * Runs the order-submission loop until order_count or the request's
+     * timeout is reached, heartbeating after every order so the calling
+     * workflow can cancel it (pause) or preempt it (a queued deploy
+     * request). Does not catch its own cancellation: the calling workflow
+     * recovers progress from the resulting CanceledFailure's heartbeat
+     * details, not from a return value.
+     */
+    @ActivityMethod
+    int runSubmissionLoop(StartWorkerVersionEnablementRequest req);
 }

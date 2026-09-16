@@ -70,7 +70,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs =
+      com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       fromEasypostId_ = s;
@@ -86,7 +86,7 @@ private static final long serialVersionUID = 0L;
       getFromEasypostIdBytes() {
     java.lang.Object ref = fromEasypostId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
+      com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       fromEasypostId_ = b;
@@ -109,7 +109,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs =
+      com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       toEasypostId_ = s;
@@ -125,7 +125,7 @@ private static final long serialVersionUID = 0L;
       getToEasypostIdBytes() {
     java.lang.Object ref = toEasypostId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
+      com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       toEasypostId_ = b;
@@ -149,7 +149,7 @@ private static final long serialVersionUID = 0L;
    * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingLineItem items = 3 [json_name = "items"];</code>
    */
   @java.lang.Override
-  public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder>
+  public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder> 
       getItemsOrBuilderList() {
     return items_;
   }
@@ -564,7 +564,7 @@ private static final long serialVersionUID = 0L;
             itemsBuilder_ = null;
             items_ = other.items_;
             bitField0_ = (bitField0_ & ~0x00000004);
-            itemsBuilder_ =
+            itemsBuilder_ = 
               com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                  internalGetItemsFieldBuilder() : null;
           } else {
@@ -673,7 +673,7 @@ private static final long serialVersionUID = 0L;
         getFromEasypostIdBytes() {
       java.lang.Object ref = fromEasypostId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         fromEasypostId_ = b;
@@ -745,7 +745,7 @@ private static final long serialVersionUID = 0L;
         getToEasypostIdBytes() {
       java.lang.Object ref = toEasypostId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         toEasypostId_ = b;
@@ -987,7 +987,7 @@ private static final long serialVersionUID = 0L;
     /**
      * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingLineItem items = 3 [json_name = "items"];</code>
      */
-    public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder>
+    public java.util.List<? extends com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder> 
          getItemsOrBuilderList() {
       if (itemsBuilder_ != null) {
         return itemsBuilder_.getMessageOrBuilderList();
@@ -1013,12 +1013,12 @@ private static final long serialVersionUID = 0L;
     /**
      * <code>repeated .acme.fulfillment.domain.fulfillment.v1.ShippingLineItem items = 3 [json_name = "items"];</code>
      */
-    public java.util.List<com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem.Builder>
+    public java.util.List<com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem.Builder> 
          getItemsBuilderList() {
       return internalGetItemsFieldBuilder().getBuilderList();
     }
     private com.google.protobuf.RepeatedFieldBuilder<
-        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder>
+        com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItem.Builder, com.acme.proto.acme.fulfillment.domain.fulfillment.v1.ShippingLineItemOrBuilder> 
         internalGetItemsFieldBuilder() {
       if (itemsBuilder_ == null) {
         itemsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
@@ -1140,7 +1140,7 @@ private static final long serialVersionUID = 0L;
      * <code>.acme.common.v1.Shipment selected_shipment = 4 [json_name = "selectedShipment"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder>
+        com.acme.proto.acme.common.v1.Shipment, com.acme.proto.acme.common.v1.Shipment.Builder, com.acme.proto.acme.common.v1.ShipmentOrBuilder> 
         internalGetSelectedShipmentFieldBuilder() {
       if (selectedShipmentBuilder_ == null) {
         selectedShipmentBuilder_ = new com.google.protobuf.SingleFieldBuilder<

@@ -2,6 +2,8 @@
 # gen by protobuf_to_pydantic[v0.3.3.1](https://github.com/so1n/protobuf_to_pydantic)
 # Protobuf Version: 6.33.6 
 # Pydantic Version: 2.13.0 
+from ..domain.v1.commerce_p2p import BusinessScenario
+from ..domain.v1.commerce_p2p import DemoScenario
 from datetime import datetime
 from datetime import timedelta
 from enum import IntEnum
@@ -15,6 +17,24 @@ from typing_extensions import Annotated
 import typing
 
 
+class ScenarioWeight(BaseModel):
+    """
+     Weight for one DemoScenario in the generated load's scenario mix.
+    """
+
+    model_config = ConfigDict(validate_default=True)
+    scenario: DemoScenario = Field(default=0)
+    weight: int = Field(default=0)
+
+class BusinessScenarioWeight(BaseModel):
+    """
+     Weight for one BusinessScenario in the generated load's scenario mix.
+    """
+
+    model_config = ConfigDict(validate_default=True)
+    scenario: BusinessScenario = Field(default=0)
+    weight: int = Field(default=0)
+
 class StartWorkerVersionEnablementRequest(BaseModel):
     """
      Start a worker versioning enablement demonstration
@@ -25,6 +45,8 @@ class StartWorkerVersionEnablementRequest(BaseModel):
     submit_rate_per_min: int = Field(default=0)# Orders per minute (e.g., 12)
     timeout: Annotated[timedelta, BeforeValidator(Timedelta.validate)] = Field(default_factory=timedelta)# How long to run (e.g., 5 minutes)
     order_id_seed: typing.Optional[str] = Field(default="")
+    scenario_weights: typing.List[ScenarioWeight] = Field(default_factory=list)# weighted mix of DemoScenario; empty defaults to mostly NORMAL
+    business_scenario_weights: typing.List[BusinessScenarioWeight] = Field(default_factory=list)# weighted mix of BusinessScenario; empty defaults to mostly NORMAL
 
 class DeployWorkerVersionRequest(BaseModel):
     deployment_name: str = Field(default="")
@@ -63,10 +85,37 @@ class WorkerVersionEnablementState(BaseModel):
     deploy_requests: typing.List[DeployWorkerVersionRequest] = Field(default_factory=list)
     deployments: typing.List[DeployWorkerVersionResponse] = Field(default_factory=list)
 
-class SubmitOrdersRequest(BaseModel):
-    enablement_id: str = Field(default="")
-    submit_rate_per_min: int = Field(default=0)
-    order_id_seed: str = Field(default="")
+class SubmitOneOrderRequest(BaseModel):
+    """
+     Submits one order to the Commerce App / Payments Processor backends
+ (SPECS/commerce-payments-apps/spec.md), not directly to apps-api.
+    """
 
-class SubmitOrdersResponse(BaseModel):
-    orders_submitted_count: str = Field(default="")
+    model_config = ConfigDict(validate_default=True)
+    enablement_id: str = Field(default="")
+    order_id_prefix: str = Field(default="")
+    scenario: DemoScenario = Field(default=0)
+    business_scenario: BusinessScenario = Field(default=0)
+
+class SubmitOneOrderResponse(BaseModel):
+    order_id: str = Field(default="")
+    charge_id: str = Field(default="")
+
+class LoadGenerationState(BaseModel):
+    """
+     Current state of the runSubmissionLoop Standalone Activity Execution that
+ enablements-api starts, observes, and cancels directly (no owning
+ workflow). Distinct from WorkerVersionEnablementState, which serves the
+ separate WorkerVersionEnablement workflow path.
+    """
+    class ExecutionStatus(IntEnum):
+        EXECUTION_STATUS_UNSPECIFIED = 0
+        RUNNING = 1
+        COMPLETED = 2
+        CANCELED = 3
+        FAILED = 4
+
+    model_config = ConfigDict(validate_default=True)
+    enablement_id: str = Field(default="")
+    status: "LoadGenerationState.ExecutionStatus" = Field(default=0)
+    orders_submitted_count: int = Field(default=0)# from the activity's last heartbeat details

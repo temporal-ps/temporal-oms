@@ -1,5 +1,6 @@
 package com.acme.enablements.controllers;
 
+import com.acme.enablements.commerce.CommerceAppBackendService;
 import com.acme.enablements.integrations.CommerceIntegrationService;
 import com.acme.enablements.integrations.EnablementIntegrationsFixturesResponse;
 import com.acme.enablements.integrations.IntegrationFixtureException;
@@ -8,6 +9,16 @@ import com.acme.enablements.integrations.LocationEventsIntegrationService;
 import com.acme.enablements.integrations.PimsIntegrationService;
 import com.acme.enablements.integrations.ProtobufQueryParser;
 import com.acme.enablements.integrations.ShippingFixtureService;
+import com.acme.enablements.payments.PaymentsIntegrationService;
+import com.acme.enablements.webhooks.WebhookIntegrationService;
+import com.acme.enablements.webhooks.workflows.WebhookEvent;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CreateChargeRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.GetCommerceCatalogResponse;
+import com.acme.proto.acme.enablements.domain.enablements.v1.GetCommerceShippingRatesRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.GetCommerceShippingRatesResponse;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CommerceOrderState;
+import com.acme.proto.acme.enablements.domain.enablements.v1.PaymentChargeState;
 import com.acme.proto.acme.fulfillment.domain.fulfillment.v1.DeductInventoryRequest;
 import com.acme.proto.acme.fulfillment.domain.fulfillment.v1.DeductInventoryResponse;
 import com.acme.proto.acme.fulfillment.domain.fulfillment.v1.FindAlternateWarehouseRequest;
@@ -36,12 +47,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -54,6 +67,9 @@ public class IntegrationsController {
     private final ShippingFixtureService shipping;
     private final LocationEventsIntegrationService locationEvents;
     private final ProtobufQueryParser queryParser;
+    private final CommerceAppBackendService commerceApp;
+    private final PaymentsIntegrationService payments;
+    private final WebhookIntegrationService webhooks;
 
     public IntegrationsController(
             CommerceIntegrationService commerce,
@@ -61,13 +77,19 @@ public class IntegrationsController {
             InventoryIntegrationService inventory,
             ShippingFixtureService shipping,
             LocationEventsIntegrationService locationEvents,
-            ProtobufQueryParser queryParser) {
+            ProtobufQueryParser queryParser,
+            CommerceAppBackendService commerceApp,
+            PaymentsIntegrationService payments,
+            WebhookIntegrationService webhooks) {
         this.commerce = commerce;
         this.pims = pims;
         this.inventory = inventory;
         this.shipping = shipping;
         this.locationEvents = locationEvents;
         this.queryParser = queryParser;
+        this.commerceApp = commerceApp;
+        this.payments = payments;
+        this.webhooks = webhooks;
     }
 
     @PostMapping("/commerce-app/validate-order")
@@ -138,6 +160,51 @@ public class IntegrationsController {
     @GetMapping("/fixtures")
     public EnablementIntegrationsFixturesResponse allFixtures() {
         return shipping.fixtures();
+    }
+
+    @GetMapping("/commerce/catalog")
+    public GetCommerceCatalogResponse getCommerceCatalog() {
+        return commerceApp.getCatalog();
+    }
+
+    @PostMapping("/commerce/orders")
+    public CommerceOrderState createCommerceOrder(@RequestBody CreateCommerceOrderRequest request) {
+        return commerceApp.createOrder(request);
+    }
+
+    @GetMapping("/commerce/orders/{orderId}")
+    public CommerceOrderState getCommerceOrder(@PathVariable String orderId) {
+        return commerceApp.getOrder(orderId);
+    }
+
+    @GetMapping("/commerce/shipping/rates")
+    public GetCommerceShippingRatesResponse getCommerceShippingRates(@RequestParam("request") String requestJson) {
+        return commerceApp.getShippingRates(queryParser.parse(requestJson, GetCommerceShippingRatesRequest.class));
+    }
+
+    @PostMapping("/payments/charges")
+    public PaymentChargeState createCharge(@RequestBody CreateChargeRequest request) {
+        return payments.createCharge(request);
+    }
+
+    @PostMapping("/payments/charges/{chargeId}/capture")
+    public PaymentChargeState captureCharge(@PathVariable String chargeId) {
+        return payments.capture(chargeId);
+    }
+
+    @PostMapping("/payments/charges/{chargeId}/void")
+    public PaymentChargeState voidCharge(@PathVariable String chargeId) {
+        return payments.voidCharge(chargeId);
+    }
+
+    @GetMapping("/payments/charges/{chargeId}")
+    public PaymentChargeState getCharge(@PathVariable String chargeId) {
+        return payments.getState(chargeId);
+    }
+
+    @GetMapping("/webhooks/events")
+    public List<WebhookEvent> getRecentWebhookEvents() {
+        return webhooks.getRecentEvents();
     }
 
     @ExceptionHandler(IntegrationFixtureException.class)
