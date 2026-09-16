@@ -254,6 +254,25 @@ curl http://localhost:8080/api/v1/commerce-app/clothing
 open http://localhost:8080/api/docs
 ```
 
+#### Step 3d: Web UI (Commerce + Payments Demo)
+
+`app-deploy.sh` also builds and deploys the Svelte web UI (`web/Dockerfile`) into the
+`temporal-oms-web` namespace. With `tunnel.sh` running, it is reachable at:
+
+```bash
+open http://localhost:3000
+```
+
+Traefik routes `/api/v1/integrations` and `/api/v1/enablements` to `enablements-api`, the rest of
+`/api` to `apps-api`, and everything else to the web pod, on a dedicated `webui` entrypoint
+(port 3000). This mirrors the path routing in `web/vite.config.ts`'s dev-server proxy, since the
+production build has no server-side proxy of its own. See
+[GETTING_STARTED.md](GETTING_STARTED.md#web-ui-commerce--payments-demo) for the walkthrough.
+
+The web pod's `PUBLIC_TEMPORAL_UI_BASE_URL` defaults to `http://localhost:8233`, matching a local
+Temporal dev server (`OVERLAY=local`). With `OVERLAY=cloud`, the Temporal deep-links in the UI will
+point at the wrong place; that only affects convenience links, not core functionality.
+
 ---
 
 ## Configuration Details
@@ -502,8 +521,13 @@ KinD or k3d Cluster (temporal-oms)
 │   └── apps-worker (2+ replicas) - Workflow workers
 ├── temporal-oms-processing namespace
 │   └── processing-worker (2+ replicas) - Processing workers
+├── temporal-oms-enablements namespace
+│   ├── enablements-api - Commerce/Payments simulator API
+│   └── enablements-workers - Commerce/Payments simulator workers
+├── temporal-oms-web namespace
+│   └── web - Svelte Commerce + Payments demo UI
 └── traefik namespace
-    └── Traefik Ingress Controller
+    └── Traefik Ingress Controller (web, processing, webui entrypoints)
 ```
 
 ### Configuration Flow

@@ -20,6 +20,10 @@ echo "Enablements Namespace:"
 kubectl get pods -n temporal-oms-enablements --no-headers 2>/dev/null | awk '{printf "  %-40s %s\n", $1, $3}' || echo "  (namespace not found)"
 
 echo ""
+echo "Web Namespace:"
+kubectl get pods -n temporal-oms-web --no-headers 2>/dev/null | awk '{printf "  %-40s %s\n", $1, $3}' || echo "  (namespace not found)"
+
+echo ""
 echo "Temporal Worker Deployments:"
 kubectl get workerdeployments -A 2>/dev/null || echo "  (Temporal Worker Controller CRDs not found)"
 

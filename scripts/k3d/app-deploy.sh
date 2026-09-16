@@ -46,6 +46,9 @@ docker build -q -t temporal-oms/fulfillment-workers:latest \
 docker build -q -t temporal-oms/fulfillment-python-worker:latest \
   -f python/fulfillment/Dockerfile python
 
+docker build -q -t temporal-oms/web:latest \
+  -f web/Dockerfile web
+
 echo "→ Importing images into k3d..."
 k3d image import \
   temporal-oms/apps-api:latest \
@@ -57,6 +60,7 @@ k3d image import \
   temporal-oms/enablements-workers:latest \
   temporal-oms/fulfillment-workers:latest \
   temporal-oms/fulfillment-python-worker:latest \
+  temporal-oms/web:latest \
   --cluster temporal-oms
 
 echo "→ Deploying to k3d..."
@@ -65,21 +69,18 @@ kubectl apply -k "k8s/overlays/${KUSTOMIZE_OVERLAY}" >/dev/null
 if [ "$PROCESSING_WORKER_MODE" = "versioned" ]; then
   echo "  using WorkerDeployment for processing-workers"
   kubectl delete deployment processing-workers -n temporal-oms-processing --ignore-not-found >/dev/null
-  # Best-effort cleanup for clusters previously booted with pre-v1.7 TWC CRDs.
-  kubectl delete temporalworkerdeployment processing-workers -n temporal-oms-processing --ignore-not-found --wait=false >/dev/null
-  kubectl delete temporalconnection temporal-connection -n temporal-oms-processing --ignore-not-found --wait=false >/dev/null
   kubectl apply -k "k8s/processing-versioned/overlays/${KUSTOMIZE_OVERLAY}" >/dev/null
 else
   kubectl delete workerdeployment processing-workers -n temporal-oms-processing --ignore-not-found --wait=false >/dev/null
-  # Best-effort cleanup for clusters previously booted with pre-v1.7 TWC CRDs.
-  kubectl delete temporalworkerdeployment processing-workers -n temporal-oms-processing --ignore-not-found --wait=false >/dev/null
 fi
 kubectl apply -f k8s/ingress/apps-api-ingress.yaml >/dev/null
 kubectl apply -f k8s/ingress/processing-api-ingress.yaml >/dev/null
+kubectl apply -f k8s/ingress/enablements-api-ingress.yaml >/dev/null
+kubectl apply -f k8s/ingress/web-ingress.yaml >/dev/null
 apply_runtime_api_key_secrets "$PROJECT_DIR"
 
 echo "→ Restarting pods..."
-for ns in temporal-oms-apps temporal-oms-processing temporal-oms-enablements temporal-oms-fulfillment; do
+for ns in temporal-oms-apps temporal-oms-processing temporal-oms-enablements temporal-oms-fulfillment temporal-oms-web; do
   kubectl delete pods -n "$ns" --all 2>/dev/null || true
 done
 

@@ -11,6 +11,7 @@ resources:
   - fulfillment/deployment-python-worker.yaml
   - enablements/deployment-api.yaml
   - enablements/deployment-workers.yaml
+  - web/deployment.yaml
   - temporal-cloud-service.yaml
 
 # ConfigMaps and Secrets will be patched by overlays
