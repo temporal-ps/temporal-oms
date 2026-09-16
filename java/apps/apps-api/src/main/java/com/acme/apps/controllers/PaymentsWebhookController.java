@@ -98,7 +98,7 @@ public class PaymentsWebhookController {
                     .build()
             );
 
-            // StartUpdateWithStart: atomically start workflow and execute update in one operation
+            // StartUpdateWithStart:  start workflow and execute update in one operation
             WorkflowClient.startUpdateWithStart(
                 workflowStub::capturePayment,
                 updateRequest,

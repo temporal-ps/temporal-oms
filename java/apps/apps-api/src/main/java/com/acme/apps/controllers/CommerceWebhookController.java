@@ -133,7 +133,7 @@ public class CommerceWebhookController {
                     .build()
             );
 
-            // StartUpdateWithStart: atomically start workflow and execute update in one operation
+            // StartUpdateWithStart:  start workflow and execute update in one operation
             WorkflowClient.startUpdateWithStart(
                 workflow::submitOrder,
                 updateRequest,
