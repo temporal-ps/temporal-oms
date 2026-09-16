@@ -149,8 +149,12 @@ server.
 Terminal 1:
 
 ```bash
-temporal server start-dev
+./scripts/start-temporal-dev.sh
 ```
+
+This wraps `temporal server start-dev` with the dynamic-config flags standalone Nexus
+operations and standalone activities need; see
+**[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** for details.
 
 Terminal 2:
 
@@ -178,7 +182,7 @@ Full stack in a local Kubernetes cluster. Choose one runner and use that directo
 
 ```bash
 # Terminal 1
-temporal server start-dev --ip 0.0.0.0 --ui-ip 0.0.0.0
+./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
 
 # Terminal 2
 ./scripts/setup-temporal-namespaces.sh

@@ -262,7 +262,7 @@ wait_temporal() {
     operator cluster health --command-timeout 5s >/dev/null 2>&1; then
     die "Temporal is not reachable at $TEMPORAL_ADDRESS. Start Temporal separately, then rerun ./scripts/local-up.sh.
 Example:
-  temporal server start-dev --ip 127.0.0.1 --port 7233 --ui-ip 127.0.0.1 --ui-port 8233"
+  ./scripts/start-temporal-dev.sh --ip 127.0.0.1 --port 7233 --ui-ip 127.0.0.1 --ui-port 8233"
   fi
   echo "  Temporal ready"
 }

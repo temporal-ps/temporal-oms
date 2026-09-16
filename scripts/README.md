@@ -20,7 +20,7 @@ Local process stack:
 
 ```bash
 # Terminal 1
-temporal server start-dev
+./scripts/start-temporal-dev.sh
 ```
 
 ```bash
@@ -49,7 +49,7 @@ KinD with local Temporal:
 
 ```bash
 # Terminal 1
-temporal server start-dev --ip 0.0.0.0 --ui-ip 0.0.0.0
+./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
 
 # Terminal 2
 ./scripts/setup-temporal-namespaces.sh
@@ -60,7 +60,7 @@ k3d with local Temporal:
 
 ```bash
 # Terminal 1
-temporal server start-dev --ip 0.0.0.0 --ui-ip 0.0.0.0
+./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
 
 # Terminal 2
 ./scripts/setup-temporal-namespaces.sh
@@ -190,6 +190,7 @@ WORKSHOP_PIN_OUTPUT=false ./scripts/serve-workshop-api-keys.sh
 | Script | Purpose |
 |---|---|
 | `setup-asdf-plugins.sh` | Install missing asdf plugins listed in `.tool-versions` |
+| `start-temporal-dev.sh` | Run `temporal server start-dev` with the dynamic-config flags standalone Nexus operations and standalone activities need |
 | `local-up.sh` | Start all local OMS APIs and workers against an already running Temporal dev server |
 | `local-down.sh` | Stop services started by `local-up.sh` |
 | `setup-temporal-namespaces.sh` | Create local Temporal namespaces, Nexus endpoints, search attributes, and current Worker Deployment versions |
@@ -221,7 +222,8 @@ Cluster scripts:
 - `kind` for `scripts/kind/*`
 - `k3d` for `scripts/k3d/*`
 - k9s, optional
-- Temporal CLI and a local Temporal dev server for `OVERLAY=local`
+- Temporal CLI and a local Temporal dev server for `OVERLAY=local`, started with
+  `./scripts/start-temporal-dev.sh` so standalone Nexus operations and standalone activities work
 
 Cloud overlay scripts also require Temporal Cloud namespaces, service-account API keys, cloud
 overlay config values, and the gitignored `config/*.secret.yaml` files described in

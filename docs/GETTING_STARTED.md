@@ -44,8 +44,13 @@ cd temporal-oms
 Run this in one terminal and leave it running:
 
 ```bash
-temporal server start-dev
+./scripts/start-temporal-dev.sh
 ```
+
+This wraps `temporal server start-dev` with the dynamic-config flags standalone Nexus
+operations and standalone activities need (Nexus callback endpoint template, allowed callback
+addresses, update callbacks, and the two `enableStandalone` flags). Pass through any extra
+`start-dev` flags, e.g. `./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0`.
 
 Temporal UI will be available at `http://localhost:8233`.
 
