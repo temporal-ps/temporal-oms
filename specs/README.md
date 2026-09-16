@@ -130,6 +130,13 @@ Provide feedback in PROGRESS.md → Feedback Items section.
 - **Goal:** K8s deployment changes for `fulfillment-workers`, Worker Versioning rollout for `apps` and `processing` task queues
 - **Next:** Spec to be written after fulfillment-order-workflow spec is approved
 
+### OMS Evolution
+- **Status:** Draft - Ready for Review
+- **Goal:** Represent every `apps.Order`/`processing.Order`/fulfillment version as real, coexisting code (package-per-version), and define OMS version as a named pin of one apps version + one processing version + one fulfillment version, so workshops/demos can run any point in the OMS's evolution
+- **Owner:** Temporal FDE Team
+- **Spec:** `SPECS/oms-evolution/`
+- **Next:** Awaiting tech lead review (see PROGRESS.md)
+
 ### Worker Version Enablement
 - **Status:** Draft - Ready for Review
 - **Goal:** Generate load + deploy worker versions + validate zero failures
