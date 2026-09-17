@@ -1,7 +1,8 @@
-package com.acme.processing.workflows;
+package com.acme.processing.workflows.v2;
 
 import com.acme.oms.services.CommerceAppService;
 import com.acme.oms.services.ProductInformationManagementService;
+import com.acme.processing.workflows.Order;
 import com.acme.processing.workflows.activities.Fulfillments;
 import com.acme.processing.workflows.activities.Options;
 import com.acme.processing.workflows.activities.Support;
@@ -18,18 +19,21 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 
 /**
- * Legacy processing.Order implementation used as the workshop starting point.
- * <p>
- * V1 always publishes the Kafka fulfillment handoff after validation and enrichment.
+ * processing.Order workflow, Worker Versioning on (PINNED). Behavior unchanged from
+ * v1: still always publishes the Kafka fulfillment handoff.
+ *
+ * Also the Safe Fulfillment Handoff workshop's live-edit starting point: the commented
+ * WORKSHOP markers below are uncommented by the workshop to reach processing v3
+ * behavior (the send_fulfillment guard).
  */
-public class OrderImplV1 implements Order {
+public class OrderImpl implements Order {
     private final Options optionsActs;
     private final Fulfillments fulfillments;
     private GetProcessOrderStateResponse state;
-    private Logger logger = LoggerFactory.getLogger(OrderImplV1.class);
+    private Logger logger = LoggerFactory.getLogger(OrderImpl.class);
 
     @WorkflowInit
-    public OrderImplV1(ProcessOrderRequest args) {
+    public OrderImpl(ProcessOrderRequest args) {
         Workflow.setCurrentDetails("Implementation type: `" + this.getClass().getName() + "`");
 
         this.state = GetProcessOrderStateResponse.newBuilder().build();
@@ -47,7 +51,7 @@ public class OrderImplV1 implements Order {
     @Override
     @WorkflowVersioningBehavior(VersioningBehavior.PINNED)
     public GetProcessOrderStateResponse execute(ProcessOrderRequest request) {
-        logger.info("V1: Processing order {}", request);
+        logger.info("Processing order {}", request);
         var opts = request.hasOptions()
                 ? request.getOptions()
                 : ProcessOrderRequestExecutionOptions.getDefaultInstance();

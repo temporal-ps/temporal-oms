@@ -18,25 +18,25 @@ from Kubernetes rollout state.
 
 This workshop has two parts:
 
-- **Part 1 — Manual rollout via Temporal CLI** (45 min, hands-on): you change the code, start v2
+- **Part 1 — Manual rollout via Temporal CLI** (45 min, hands-on): you change the code, start v3
   workers, and call `set-current-version` / `set-ramping-version` to move traffic. Runs against a
   local Temporal dev server; no Kubernetes required.
 - **Part 2 — Automated rollout with the Temporal Worker Controller** (15 min, instructor-led):
   the same code change, deployed to a Kubernetes cluster, with TWC driving the rollout from a
   `WorkerDeployment` manifest. Requires KinD or k3d.
 
-Part 2 reuses the Part 1 v2 code. The pedagogical point of Part 2 is that nothing in workflow code
+Part 2 reuses the Part 1 v3 code. The pedagogical point of Part 2 is that nothing in workflow code
 changes — only the operator surface differs (CLI commands vs. Kubernetes-driven rollout).
 
 The operational rollout order stays the same in both parts:
 
-1. Confirm `apps v1` and `processing v1` are current.
+1. Confirm `apps v2` and `processing v2` are current.
 2. Start sustained order traffic.
-3. Implement and start `processing v2`.
-4. Promote `processing v2` to current.
-5. Implement `apps v2`.
+3. Implement and start `processing v3`.
+4. Promote `processing v3` to current.
+5. Implement `apps v3`.
 6. Start fulfillment-side workers for the new path.
-7. Start and ramp or promote `apps v2`.
+7. Start and ramp or promote `apps v3`.
 8. Verify `fulfillment.Order` receives new-path traffic and Kafka handoffs stop for that path.
 
 ## Part 1: Manual Rollout via Temporal CLI
@@ -83,14 +83,14 @@ Set up namespaces and Nexus endpoints:
 Start only the services needed for baseline order traffic and the enablements load generator:
 
 - `apps-api`
-- `apps-workers v1`
+- `apps-workers v2`
 - `processing-api`
-- `processing-workers v1`
+- `processing-workers v2`
 - `enablements-api`
 - `enablements-workers`
 
 Do not start fulfillment workers yet. The legacy path should prove that orders are flowing through
-`apps v1 -> processing -> Kafka fulfillment` before `apps v2` starts using `fulfillment.Order`.
+`apps v2 -> processing -> Kafka fulfillment` before `apps v3` starts using `fulfillment.Order`.
 
 ```bash
 ./scripts/start-initial-services.sh
@@ -107,20 +107,20 @@ Useful runtime commands:
 ./scripts/stop.sh
 ```
 
-### 1. Confirm `v1` Is Current
+### 1. Confirm `v2` Is Current
 
-Set both deployments to `v1`, then confirm the state:
+Set both deployments to `v2`, then confirm the state:
 
 ```bash
 temporal worker deployment set-current-version \
   --deployment-name processing \
-  --build-id v1 \
+  --build-id v2 \
   --namespace processing \
   --yes
 
 temporal worker deployment set-current-version \
   --deployment-name apps \
-  --build-id v1 \
+  --build-id v2 \
   --namespace apps \
   --yes
 ```
@@ -135,7 +135,7 @@ temporal worker deployment describe \
   --namespace apps
 ```
 
-Expected result: `processing` and `apps` both show `v1` as current.
+Expected result: `processing` and `apps` both show `v2` as current.
 
 ### 2. Start Sustained Traffic
 
@@ -174,15 +174,15 @@ export ORDER_ID="<generated-order-id>"
 curl -s "http://localhost:8071/admin/order-fulfillment/${ORDER_ID}"
 ```
 
-Expected result: with `apps v1` and `processing v1`, generated orders create Kafka fulfillment
+Expected result: with `apps v2` and `processing v2`, generated orders create Kafka fulfillment
 records.
 
-### 4. Implement `processing v2`
+### 4. Implement `processing v3`
 
-> Only edit the processing proto contract and the **processing** OrderImplV1 Java file in this
+> Only edit the processing proto contract and the **processing** `v2/OrderImpl.java` file in this
 > step. The apps context will change shortly.
 
-Apply the **processing** changes from [SOLUTION.md](SOLUTION.md#processing-v2-code). This is a
+Apply the **processing** changes from [SOLUTION.md](SOLUTION.md#processing-v3-code). This is a
 guided copy/paste change. When that solution section is complete, come back here and continue with
 Step 5.
 
@@ -191,13 +191,13 @@ Step 5.
 - Regenerate protobuf outputs with the
   [project-root generate script](../../scripts/generate.sh).
 - Guard the legacy Kafka handoff in
-  [processing OrderImplV1.java](../../java/processing/processing-core/src/main/java/com/acme/processing/workflows/OrderImplV1.java).
+  [processing v2/OrderImpl.java](../../java/processing/processing-core/src/main/java/com/acme/processing/workflows/v2/OrderImpl.java).
 - Keep the default backward-compatible: absent `send_fulfillment` means `true`.
 
 The solution file shows repo-root paths. Keep this terminal in the workshop directory for the
 scripts, but make code edits against the repo-root files it names.
 
-### 5. Start `processing v2`
+### 5. Start `processing v3`
 
 Build and run a second processing worker process with the same deployment name and a new build ID:
 
@@ -205,7 +205,7 @@ Build and run a second processing worker process with the same deployment name a
 ./scripts/start-processing-v2.sh
 ```
 
-Confirm `processing v2` is polling:
+Confirm `processing v3` is polling:
 
 ```bash
 temporal worker deployment describe \
@@ -213,17 +213,17 @@ temporal worker deployment describe \
   --namespace processing
 ```
 
-Do not stop `processing v1`. Existing pinned executions may still need it.
+Do not stop `processing v2`. Existing pinned executions may still need it.
 
 > **Pro Tip**:
 > Check out the Temporal UI at `/namespaces/processing/workers/deployments/processing` to see the current status of all Deployments.
 
-### 6. Promote `processing v2`
+### 6. Promote `processing v3`
 
 ```bash
 temporal worker deployment set-current-version \
   --deployment-name processing \
-  --build-id v2 \
+  --build-id v3 \
   --namespace processing \
   --yes
 ```
@@ -234,15 +234,15 @@ temporal worker deployment describe \
   --namespace processing
 ```
 
-Expected result: new `processing.Order` executions are pinned to `processing v2`.
+Expected result: new `processing.Order` executions are pinned to `processing v3`.
 
-Why this is safe: `apps v1` still does not set `send_fulfillment`, and `processing v2` treats the
+Why this is safe: `apps v2` still does not set `send_fulfillment`, and `processing v3` treats the
 absent field as `true`, so old app traffic still publishes the legacy Kafka handoff.
 
-### 7. Implement `apps v2`
+### 7. Implement `apps v3`
 
-Apply the **apps** changes from [SOLUTION.md](SOLUTION.md#apps-v2-code) in
-[apps OrderImplV1.java](../../java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImplV1.java).
+Apply the **apps** changes from [SOLUTION.md](SOLUTION.md#apps-v3-code) in
+[apps v2/OrderImpl.java](../../java/apps/apps-core/src/main/java/com/acme/apps/workflows/v2/OrderImpl.java).
 The fulfillment wiring helpers are already in the class. The coding activity is calling those
 helpers from the workflow path and setting `send_fulfillment=false` on the processing request.
 When that solution section is complete, come back here and continue with Step 8:
@@ -254,17 +254,17 @@ When that solution section is complete, come back here and continue with Step 8:
 
 > **Shortcut:** If you'd rather skip the manual edits, run these two commands from the *repo root*:
 > ```bash
-> cp java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImpl.java \
->    java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImplV1.java
-> sed -i '' 's/OrderImpl/OrderImplV1/g' \
->    java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImplV1.java
+> cp java/apps/apps-core/src/main/java/com/acme/apps/workflows/v3/OrderImpl.java \
+>    java/apps/apps-core/src/main/java/com/acme/apps/workflows/v2/OrderImpl.java
+> sed -i '' 's/^package com.acme.apps.workflows.v3;/package com.acme.apps.workflows.v2;/' \
+>    java/apps/apps-core/src/main/java/com/acme/apps/workflows/v2/OrderImpl.java
 > ```
 
 ### 8. Start Fulfillment Workers For The New Path
 
-Do this after the legacy path is proven and before any `apps v2` worker receives traffic. The
+Do this after the legacy path is proven and before any `apps v3` worker receives traffic. The
 initial service list intentionally left fulfillment stopped so the baseline generator shows
-`apps v1 -> processing -> Kafka fulfillment`.
+`apps v2 -> processing -> Kafka fulfillment`.
 
 ```bash
 ./scripts/start-fulfillment.sh
@@ -279,7 +279,7 @@ You do not need to start `fulfillment-api` for this workshop. The new path reach
 > **Pro Tip**: 
 > Check out the fulfillment Worker running at `namespaces/fulfillment/workers/deployments`in the Temporal UI.
 
-### 9. Start `apps v2`
+### 9. Start `apps v3`
 
 Build and run a second apps worker process with the same deployment name and a new build ID:
 
@@ -287,7 +287,7 @@ Build and run a second apps worker process with the same deployment name and a n
 ./scripts/start-apps-v2.sh
 ```
 
-Confirm `apps v2` is polling:
+Confirm `apps v3` is polling:
 
 ```bash
 temporal worker deployment describe \
@@ -295,16 +295,16 @@ temporal worker deployment describe \
   --namespace apps
 ```
 
-Do not stop `apps v1`. Existing pinned executions may still need it.
+Do not stop `apps v2`. Existing pinned executions may still need it.
 
-### 10. Move Traffic To `apps v2`
+### 10. Move Traffic To `apps v3`
 
-For a visible mixed period, ramp `apps v2` first:
+For a visible mixed period, ramp `apps v3` first:
 
 ```bash
 temporal worker deployment set-ramping-version \
   --deployment-name apps \
-  --build-id v2 \
+  --build-id v3 \
   --percentage 50 \
   --namespace apps \
   --yes
@@ -315,13 +315,13 @@ OR, If you want a direct cutover instead:
 ```bash
 temporal worker deployment set-current-version \
   --deployment-name apps \
-  --build-id v2 \
+  --build-id v3 \
   --namespace apps \
   --yes
 ```
 
 Expected result during the ramp: the generator keeps submitting orders; some new `apps.Order`
-executions run on `apps v1`, and some run on `apps v2`.
+executions run on `apps v2`, and some run on `apps v3`.
 
 ### 11. Inspect Proof
 
@@ -348,7 +348,7 @@ workflow and no Kafka record.
 ```bash
 temporal worker deployment set-current-version \
   --deployment-name apps \
-  --build-id v2 \
+  --build-id v3 \
   --namespace apps \
   --yes
 ```
@@ -363,7 +363,7 @@ temporal worker deployment describe \
   --namespace apps
 ```
 
-Expected result: both deployments are current on `v2`; old pinned executions continue on their
+Expected result: both deployments are current on `v3`; old pinned executions continue on their
 original versions until they drain.
 
 Stop the generator when Part 1 is complete:
@@ -406,9 +406,9 @@ self-paced replay.
 
 | Part 1 manual command | Part 2 controller behavior |
 |---|---|
-| `set-current-version --deployment-name processing --build-id v2` | TWC promotes the new processing Worker Deployment Version after pollers appear |
-| `set-ramping-version --deployment-name apps --build-id v2 --percentage 50` | TWC applies progressive rollout steps from the `WorkerDeployment` spec |
-| `set-current-version --deployment-name apps --build-id v2` | TWC completes the rollout after each ramp step's pause |
+| `set-current-version --deployment-name processing --build-id v3` | TWC promotes the new processing Worker Deployment Version after pollers appear |
+| `set-ramping-version --deployment-name apps --build-id v3 --percentage 50` | TWC applies progressive rollout steps from the `WorkerDeployment` spec |
+| `set-current-version --deployment-name apps --build-id v3` | TWC completes the rollout after each ramp step's pause |
 | manually stop old workers | TWC sunsets old versions after configured drain delays |
 
 ### Prerequisites
@@ -416,8 +416,8 @@ self-paced replay.
 - A local Kubernetes cluster (KinD or k3d) — see [DEPLOYMENT.md](../../docs/DEPLOYMENT.md) for setup
 - Temporal Worker Controller v1.7.0 installed in the cluster (Helm chart 0.26.0 + CRDs applied
   separately; see [DEPLOYMENT.md](../../docs/DEPLOYMENT.md))
-- The Part 1 `processing v2` code change applied (`send_fulfillment` proto field + guarded Kafka
-  handoff). The apps v2 change is optional for Part 2 — Part 2 demonstrates the processing
+- The Part 1 `processing v3` code change applied (`send_fulfillment` proto field + guarded Kafka
+  handoff). The apps v3 change is optional for Part 2 — Part 2 demonstrates the processing
   rollout.
 - `k9s` on PATH for visual observation
 

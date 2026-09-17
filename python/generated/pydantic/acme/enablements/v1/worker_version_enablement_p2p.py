@@ -55,7 +55,14 @@ class DeployWorkerVersionRequest(BaseModel):
     replica_count: typing.Optional[int] = Field(default=0)
 
 class DeployWorkerVersionResponse(BaseModel):
-    pass
+# Fully-qualified workflow class resolved for the request's deployment_name + version,
+# e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+    workflow_class: str = Field(default="")
+# True once `temporal worker deployment set-current-version` succeeded for this build id.
+    current_version_set: bool = Field(default=False)
+# Raw `temporal worker deployment describe --output json` text captured right after the
+# set-current-version call, so a silent no-op can't happen unnoticed.
+    describe_output: str = Field(default="")
 
 class WorkerVersionEnablementState(BaseModel):
     """

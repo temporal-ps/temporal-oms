@@ -13,7 +13,7 @@ PERCENTAGE="${1:-${RAMP_PERCENTAGE:-50}}"
 
 temporal_cli worker deployment set-ramping-version \
   --deployment-name apps \
-  --build-id v2 \
+  --build-id v3 \
   --percentage "$PERCENTAGE" \
   --namespace "$TEMPORAL_APPS_NAMESPACE"
 

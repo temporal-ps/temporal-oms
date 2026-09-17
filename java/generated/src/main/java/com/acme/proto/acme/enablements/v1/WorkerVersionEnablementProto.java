@@ -135,20 +135,23 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       "loymentName\022\031\n\010build_id\030\002 \001(\tR\007buildId\022\030" +
       "\n\007version\030\003 \001(\tR\007version\022(\n\rreplica_coun" +
       "t\030\004 \001(\005H\000R\014replicaCount\210\001\001B\020\n\016_replica_c" +
-      "ount\"\035\n\033DeployWorkerVersionResponse\"\255\002\n\023" +
-      "LoadGenerationState\022#\n\renablement_id\030\001 \001" +
-      "(\tR\014enablementId\022P\n\006status\030\002 \001(\01628.acme." +
-      "enablements.v1.LoadGenerationState.Execu" +
-      "tionStatusR\006status\0224\n\026orders_submitted_c" +
-      "ount\030\003 \001(\005R\024ordersSubmittedCount\"i\n\017Exec" +
-      "utionStatus\022 \n\034EXECUTION_STATUS_UNSPECIF" +
-      "IED\020\000\022\013\n\007RUNNING\020\001\022\r\n\tCOMPLETED\020\002\022\014\n\010CAN" +
-      "CELED\020\003\022\n\n\006FAILED\020\004B\260\001\n\"com.acme.proto.a" +
-      "cme.enablements.v1B\034WorkerVersionEnablem" +
-      "entProtoP\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002" +
-      "\023Acme\\Enablements\\V1\342\002\037Acme\\Enablements\\" +
-      "V1\\GPBMetadata\352\002\025Acme::Enablements::V1b\006" +
-      "proto3"
+      "ount\"\235\001\n\033DeployWorkerVersionResponse\022%\n\016" +
+      "workflow_class\030\001 \001(\tR\rworkflowClass\022.\n\023c" +
+      "urrent_version_set\030\002 \001(\010R\021currentVersion" +
+      "Set\022\'\n\017describe_output\030\003 \001(\tR\016describeOu" +
+      "tput\"\255\002\n\023LoadGenerationState\022#\n\renableme" +
+      "nt_id\030\001 \001(\tR\014enablementId\022P\n\006status\030\002 \001(" +
+      "\01628.acme.enablements.v1.LoadGenerationSt" +
+      "ate.ExecutionStatusR\006status\0224\n\026orders_su" +
+      "bmitted_count\030\003 \001(\005R\024ordersSubmittedCoun" +
+      "t\"i\n\017ExecutionStatus\022 \n\034EXECUTION_STATUS" +
+      "_UNSPECIFIED\020\000\022\013\n\007RUNNING\020\001\022\r\n\tCOMPLETED" +
+      "\020\002\022\014\n\010CANCELED\020\003\022\n\n\006FAILED\020\004B\260\001\n\"com.acm" +
+      "e.proto.acme.enablements.v1B\034WorkerVersi" +
+      "onEnablementProtoP\001\242\002\003AEX\252\002\023Acme.Enablem" +
+      "ents.V1\312\002\023Acme\\Enablements\\V1\342\002\037Acme\\Ena" +
+      "blements\\V1\\GPBMetadata\352\002\025Acme::Enableme" +
+      "nts::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -204,7 +207,7 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor,
-        new java.lang.String[] { });
+        new java.lang.String[] { "WorkflowClass", "CurrentVersionSet", "DescribeOutput", });
     internal_static_acme_enablements_v1_LoadGenerationState_descriptor =
       getDescriptor().getMessageType(8);
     internal_static_acme_enablements_v1_LoadGenerationState_fieldAccessorTable = new

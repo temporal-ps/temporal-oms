@@ -18,9 +18,9 @@ start_service apps-api java -jar "$ROOT_DIR/java/apps/apps-api/target/apps-api-1
 wait_http apps-api http://127.0.0.1:9091/actuator/health
 
 start_service apps-workers-v1 env \
-  ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.OrderImplV1 \
+  ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.v2.OrderImpl \
   TEMPORAL_DEPLOYMENT_NAME=apps \
-  TEMPORAL_WORKER_BUILD_ID=v1 \
+  TEMPORAL_WORKER_BUILD_ID=v2 \
   java -jar "$ROOT_DIR/java/apps/apps-workers/target/apps-workers-1.0.0-SNAPSHOT.jar" \
   --server.port=8081 \
   --management.server.port=9092
@@ -32,9 +32,9 @@ start_service processing-api java -jar "$ROOT_DIR/java/processing/processing-api
 wait_http processing-api http://127.0.0.1:9081/actuator/health
 
 start_service processing-workers-v1 env \
-  ACME_PROCESSING_ORDER_WORKFLOW_CLASS=com.acme.processing.workflows.OrderImplV1 \
+  ACME_PROCESSING_ORDER_WORKFLOW_CLASS=com.acme.processing.workflows.v2.OrderImpl \
   TEMPORAL_DEPLOYMENT_NAME=processing \
-  TEMPORAL_WORKER_BUILD_ID=v1 \
+  TEMPORAL_WORKER_BUILD_ID=v2 \
   java -jar "$ROOT_DIR/java/processing/processing-workers/target/processing-workers-1.0.0-SNAPSHOT.jar" \
   --server.port=8071 \
   --management.server.port=9082

@@ -1,5 +1,6 @@
-package com.acme.fulfillment.workflows;
+package com.acme.fulfillment.workflows.v2;
 
+import com.acme.fulfillment.workflows.Order;
 import com.acme.fulfillment.workflows.activities.Carriers;
 import com.acme.fulfillment.workflows.activities.FulfillmentOptionsLoader;
 import com.acme.oms.services.InventoryService;
@@ -10,6 +11,7 @@ import com.acme.proto.acme.fulfillment.domain.fulfillment.v1.*;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.activity.LocalActivityOptions;
 import io.temporal.common.SearchAttributeKey;
+import io.temporal.common.VersioningBehavior;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.workflow.*;
 import org.slf4j.Logger;
@@ -28,6 +30,9 @@ import java.util.List;
  *               → apply recommendation → concurrent: Carriers.printShippingLabel + InventoryService.deductInventory → return response
  *  4. execute() awaits state.notifyDeliveryStatus → updates delivery_status + status → complete
  *  5. [Signal] notifyDeliveryStatus → stores NotifyDeliveryStatusRequest in state
+ *
+ * Worker Versioning: PINNED. Behavior is unchanged from v1; only the version identity
+ * is new, required before fulfillment.Order can evolve safely on its own schedule.
  *
  * Compensation: detached scope releases inventory hold via InventoryService on cancelOrder Signal or timeout.
  */
@@ -72,7 +77,7 @@ public class OrderImpl implements Order {
     }
 
     @Override
-//    @WorkflowVersioningBehavior(VersioningBehavior.PINNED)
+    @WorkflowVersioningBehavior(VersioningBehavior.PINNED)
     public void execute(StartOrderFulfillmentRequest request) {
         logger.info("fulfillment.Order started for order_id={}", request.getOrderId());
 

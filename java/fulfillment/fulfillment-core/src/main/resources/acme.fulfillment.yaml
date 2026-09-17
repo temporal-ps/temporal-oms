@@ -7,11 +7,16 @@ spring.temporal:
   workers:
     - task-queue: fulfillment
       workflow-classes:
-        - com.acme.fulfillment.workflows.OrderImpl
+        - ${ACME_FULFILLMENT_ORDER_WORKFLOW_CLASS:com.acme.fulfillment.workflows.v1.OrderImpl}
       activity-beans:
         - fulfillmentOptionsLoaderActivities
       nexus-service-beans:
         - fulfillment-service
+      deployment-properties:
+        use-versioning: true
+        default-versioning-behavior: PINNED
+        deployment-name: ${TEMPORAL_DEPLOYMENT_NAME:fulfillment}
+        build-id: ${TEMPORAL_WORKER_BUILD_ID:local}
     - task-queue: fulfillment-carriers
       activity-beans:
         - carriersActivities

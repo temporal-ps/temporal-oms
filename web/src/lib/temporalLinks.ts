@@ -17,6 +17,13 @@ export function temporalActivityUrl(namespace: string, activityId: string): stri
 	return `${TEMPORAL_UI_BASE_URL}/namespaces/${encodeURIComponent(namespace)}/activities/${encodeURIComponent(activityId)}`;
 }
 
+// Worker Deployment detail page: shows current/ramping build id and pollers for a
+// bounded context's Worker Deployment (apps, processing, fulfillment all register
+// under their own Temporal namespace with deployment name == the bounded context).
+export function temporalWorkerDeploymentUrl(namespace: string, deploymentName: string): string {
+	return `${TEMPORAL_UI_BASE_URL}/namespaces/${encodeURIComponent(namespace)}/workers/deployments/${encodeURIComponent(deploymentName)}`;
+}
+
 export interface OrderTrackingLink {
 	label: string;
 	namespace: string;

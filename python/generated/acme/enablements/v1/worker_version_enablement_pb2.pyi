@@ -114,7 +114,13 @@ class DeployWorkerVersionRequest(_message.Message):
 
 class DeployWorkerVersionResponse(_message.Message):
     __slots__ = ()
-    def __init__(self) -> None: ...
+    WORKFLOW_CLASS_FIELD_NUMBER: _ClassVar[int]
+    CURRENT_VERSION_SET_FIELD_NUMBER: _ClassVar[int]
+    DESCRIBE_OUTPUT_FIELD_NUMBER: _ClassVar[int]
+    workflow_class: str
+    current_version_set: bool
+    describe_output: str
+    def __init__(self, workflow_class: _Optional[str] = ..., current_version_set: _Optional[bool] = ..., describe_output: _Optional[str] = ...) -> None: ...
 
 class LoadGenerationState(_message.Message):
     __slots__ = ()

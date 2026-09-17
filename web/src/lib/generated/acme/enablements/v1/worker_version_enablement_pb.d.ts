@@ -316,6 +316,28 @@ export declare const DeployWorkerVersionRequestSchema: GenMessage<DeployWorkerVe
  * @generated from message acme.enablements.v1.DeployWorkerVersionResponse
  */
 export declare type DeployWorkerVersionResponse = Message<"acme.enablements.v1.DeployWorkerVersionResponse"> & {
+  /**
+   * Fully-qualified workflow class resolved for the request's deployment_name + version,
+   * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+   *
+   * @generated from field: string workflow_class = 1;
+   */
+  workflowClass: string;
+
+  /**
+   * True once `temporal worker deployment set-current-version` succeeded for this build id.
+   *
+   * @generated from field: bool current_version_set = 2;
+   */
+  currentVersionSet: boolean;
+
+  /**
+   * Raw `temporal worker deployment describe --output json` text captured right after the
+   * set-current-version call, so a silent no-op can't happen unnoticed.
+   *
+   * @generated from field: string describe_output = 3;
+   */
+  describeOutput: string;
 };
 
 /**

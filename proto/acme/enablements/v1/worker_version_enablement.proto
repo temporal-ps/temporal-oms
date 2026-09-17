@@ -77,7 +77,14 @@ message DeployWorkerVersionRequest {
   optional int32 replica_count = 4;
 }
 message DeployWorkerVersionResponse {
-
+  // Fully-qualified workflow class resolved for the request's deployment_name + version,
+  // e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+  string workflow_class = 1;
+  // True once `temporal worker deployment set-current-version` succeeded for this build id.
+  bool current_version_set = 2;
+  // Raw `temporal worker deployment describe --output json` text captured right after the
+  // set-current-version call, so a silent no-op can't happen unnoticed.
+  string describe_output = 3;
 }
 
 // Current state of the runSubmissionLoop Standalone Activity Execution that

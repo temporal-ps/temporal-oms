@@ -75,10 +75,6 @@ class WorkerVersionEnablementWorkflowTest {
             deployed.add(cmd);
             return DeployWorkerVersionResponse.getDefaultInstance();
         }
-
-        @Override
-        public void registerCompatibility() {
-        }
     }
 
     private TestWorkflowEnvironment testEnv;

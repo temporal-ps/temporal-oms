@@ -1,0 +1,107 @@
+# Generalized plain-Deployment template for on-demand worker version promotion
+# (hosting.md Mode B). Used for bounded contexts that run as a plain Kubernetes
+# Deployment (apps, fulfillment) rather than a temporal.io WorkerDeployment CRD
+# (processing keeps using k8s/processing-versioned instead).
+#
+# Placeholders substituted by DeploymentActivitiesImpl: {NAME}, {NAMESPACE},
+# {REPLICAS}, {IMAGE}, {MANAGEMENT_PORT}, {DEPLOYMENT_NAME}, {BUILD_ID},
+# {WORKFLOW_CLASS_ENV}, {WORKFLOW_CLASS_VALUE}, {CONFIGMAP_NAME}, {SECRET_NAME}.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {NAME}
+  namespace: {NAMESPACE}
+  labels:
+    app: {NAME}
+    component: worker
+    bounded-context: {DEPLOYMENT_NAME}
+    oms-build-id: "{BUILD_ID}"
+spec:
+  replicas: {REPLICAS}
+  selector:
+    matchLabels:
+      app: {NAME}
+  template:
+    metadata:
+      labels:
+        app: {NAME}
+        component: worker
+        bounded-context: {DEPLOYMENT_NAME}
+        oms-build-id: "{BUILD_ID}"
+      annotations:
+        instrumentation.opentelemetry.io/inject-sdk: "true"
+    spec:
+      containers:
+      - name: worker
+        image: {IMAGE}
+        imagePullPolicy: Never
+        ports:
+        - containerPort: {MANAGEMENT_PORT}
+          name: management
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: k8s
+        - name: TEMPORAL_DEPLOYMENT_NAME
+          value: {DEPLOYMENT_NAME}
+        - name: TEMPORAL_WORKER_BUILD_ID
+          value: "{BUILD_ID}"
+        - name: {WORKFLOW_CLASS_ENV}
+          value: {WORKFLOW_CLASS_VALUE}
+        envFrom:
+        - configMapRef:
+            name: temporal-oms-config
+        - secretRef:
+            name: temporal-oms-secrets
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: {MANAGEMENT_PORT}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: {MANAGEMENT_PORT}
+          initialDelaySeconds: 20
+          periodSeconds: 5
+        volumeMounts:
+        - name: temporal-config
+          mountPath: /etc/config/temporal
+          readOnly: true
+        - name: temporal-secret
+          mountPath: /etc/config/temporal-secret
+          readOnly: true
+        resources:
+          requests:
+            memory: "384Mi"
+            cpu: "200m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+      volumes:
+      - name: temporal-config
+        configMap:
+          name: {CONFIGMAP_NAME}
+          defaultMode: 0444
+      - name: temporal-secret
+        secret:
+          secretName: {SECRET_NAME}
+          defaultMode: 0444
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {NAME}
+  namespace: {NAMESPACE}
+  labels:
+    app: {NAME}
+spec:
+  type: ClusterIP
+  selector:
+    app: {NAME}
+  ports:
+  - port: {MANAGEMENT_PORT}
+    targetPort: {MANAGEMENT_PORT}
+    protocol: TCP
+    name: management
