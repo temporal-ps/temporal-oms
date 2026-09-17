@@ -1,7 +1,7 @@
 # Worker Version Deployment - Progress Tracking
 
 **Spec:** [spec.md](./spec.md)
-**Status:** 📋 Draft - Ready for Tech Lead Review
+**Status:** Superseded by [`SPECS/oms-evolution/hosting.md`](../../oms-evolution/hosting.md) (Mode B), 2026-09-17
 **Owner:** [Your Name]
 **Initiative:** [Worker Version Enablement](../INDEX.md)
 **Depends on:** [Load Generation Service](../load-generation/PROGRESS.md)

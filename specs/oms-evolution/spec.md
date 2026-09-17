@@ -256,6 +256,8 @@ same constraint `specs/workshop/safe-fulfillment-handoff/spec.md` already docume
 - Script or config resolving `OMS_VERSION` to per-context build-ids/image tags
 - Wire into `scripts/kind/app-deploy.sh` / `scripts/k3d/app-deploy.sh` (this closes the gap found
   while investigating the apps worker versioning issue this session started from)
+- Running multiple OMS versions concurrently, with per-request pinning and web UI access, is covered
+  separately in [`hosting.md`](hosting.md)
 
 **Phase 5: Update the Safe Fulfillment Handoff workshop**
 - Update its README/SOLUTION.md/scripts' build-id and file references from the old numbering
@@ -360,6 +362,7 @@ To Modify:
 
 ## References & Links
 
+- [`hosting.md`](hosting.md) - how multiple OMS versions run and get accessed concurrently (a sibling doc, reviewed separately)
 - [`specs/workshop/safe-fulfillment-handoff/spec.md`](../../specs/workshop/safe-fulfillment-handoff/spec.md) - rollout ordering constraints this spec's OMS versions must respect
 - [`specs/workshop/safe-fulfillment-handoff/twc-rollout.md`](../../specs/workshop/safe-fulfillment-handoff/twc-rollout.md) - Kubernetes/TWC rollout automation for `processing`
 - [`java/enablements/ENABLEMENT.md`](../../java/enablements/ENABLEMENT.md) - original "processing-only versioning" walkthrough
