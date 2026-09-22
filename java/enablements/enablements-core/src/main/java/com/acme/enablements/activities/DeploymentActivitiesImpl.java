@@ -2,6 +2,8 @@ package com.acme.enablements.activities;
 
 import com.acme.proto.acme.enablements.v1.DeployWorkerVersionRequest;
 import com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,7 @@ import java.util.Map;
 public class DeploymentActivitiesImpl implements DeploymentActivities {
 
     private static final Logger logger = LoggerFactory.getLogger(DeploymentActivitiesImpl.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private record BoundedContextConfig(
             String temporalNamespace,
@@ -104,6 +107,38 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
             logger.error("Failed to deploy {} buildId {}", cmd.getDeploymentName(), cmd.getBuildId(), e);
             throw new RuntimeException("Worker deployment failed for " + cmd.getDeploymentName()
                     + " buildId " + cmd.getBuildId(), e);
+        }
+    }
+
+    @Override
+    public String currentBuildId(String deploymentName) {
+        BoundedContextConfig context = BOUNDED_CONTEXTS.get(deploymentName);
+        if (context == null) {
+            throw new IllegalArgumentException("Unknown bounded context: " + deploymentName
+                    + " (expected one of " + BOUNDED_CONTEXTS.keySet() + ")");
+        }
+        return parseCurrentBuildId(describeDeployment(deploymentName, context.temporalNamespace()));
+    }
+
+    /**
+     * Extracts the current build id from {@code temporal worker deployment describe
+     * --output json}'s response, shaped as {@code DescribeWorkerDeploymentResponse}
+     * (io.temporal.api.workflowservice.v1, matching this repo's pinned
+     * temporal-serviceclient version): {@code workerDeploymentInfo.routingConfig
+     * .currentDeploymentVersion.buildId}. Returns an empty string if the deployment
+     * has no current version yet, or if the field can't be parsed.
+     */
+    private static String parseCurrentBuildId(String describeOutputJson) {
+        if (describeOutputJson == null || describeOutputJson.isBlank()) {
+            return "";
+        }
+        try {
+            JsonNode root = OBJECT_MAPPER.readTree(describeOutputJson);
+            return root.path("workerDeploymentInfo").path("routingConfig")
+                    .path("currentDeploymentVersion").path("buildId").asText("");
+        } catch (Exception e) {
+            logger.warn("Failed to parse current build id from describe output (non-fatal): {}", e.getMessage());
+            return "";
         }
     }
 

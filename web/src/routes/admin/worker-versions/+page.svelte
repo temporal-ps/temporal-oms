@@ -1,13 +1,16 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { loadGenApi } from '$lib/api/loadgen';
 	import type { LoadGeneratorState } from '$lib/api/loadgen';
 	import { loadGenSession } from '$lib/stores/loadgen';
 	import { deploymentsApi } from '$lib/api/deployments';
 	import type { BoundedContext, DeployWorkerVersionResponse } from '$lib/api/deployments';
+	import { omsRolloutApi } from '$lib/api/omsRollout';
+	import type { OmsVersionRow, OmsVersionRolloutState } from '$lib/api/omsRollout';
 	import { temporalActivityUrl, temporalWorkerDeploymentUrl } from '$lib/temporalLinks';
 
 	const TERMINAL_STATUSES = new Set(['COMPLETED', 'CANCELED', 'FAILED']);
+	const ROLLOUT_TERMINAL_STATUSES = new Set(['SUCCEEDED', 'FAILED']);
 	const BOUNDED_CONTEXTS: BoundedContext[] = ['apps', 'processing', 'fulfillment'];
 
 	// -- Load panel: reuses the existing /api/v1/enablements/worker-version endpoints
@@ -86,11 +89,81 @@
 		startPolling($loadGenSession.enablementId);
 	}
 
-	onDestroy(stopPolling);
-
 	$: loadTemporalUrl = $loadGenSession ? temporalActivityUrl('default', $loadGenSession.enablementId) : '';
 
-	// -- Deployment panel: one row per bounded context, independent of the load panel above.
+	// -- OMS version panel: primary control. Picks a single OMS version and lets a new
+	// OmsVersionRollout workflow promote apps/processing/fulfillment together, in the
+	// order that avoids an unsafe intermediate combo (hosting.md "OMS-Version-Driven
+	// Promotion"). Independent of the Load panel above and the Advanced section below.
+	let omsRows: OmsVersionRow[] = [];
+	let selectedOmsVersion = '';
+	let rolloutState: OmsVersionRolloutState | null = null;
+	let rolloutBusy = false;
+	let rolloutError = '';
+	let rolloutPollHandle: ReturnType<typeof setInterval> | undefined;
+
+	onMount(loadOmsVersions);
+
+	async function loadOmsVersions() {
+		try {
+			const { rows } = await omsRolloutApi.listVersions();
+			omsRows = rows;
+		} catch (err) {
+			rolloutError = 'Failed to load the OMS version list.';
+			console.error(err);
+		}
+	}
+
+	function startRolloutPolling(rolloutId: string) {
+		stopRolloutPolling();
+		rolloutPollHandle = setInterval(() => pollRollout(rolloutId), 2000);
+		pollRollout(rolloutId);
+	}
+
+	function stopRolloutPolling() {
+		if (rolloutPollHandle) {
+			clearInterval(rolloutPollHandle);
+			rolloutPollHandle = undefined;
+		}
+	}
+
+	async function pollRollout(rolloutId: string) {
+		try {
+			rolloutState = await omsRolloutApi.getState(rolloutId);
+			if (ROLLOUT_TERMINAL_STATUSES.has(rolloutState.overallStatus)) {
+				stopRolloutPolling();
+			}
+		} catch (err) {
+			stopRolloutPolling();
+			rolloutError = 'Lost track of the rollout.';
+			console.error(err);
+		}
+	}
+
+	async function handleStartRollout() {
+		if (!selectedOmsVersion) {
+			rolloutError = 'Choose an OMS version.';
+			return;
+		}
+		rolloutBusy = true;
+		rolloutError = '';
+		try {
+			rolloutState = await omsRolloutApi.start(selectedOmsVersion);
+			startRolloutPolling(rolloutState.rolloutId);
+		} catch (err) {
+			rolloutError = `Failed to start rollout: ${err instanceof Error ? err.message : String(err)}`;
+			console.error(err);
+		} finally {
+			rolloutBusy = false;
+		}
+	}
+
+	onDestroy(() => {
+		stopPolling();
+		stopRolloutPolling();
+	});
+
+	// -- Advanced panel: one row per bounded context, independent of the panels above.
 	interface ContextRow {
 		context: BoundedContext;
 		version: string;
@@ -143,8 +216,77 @@
 	<p class="text-gray-600 mb-8">
 		Operator page for on-demand rollout (hosting.md Mode B). Load and deployment are independent:
 		promoting a bounded context never requires load to be running, and load never requires a
-		deployment to have happened.
+		deployment to have happened. Pick an OMS version below to promote apps, processing, and
+		fulfillment together, or use the Advanced section to promote one bounded context at a time.
 	</p>
+
+	<section class="mb-10 p-6 border border-gray-200 rounded-lg">
+		<h2 class="text-xl font-semibold text-gray-900 mb-4">OMS Version</h2>
+		<p class="text-sm text-gray-500 mb-6">
+			Pick a target OMS version and promote apps, processing, and fulfillment together, in the
+			order that avoids an unsafe intermediate combination. Steps whose target is "embedded" are
+			skipped, not attempted.
+		</p>
+
+		{#if rolloutError}
+			<div class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">{rolloutError}</div>
+		{/if}
+
+		<div class="flex items-center gap-2 mb-4">
+			<select
+				class="border border-gray-300 rounded px-2 py-1 text-sm"
+				bind:value={selectedOmsVersion}
+				disabled={rolloutBusy || omsRows.length === 0}
+			>
+				<option value="">Select an OMS version…</option>
+				{#each omsRows as row}
+					<option value={row.omsVersion}>
+						{row.omsVersion} (apps {row.appsVersion}, processing {row.processingVersion}, fulfillment {row.fulfillmentVersion}){row.future ? ' — future' : ''}
+					</option>
+				{/each}
+			</select>
+			<button
+				class="px-4 py-2 bg-primary-600 text-white rounded disabled:opacity-50"
+				disabled={rolloutBusy || !selectedOmsVersion}
+				on:click={handleStartRollout}
+			>
+				{rolloutBusy ? 'Starting…' : 'Start rollout'}
+			</button>
+		</div>
+
+		{#if rolloutState}
+			<div class="text-sm text-gray-700 mb-2">
+				Rollout <span class="font-mono">{rolloutState.rolloutId}</span> to
+				<span class="font-medium">{rolloutState.omsVersion}</span>: {rolloutState.overallStatus}
+			</div>
+			{#if rolloutState.errorMessage}
+				<div class="mb-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+					{rolloutState.errorMessage}
+				</div>
+			{/if}
+			<div class="space-y-2">
+				{#each rolloutState.steps as step}
+					<div class="flex items-center justify-between border border-gray-100 rounded px-3 py-2">
+						<div class="text-sm">
+							<span class="font-medium capitalize">{step.boundedContext}</span>
+							<span class="text-gray-500">→ {step.targetVersion}</span>
+							<span class="ml-2 text-xs uppercase text-gray-500">{step.status}</span>
+							{#if step.errorMessage}
+								<div class="text-xs text-red-700">{step.errorMessage}</div>
+							{/if}
+						</div>
+						<a
+							href={temporalWorkerDeploymentUrl(step.boundedContext, step.boundedContext)}
+							target="_blank"
+							class="text-primary-600 hover:text-primary-700 text-xs"
+						>
+							View in Temporal UI →
+						</a>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</section>
 
 	<section class="mb-10 p-6 border border-gray-200 rounded-lg">
 		<h2 class="text-xl font-semibold text-gray-900 mb-4">Load</h2>
@@ -183,10 +325,12 @@
 	</section>
 
 	<section class="p-6 border border-gray-200 rounded-lg">
-		<h2 class="text-xl font-semibold text-gray-900 mb-4">Deployments</h2>
+		<h2 class="text-xl font-semibold text-gray-900 mb-4">Advanced: promote a single bounded context</h2>
 		<p class="text-sm text-gray-500 mb-6">
-			Current build-id is authoritative in the Temporal UI, not re-derived here: use the link per
-			row to confirm. This page shows only the result of the last promotion triggered from here.
+			Escape hatch for demonstrating an unsafe pairing on purpose, or for manual recovery if an
+			OMS version rollout above fails partway. Current build-id is authoritative in the Temporal
+			UI, not re-derived here: use the link per row to confirm. This page shows only the result of
+			the last promotion triggered from here.
 		</p>
 
 		<div class="space-y-6">

@@ -75,6 +75,11 @@ class WorkerVersionEnablementWorkflowTest {
             deployed.add(cmd);
             return DeployWorkerVersionResponse.getDefaultInstance();
         }
+
+        @Override
+        public String currentBuildId(String deploymentName) {
+            return "";
+        }
     }
 
     private TestWorkflowEnvironment testEnv;

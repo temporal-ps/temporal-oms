@@ -16,6 +16,17 @@ from pydantic import Field
 from typing_extensions import Annotated
 import typing
 
+class RolloutStepStatus(IntEnum):
+    """
+     Shared by OmsVersionRolloutStep.status and OmsVersionRolloutState.overall_status:
+ kept top-level, not nested in one message, since it's a status for both.
+    """
+    ROLLOUT_STEP_STATUS_UNSPECIFIED = 0
+    PENDING = 1
+    IN_PROGRESS = 2
+    SUCCEEDED = 3
+    FAILED = 4
+    SKIPPED = 5
 
 class ScenarioWeight(BaseModel):
     """
@@ -107,6 +118,56 @@ class SubmitOneOrderRequest(BaseModel):
 class SubmitOneOrderResponse(BaseModel):
     order_id: str = Field(default="")
     charge_id: str = Field(default="")
+
+class OmsVersionRow(BaseModel):
+    """
+     One row of spec.md's OMS version -> component version mapping table
+ (hosting.md "OMS-Version-Driven Promotion"). fulfillment_version is
+ "embedded" for OMS versions before fulfillment existed as its own
+ deployable component.
+    """
+
+    oms_version: str = Field(default="")
+    apps_version: str = Field(default="")
+    processing_version: str = Field(default="")
+    fulfillment_version: str = Field(default="")
+    description: str = Field(default="")
+    future: bool = Field(default=False)
+
+class ListOmsVersionsResponse(BaseModel):
+    rows: typing.List[OmsVersionRow] = Field(default_factory=list)
+
+class StartOmsVersionRolloutRequest(BaseModel):
+    """
+     Starts the OmsVersionRollout workflow for a target OMS version.
+    """
+
+    rollout_id: str = Field(default="")
+    oms_version: str = Field(default="")
+
+class OmsVersionRolloutStep(BaseModel):
+    """
+     One bounded-context promotion within an OMS version rollout.
+    """
+
+    model_config = ConfigDict(validate_default=True)
+    bounded_context: str = Field(default="")
+    target_version: str = Field(default="")
+    status: RolloutStepStatus = Field(default=0)
+    error_message: str = Field(default="")
+    result: DeployWorkerVersionResponse = Field(default_factory=DeployWorkerVersionResponse)
+
+class OmsVersionRolloutState(BaseModel):
+    """
+     Current state of the OmsVersionRollout workflow.
+    """
+
+    model_config = ConfigDict(validate_default=True)
+    rollout_id: str = Field(default="")
+    oms_version: str = Field(default="")
+    overall_status: RolloutStepStatus = Field(default=0)
+    steps: typing.List[OmsVersionRolloutStep] = Field(default_factory=list)
+    error_message: str = Field(default="")
 
 class LoadGenerationState(BaseModel):
     """

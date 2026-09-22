@@ -21,4 +21,12 @@ public interface DeploymentActivities {
    */
   @ActivityMethod
   DeployWorkerVersionResponse deployWorkerVersion(DeployWorkerVersionRequest cmd);
+
+  /**
+   * Read the build id {@code temporal worker deployment set-current-version} last
+   * confirmed as current for {@code deploymentName} (apps, processing, or
+   * fulfillment), or an empty string if it has no current version yet.
+   */
+  @ActivityMethod
+  String currentBuildId(String deploymentName);
 }

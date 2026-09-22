@@ -267,6 +267,100 @@ no owning workflow.
   `set-current-version`, then scale down/remove the prior version's Deployment, so old versions don't
   pile up the way Mode A's topology deliberately keeps them all running.
 
+### OMS-Version-Driven Promotion
+
+The per-bounded-context promotion above (`POST /api/v1/enablements/deployments/{boundedContext}`)
+requires the operator to already know the correct apps/processing/fulfillment version for a target
+OMS version and to click three independent buttons in the right order. This adds a single-input
+alternative: pick an OMS version (`spec.md`'s table), and a new orchestrating workflow promotes the
+three bounded contexts safely, reusing `deployWorkerVersion` as-is.
+
+**Catalog, single source of truth:** `OmsVersionCatalog` (new, `enablements-core`) mirrors `spec.md`'s
+OMS version table as data, not prose. Exposed read-only via `GET /api/v1/enablements/oms-versions`
+(new `OmsVersionRow`/`ListOmsVersionsResponse` proto messages), so the web UI populates its dropdown
+from one source instead of a hand-maintained TypeScript copy, per this document's own Mode A guidance
+for populating its OMS-version dropdown. All rows the catalog returns are exposed, including the
+"future" v5/v6 rows from `spec.md` - the underlying component code for every row already exists
+(see this document's Implementation Status), so there is no technical reason to special-case them
+out of the operator-facing dropdown.
+
+**Orchestration: a real, new workflow, not a client-side loop or `WorkerVersionEnablementImpl` reuse.**
+`OmsVersionRolloutImpl` (new, alongside `WorkerVersionEnablementImpl`) calls `DeploymentActivities
+.deployWorkerVersion` up to 3 times per rollout, one per bounded context, with a bounded retry policy
+(a handful of attempts, not the SDK default's unlimited backoff - a bad image tag should surface as a
+failed rollout, not hang). `WorkerVersionEnablementImpl` is deliberately not reused (per this
+document's own Design section, it couples load and deploy); this is a second, independent workflow
+that touches only deployment activities. It does not change or depend on load generation at all.
+
+**Fulfillment's `embedded` state is not deployable.** `DeploymentActivitiesImpl.BOUNDED_CONTEXTS` has
+no `"embedded"` entry and no such workflow-class package exists (fulfillment has no independent
+identity until v1). When the target OMS version's fulfillment column is `embedded`, the workflow
+skips the fulfillment step entirely (reports it as `SKIPPED`, not attempted) and leaves whatever
+fulfillment deployment currently exists running idle, rather than erroring or tearing anything down -
+acceptable indefinitely for a demo app; no teardown mechanism is built for this.
+
+**Rollout ordering: direction-aware around apps, not a fixed sequence.** apps is the only component
+whose version change affects whether it depends on processing's `send_fulfillment` support and
+fulfillment's existence; a fixed processing→fulfillment→apps order is *not* safe in both directions
+(verified: rolling back OMS v4→v1 with a fixed forward-safe order transiently produces apps v3 +
+processing v1, which is exactly as unsafe as the documented apps v3 + processing v2 pairing - the
+same "processing doesn't understand `send_fulfillment`, always-Kafka" mechanism, generalized. This
+extends the spec's one named unsafe pairing to any apps v3 + processing {v1, v2} combination.)
+
+Rule, applied once per rollout using the *current* apps version (queried live, not client-supplied):
+- Target apps version > current: promote processing and fulfillment to their targets first, apps last.
+- Target apps version < current: promote apps first, then processing/fulfillment.
+- Target apps version unchanged: processing/fulfillment order doesn't matter.
+
+Requires one new small activity to read the current apps build id (`temporal worker deployment
+describe --name apps --output json`, parsed) before deciding order - the exact JSON field for
+"current version" needs confirming against this repo's Temporal SDK/CLI version before implementing
+the parser (spike against a real/local cluster, not assumed).
+
+**Reuse, no new deploy activity signature.** The rollout workflow calls the existing
+`DeploymentActivities.deployWorkerVersion(DeployWorkerVersionRequest)` unchanged for each context step
+- it's already idempotent-safe (`kubectl apply`, `set-current-version` are both safe to repeat). It
+also already does the right per-context k8s action on its own: for `apps`/`fulfillment` it applies a
+new versioned `Deployment` and removes the stale one; for `processing` it patches the existing
+`WorkerDeployment` CRD in place. The rollout workflow does not need any k8s logic of its own.
+
+**Admin UI: coexists with, does not replace, the three per-context rows.** Add an OMS-version
+dropdown (sourced from `GET /api/v1/enablements/oms-versions`) and a "Start rollout" action above the
+existing per-context section, which is relabeled "Advanced: promote a single bounded context" and
+kept as-is - it remains the escape hatch for demonstrating the unsafe pairing on purpose, and for
+manual recovery if a rollout step fails partway. A rollout in progress shows one row per bounded
+context (PENDING/IN_PROGRESS/SUCCEEDED/FAILED/SKIPPED), each linking to the Temporal UI via the
+existing `temporalWorkerDeploymentUrl` helper, polled the same way the existing load panel polls
+`LoadGenerationState`.
+
+**Partial failure: fail-fast, no auto-continue.** If a step fails after its retries are exhausted, the
+workflow stops; it does not attempt the remaining contexts, since continuing past a failed step risks
+landing in an unsafe intermediate combo. The Admin UI surfaces which step failed; the operator
+recovers via the per-context Advanced controls. A workflow-level "retry from failed step" affordance
+is a reasonable future extension, not built in this pass.
+
+#### Open Questions
+
+- [x] Expose OMS v5/v6 in the dropdown now, even though `spec.md` labels them "future" - resolved:
+      expose all rows, no special-casing.
+- [x] Should a failed rollout step be retryable from where it stopped (workflow signal) in this pass? -
+      resolved: no, fall back to the Advanced per-context controls for v1.
+- [x] Does rolling back fulfillment from v1/v2 to `embedded` ever need an explicit teardown action? -
+      resolved: no, leave it running idle indefinitely.
+- [ ] Exact JSON shape of `temporal worker deployment describe --output json`'s current-version field
+      (needed for the ordering lookup) - confirm against a live cluster before implementing.
+
+#### Success Criteria (in addition to existing Mode B criteria)
+
+- Selecting OMS v4 from a clean OMS v1 state promotes all three contexts in the derived safe order,
+  confirmed via `temporal worker deployment describe` on each, with the fulfillment step reported as
+  a real promotion (not skipped, since v1→v4 crosses the `embedded`→v1 boundary).
+- Selecting OMS v1 from OMS v4 promotes apps back first, then processing/fulfillment, with no
+  intermediate `temporal worker deployment describe` observation ever showing apps v3 paired with
+  processing v1 or v2.
+- A forced failure on the processing step (e.g. bad build id) leaves apps promoted, processing/
+  fulfillment untouched, and the Admin UI clearly shows which step failed - no silent partial state.
+
 ### Risks and Mitigations
 
 | Risk | Impact | Mitigation |
@@ -274,6 +368,7 @@ no owning workflow.
 | `DeploymentActivitiesImpl`'s missing manifest template silently breaks every environment that references it | Deploy action throws at runtime | Add the template as part of the same change that wires the new endpoint, with a test that renders it |
 | Reusing the deprecated `registerCompatibility()` call as-is would keep shipping a broken mechanism | Version promotion appears to succeed but never actually routes traffic | Replace it with `set-current-version` in the same change, not as a follow-up, and verify via `describe` |
 | Coupling load and deploy later without a clear boundary re-introduces the coupling this design avoids | Deploy actions accidentally depend on load state again | Keep the two REST endpoints and their activities fully independent; only combine them behind an explicit future opt-in |
+| A fixed promotion order across bounded contexts lands in a transiently unsafe combo during a rollback | Kafka double-publish or dropped `send_fulfillment` mid-rollout | Compute step order from the live current apps version, not a fixed sequence; validate before starting |
 
 ### Success Criteria
 

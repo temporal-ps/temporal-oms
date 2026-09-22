@@ -1,0 +1,134 @@
+# Admin UI: Worker Version Rollout
+
+Walkthrough for the Admin UI at `/admin/worker-versions`: promote apps, processing, and
+fulfillment to a target OMS version with one click (hosting.md
+[`OMS-Version-Driven Promotion`](../specs/oms-evolution/hosting.md)), or promote one
+bounded context at a time via the Advanced controls (hosting.md Mode B).
+
+Works identically on KinD or k3d — the two script directories are parallel and expose the
+same ports. Examples below use `kind`; substitute `k3d` throughout for the other runner.
+
+---
+
+## Prerequisites
+
+**Level 2 or Level 3 already running** (see the root [README.md](../README.md)):
+
+```bash
+./scripts/setup-temporal-namespaces.sh
+./scripts/kind/infra-up.sh
+./scripts/kind/app-deploy.sh
+```
+
+If you deployed before this feature existed, redeploy so `enablements-workers` picks up
+`OmsVersionRolloutImpl`:
+
+```bash
+./scripts/kind/app-deploy.sh
+```
+
+Verify pods are healthy:
+
+```bash
+./scripts/kind/status.sh
+```
+
+---
+
+## Step 1: Open the Admin UI
+
+```bash
+./scripts/kind/tunnel.sh   # run in another terminal; leave it running
+```
+
+Open **http://localhost:3000/admin/worker-versions**. The page's `/api/v1/enablements/*`
+calls are routed by Traefik straight to `enablements-api` on the same port — no separate
+API tunnel needed for this page.
+
+---
+
+## Step 2 (optional): Start load
+
+Click **Start load** in the Load panel to submit continuous orders while you roll out
+versions. Not required — a deployment action works with zero load running, and load works
+with no deployment ever having happened.
+
+---
+
+## Step 3: Promote by OMS version
+
+In the **OMS Version** panel, pick a target version from the dropdown and click
+**Start rollout**. The dropdown is populated from `OmsVersionCatalog`
+(`specs/oms-evolution/spec.md`'s table): OMS v1 (baseline, no Worker Versioning) through
+v4 (apps owns fulfillment via Nexus) are implemented and safe to select; v5/v6 are listed
+but "future" per the spec — the code for their component versions exists, but they haven't
+been exercised end-to-end.
+
+What happens on click:
+
+1. A new `OmsVersionRollout` workflow starts on the `enablements` task queue and reads
+   apps' current build id from `temporal worker deployment describe`.
+2. It promotes the three bounded contexts in the order that avoids an unsafe intermediate
+   pairing: rolling forward, processing and fulfillment go first and apps goes last;
+   rolling back, apps goes first. See hosting.md for the full rule.
+3. If the target's fulfillment column is `embedded` (OMS v1–v3), the fulfillment step is
+   marked **SKIPPED**, not attempted — there's no standalone fulfillment component to
+   deploy yet at those versions.
+4. The progress panel polls the workflow every 2s and shows PENDING → IN_PROGRESS →
+   SUCCEEDED/FAILED/SKIPPED per step, each linking to the Temporal UI's Worker Deployment
+   page for that bounded context.
+
+Confirm from the CLI:
+
+```bash
+export KUBECONFIG=/tmp/kind-config.yaml
+temporal worker deployment describe --name apps --namespace apps
+temporal worker deployment describe --name processing --namespace processing
+temporal worker deployment describe --name fulfillment --namespace fulfillment
+```
+
+**A step failing stops the rollout.** It does not attempt the remaining contexts, since
+continuing risks landing on an unsafe combination. Recover manually via the Advanced
+controls below, then retry the OMS version rollout.
+
+---
+
+## Step 4: Advanced — promote one bounded context, or force the unsafe pairing
+
+The **Advanced** section below the OMS Version panel is the original per-context control:
+pick a bounded context, type a target version (e.g. `v3`), click **Promote**. Use it to:
+
+- Recover after a failed OMS-version rollout step.
+- Deliberately demonstrate the documented unsafe pairing — promote `apps` to `v3` while
+  `processing` is still on `v1` or `v2` — and watch orders double-publish to both Kafka and
+  `fulfillment.Order` (`temporal workflow list --namespace fulfillment` alongside your
+  Kafka consumer/topic of choice). The OMS Version panel above refuses to construct this
+  combination on its own; Advanced is the only way to force it on purpose.
+
+---
+
+## Known gap: orphaned `local` build-id pods for apps/fulfillment
+
+`app-deploy.sh` deletes the plain `processing-workers` Deployment before applying the
+`k8s/processing-versioned` `WorkerDeployment` CRD, so processing has no leftover state.
+It does **not** do the equivalent for `apps` or `fulfillment`: their base Deployments
+(`apps-worker`, `fulfillment-workers`, image tag `:latest`) keep running registered under
+build-id `local` even after you promote to a real OMS version. This is harmless —
+Temporal stops routing new tasks to `local` once a real build-id is current — but the pods
+stay up, unlabeled, and `deployWorkerVersion`'s cleanup (`removeStaleVersions`) can't find
+them to remove since they predate the `bounded-context`/`oms-build-id` labeling scheme.
+
+To tidy up after your first promotion:
+
+```bash
+kubectl scale deployment apps-worker -n temporal-oms-apps --replicas=0
+kubectl scale deployment fulfillment-workers -n temporal-oms-fulfillment --replicas=0
+```
+
+---
+
+## Cleanup
+
+```bash
+./scripts/kind/demo-down.sh
+```

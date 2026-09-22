@@ -63,6 +63,7 @@ spring.temporal:
       - task-queue: enablements
         workflow-classes:
           - com.acme.enablements.workflows.WorkerVersionEnablementImpl
+          - com.acme.enablements.workflows.OmsVersionRolloutImpl
         activity-beans:
           - order-activities
           - deployment-activities

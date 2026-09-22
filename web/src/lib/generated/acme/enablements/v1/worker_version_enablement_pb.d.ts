@@ -347,6 +347,167 @@ export declare type DeployWorkerVersionResponse = Message<"acme.enablements.v1.D
 export declare const DeployWorkerVersionResponseSchema: GenMessage<DeployWorkerVersionResponse>;
 
 /**
+ * One row of spec.md's OMS version -> component version mapping table
+ * (hosting.md "OMS-Version-Driven Promotion"). fulfillment_version is
+ * "embedded" for OMS versions before fulfillment existed as its own
+ * deployable component.
+ *
+ * @generated from message acme.enablements.v1.OmsVersionRow
+ */
+export declare type OmsVersionRow = Message<"acme.enablements.v1.OmsVersionRow"> & {
+  /**
+   * @generated from field: string oms_version = 1;
+   */
+  omsVersion: string;
+
+  /**
+   * @generated from field: string apps_version = 2;
+   */
+  appsVersion: string;
+
+  /**
+   * @generated from field: string processing_version = 3;
+   */
+  processingVersion: string;
+
+  /**
+   * @generated from field: string fulfillment_version = 4;
+   */
+  fulfillmentVersion: string;
+
+  /**
+   * @generated from field: string description = 5;
+   */
+  description: string;
+
+  /**
+   * @generated from field: bool future = 6;
+   */
+  future: boolean;
+};
+
+/**
+ * Describes the message acme.enablements.v1.OmsVersionRow.
+ * Use `create(OmsVersionRowSchema)` to create a new message.
+ */
+export declare const OmsVersionRowSchema: GenMessage<OmsVersionRow>;
+
+/**
+ * @generated from message acme.enablements.v1.ListOmsVersionsResponse
+ */
+export declare type ListOmsVersionsResponse = Message<"acme.enablements.v1.ListOmsVersionsResponse"> & {
+  /**
+   * @generated from field: repeated acme.enablements.v1.OmsVersionRow rows = 1;
+   */
+  rows: OmsVersionRow[];
+};
+
+/**
+ * Describes the message acme.enablements.v1.ListOmsVersionsResponse.
+ * Use `create(ListOmsVersionsResponseSchema)` to create a new message.
+ */
+export declare const ListOmsVersionsResponseSchema: GenMessage<ListOmsVersionsResponse>;
+
+/**
+ * Starts the OmsVersionRollout workflow for a target OMS version.
+ *
+ * @generated from message acme.enablements.v1.StartOmsVersionRolloutRequest
+ */
+export declare type StartOmsVersionRolloutRequest = Message<"acme.enablements.v1.StartOmsVersionRolloutRequest"> & {
+  /**
+   * @generated from field: string rollout_id = 1;
+   */
+  rolloutId: string;
+
+  /**
+   * @generated from field: string oms_version = 2;
+   */
+  omsVersion: string;
+};
+
+/**
+ * Describes the message acme.enablements.v1.StartOmsVersionRolloutRequest.
+ * Use `create(StartOmsVersionRolloutRequestSchema)` to create a new message.
+ */
+export declare const StartOmsVersionRolloutRequestSchema: GenMessage<StartOmsVersionRolloutRequest>;
+
+/**
+ * One bounded-context promotion within an OMS version rollout.
+ *
+ * @generated from message acme.enablements.v1.OmsVersionRolloutStep
+ */
+export declare type OmsVersionRolloutStep = Message<"acme.enablements.v1.OmsVersionRolloutStep"> & {
+  /**
+   * @generated from field: string bounded_context = 1;
+   */
+  boundedContext: string;
+
+  /**
+   * @generated from field: string target_version = 2;
+   */
+  targetVersion: string;
+
+  /**
+   * @generated from field: acme.enablements.v1.RolloutStepStatus status = 3;
+   */
+  status: RolloutStepStatus;
+
+  /**
+   * @generated from field: string error_message = 4;
+   */
+  errorMessage: string;
+
+  /**
+   * @generated from field: acme.enablements.v1.DeployWorkerVersionResponse result = 5;
+   */
+  result?: DeployWorkerVersionResponse;
+};
+
+/**
+ * Describes the message acme.enablements.v1.OmsVersionRolloutStep.
+ * Use `create(OmsVersionRolloutStepSchema)` to create a new message.
+ */
+export declare const OmsVersionRolloutStepSchema: GenMessage<OmsVersionRolloutStep>;
+
+/**
+ * Current state of the OmsVersionRollout workflow.
+ *
+ * @generated from message acme.enablements.v1.OmsVersionRolloutState
+ */
+export declare type OmsVersionRolloutState = Message<"acme.enablements.v1.OmsVersionRolloutState"> & {
+  /**
+   * @generated from field: string rollout_id = 1;
+   */
+  rolloutId: string;
+
+  /**
+   * @generated from field: string oms_version = 2;
+   */
+  omsVersion: string;
+
+  /**
+   * @generated from field: acme.enablements.v1.RolloutStepStatus overall_status = 3;
+   */
+  overallStatus: RolloutStepStatus;
+
+  /**
+   * @generated from field: repeated acme.enablements.v1.OmsVersionRolloutStep steps = 4;
+   */
+  steps: OmsVersionRolloutStep[];
+
+  /**
+   * @generated from field: string error_message = 5;
+   */
+  errorMessage: string;
+};
+
+/**
+ * Describes the message acme.enablements.v1.OmsVersionRolloutState.
+ * Use `create(OmsVersionRolloutStateSchema)` to create a new message.
+ */
+export declare const OmsVersionRolloutStateSchema: GenMessage<OmsVersionRolloutState>;
+
+/**
  * Current state of the runSubmissionLoop Standalone Activity Execution that
  * enablements-api starts, observes, and cancels directly (no owning
  * workflow). Distinct from WorkerVersionEnablementState, which serves the
@@ -413,4 +574,47 @@ export enum LoadGenerationState_ExecutionStatus {
  * Describes the enum acme.enablements.v1.LoadGenerationState.ExecutionStatus.
  */
 export declare const LoadGenerationState_ExecutionStatusSchema: GenEnum<LoadGenerationState_ExecutionStatus>;
+
+/**
+ * Shared by OmsVersionRolloutStep.status and OmsVersionRolloutState.overall_status:
+ * kept top-level, not nested in one message, since it's a status for both.
+ *
+ * @generated from enum acme.enablements.v1.RolloutStepStatus
+ */
+export enum RolloutStepStatus {
+  /**
+   * @generated from enum value: ROLLOUT_STEP_STATUS_UNSPECIFIED = 0;
+   */
+  ROLLOUT_STEP_STATUS_UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: PENDING = 1;
+   */
+  PENDING = 1,
+
+  /**
+   * @generated from enum value: IN_PROGRESS = 2;
+   */
+  IN_PROGRESS = 2,
+
+  /**
+   * @generated from enum value: SUCCEEDED = 3;
+   */
+  SUCCEEDED = 3,
+
+  /**
+   * @generated from enum value: FAILED = 4;
+   */
+  FAILED = 4,
+
+  /**
+   * @generated from enum value: SKIPPED = 5;
+   */
+  SKIPPED = 5,
+}
+
+/**
+ * Describes the enum acme.enablements.v1.RolloutStepStatus.
+ */
+export declare const RolloutStepStatusSchema: GenEnum<RolloutStepStatus>;
 

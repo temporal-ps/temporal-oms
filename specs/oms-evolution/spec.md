@@ -258,6 +258,9 @@ same constraint `specs/workshop/safe-fulfillment-handoff/spec.md` already docume
   while investigating the apps worker versioning issue this session started from)
 - Running multiple OMS versions concurrently, with per-request pinning and web UI access, is covered
   separately in [`hosting.md`](hosting.md)
+- Live, UI-driven promotion to a target OMS version (as opposed to this phase's static, deploy-time
+  `OMS_VERSION` env var) is a Mode B variant, covered in hosting.md's "OMS-Version-Driven Promotion"
+  section, not duplicated here
 
 **Phase 5: Update the Safe Fulfillment Handoff workshop**
 - Update its README/SOLUTION.md/scripts' build-id and file references from the old numbering

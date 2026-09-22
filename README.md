@@ -296,7 +296,12 @@ Demonstrates zero-downtime worker version rollouts against a live order stream. 
 
 **Requires:** Level 3 running with load flowing.
 
-→ **[java/enablements/README.md](java/enablements/README.md)**
+→ **[java/enablements/README.md](java/enablements/README.md)** for the `processing`-only,
+CLI-driven version of this demo.
+
+→ **[docs/ADMIN_WORKER_VERSIONS.md](docs/ADMIN_WORKER_VERSIONS.md)** for the Admin UI
+walkthrough: promote apps, processing, and fulfillment together by OMS version, or one
+bounded context at a time.
 
 ---
 
@@ -338,4 +343,5 @@ Demonstrates zero-downtime worker version rollouts against a live order stream. 
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Kubernetes deployment (Level 2 and 3) |
 | [docs/CLOUD.md](docs/CLOUD.md) | Temporal Cloud verification and troubleshooting |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Protobuf changes, workflow modifications, testing |
+| [docs/ADMIN_WORKER_VERSIONS.md](docs/ADMIN_WORKER_VERSIONS.md) | Admin UI walkthrough for worker version rollout (Level 4) |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | Version history |
