@@ -11,6 +11,7 @@ resources:
   - fulfillment/deployment-python-worker.yaml
   - enablements/deployment-api.yaml
   - enablements/deployment-workers.yaml
+  - enablements/rbac.yaml
   - web/deployment.yaml
   - temporal-cloud-service.yaml
 
@@ -19,6 +20,13 @@ generatorOptions:
   disableNameSuffixHash: true
 
 configMapGenerator:
+  # DeploymentActivitiesImpl reads this by path (enablements.deployment.manifest-template);
+  # the enablements-workers image doesn't bundle k8s/ at all, so it's shipped as a mounted
+  # ConfigMap instead (see enablements/deployment-workers.yaml's volume/volumeMount).
+  - name: worker-deployment-template
+    namespace: temporal-oms-enablements
+    files:
+      - worker-deployment-template.yaml=templates/worker-deployment-template.yaml
   - name: temporal-oms-config
     namespace: temporal-oms-apps
     literals:

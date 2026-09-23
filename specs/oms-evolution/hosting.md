@@ -3,7 +3,7 @@
 **Status:** Draft
 **Owner:** Temporal FDE Team
 **Created:** 2026-09-16
-**Updated:** 2026-09-17
+**Updated:** 2026-09-22
 **Depends on:** [`spec.md`](spec.md) for the component/OMS version numbering this document pins to
 
 ## Purpose
@@ -255,6 +255,8 @@ no owning workflow.
   - After calling `set-current-version`, call `temporal worker deployment describe` and surface its
     result in the response, so a silent failure to actually promote (the old `registerCompatibility()`
     bug) can't happen unnoticed again.
+  - Both calls above are since superseded by native SDK clients, not CLI subprocesses - see
+    "Deploy and Version Clients" below.
 - **Admin page: two independent panels, not one combined state.** Load status/controls (existing,
   reused as-is) and deployment status/controls per bounded context (new: current build-id, last
   deploy action/result). Both link out to the Temporal UI (`PUBLIC_TEMPORAL_UI_BASE_URL`, already
@@ -312,17 +314,16 @@ Rule, applied once per rollout using the *current* apps version (queried live, n
 - Target apps version < current: promote apps first, then processing/fulfillment.
 - Target apps version unchanged: processing/fulfillment order doesn't matter.
 
-Requires one new small activity to read the current apps build id (`temporal worker deployment
-describe --name apps --output json`, parsed) before deciding order - the exact JSON field for
-"current version" needs confirming against this repo's Temporal SDK/CLI version before implementing
-the parser (spike against a real/local cluster, not assumed).
+Requires one new small activity to read the current apps build id. See
+"Deploy and Version Clients" below for how that's read (a native SDK call, not CLI output parsing).
 
 **Reuse, no new deploy activity signature.** The rollout workflow calls the existing
 `DeploymentActivities.deployWorkerVersion(DeployWorkerVersionRequest)` unchanged for each context step
-- it's already idempotent-safe (`kubectl apply`, `set-current-version` are both safe to repeat). It
-also already does the right per-context k8s action on its own: for `apps`/`fulfillment` it applies a
-new versioned `Deployment` and removes the stale one; for `processing` it patches the existing
-`WorkerDeployment` CRD in place. The rollout workflow does not need any k8s logic of its own.
+- it's already idempotent-safe (create-or-replace the Deployment/patch, then set-current-version, both
+safe to repeat). It also already does the right per-context k8s action on its own: for
+`apps`/`fulfillment` it applies a new versioned `Deployment` and removes the stale one; for
+`processing` it patches the existing `WorkerDeployment` CRD in place. The rollout workflow does not
+need any k8s logic of its own.
 
 **Admin UI: coexists with, does not replace, the three per-context rows.** Add an OMS-version
 dropdown (sourced from `GET /api/v1/enablements/oms-versions`) and a "Start rollout" action above the
@@ -347,8 +348,10 @@ is a reasonable future extension, not built in this pass.
       resolved: no, fall back to the Advanced per-context controls for v1.
 - [x] Does rolling back fulfillment from v1/v2 to `embedded` ever need an explicit teardown action? -
       resolved: no, leave it running idle indefinitely.
-- [ ] Exact JSON shape of `temporal worker deployment describe --output json`'s current-version field
-      (needed for the ordering lookup) - confirm against a live cluster before implementing.
+- [x] Exact JSON shape of `temporal worker deployment describe --output json`'s current-version field
+      (needed for the ordering lookup) - moot: superseded by the native SDK response in "Deploy and
+      Version Clients" below, which returns the typed `WorkerDeploymentInfo` message directly, no
+      CLI output or JSON parsing involved.
 
 #### Success Criteria (in addition to existing Mode B criteria)
 
@@ -360,6 +363,101 @@ is a reasonable future extension, not built in this pass.
   processing v1 or v2.
 - A forced failure on the processing step (e.g. bad build id) leaves apps promoted, processing/
   fulfillment untouched, and the Admin UI clearly shows which step failed - no silent partial state.
+
+### Deploy and Version Clients: Kubernetes and Temporal Java SDKs, Not CLI Subprocesses
+
+`DeploymentActivitiesImpl` as built (Design, above) shells out to the `kubectl` and `temporal`
+binaries via `ProcessBuilder`. Running the `OmsVersionRolloutImpl` workflow against a real cluster
+surfaced two problems with that: the `enablements-workers` container image (`eclipse-temurin:21-jre-
+alpine`) has neither binary installed, so every call fails with `Cannot run program "kubectl": ...
+No such file or directory`; and even with the binaries present, no RBAC in this repo grants the
+`enablements-workers` pod's ServiceAccount permission to touch `Deployment` or
+`workerdeployments.temporal.io` resources in the `apps`/`processing`/`fulfillment` namespaces - that
+failure would be next.
+
+**Decision: replace both subprocess calls with native Java clients**, not with a Dockerfile fix that
+bakes the CLI binaries into the image:
+
+- **Kubernetes operations** (`applyVersionedDeployment`, `patchWorkerDeploymentCrd`,
+  `removeStaleVersions`) move to `io.kubernetes:client-java`'s typed `AppsV1Api` (Deployments) and
+  `CustomObjectsApi` (the `workerdeployments.temporal.io` CRD), using in-cluster config
+  (`ClientBuilder.cluster()`, reading the pod's own ServiceAccount token) rather than a kubeconfig
+  file.
+- **Temporal Worker Deployment operations** (`setCurrentVersion`, `describeDeployment`) move to the
+  Temporal Java SDK's own gRPC stub: `WorkflowServiceStubs.blockingStub().setWorkerDeploymentCurrentVersion(...)`
+  and `.describeWorkerDeployment(...)` (`io.temporal.api.workflowservice.v1.WorkflowServiceGrpc`).
+  Confirmed present in this repo's pinned SDK version (`temporal-serviceclient:1.38.0`) by inspecting
+  the jar directly - no CLI needed for either operation. `currentBuildId` reads
+  `DescribeWorkerDeploymentResponse.getWorkerDeploymentInfo().getRoutingConfig()
+  .getCurrentDeploymentVersion().getBuildId()` directly off the typed response; no JSON parsing.
+- **No `kubectl`/`temporal` CLI in the `enablements-workers` image.** This removes a class of
+  fragility this design had not accounted for (a missing binary, and CLI output whose exact JSON
+  shape had to be inferred rather than read as a typed field) rather than papering over it.
+
+**The manifest template has the same "not actually in the image" problem, fixed the same way
+this repo already ships every other piece of pod config.** `enablements.deployment.manifest-
+template`'s default (`k8s/base/templates/worker-deployment-template.yaml`) is a path relative to
+the repo root - true when running locally via `LocalEnablementRunner`, never true inside the
+`enablements-workers` container, whose Docker build context (`java/enablements/enablements-
+workers`) never contained `k8s/` at all, `kubectl`-subprocess era or not. Fixed by shipping the
+template as a `configMapGenerator`-built ConfigMap (`worker-deployment-template`, `k8s/base/
+kustomization.yaml`), mounted read-only at `/etc/config/k8s-templates/` on `enablements-workers`
+(`k8s/base/enablements/deployment-workers.yaml`), with `ENABLEMENTS_DEPLOYMENT_MANIFEST_TEMPLATE`
+overriding the property to that mounted path - the same ConfigMap-mount pattern this Deployment
+already uses for its Temporal connection config, not a new mechanism.
+
+**RBAC, added:** `k8s/base/enablements/rbac.yaml` adds a dedicated `enablements-workers`
+ServiceAccount (bound to the Deployment via `spec.template.spec.serviceAccountName`), a
+`ClusterRole` (`enablements-worker-deployments`) granting `get`/`list`/`watch`/`create`/`update`/
+`patch`/`delete`/`deletecollection` on `deployments` (apps) and `services` (core), and
+`get`/`list`/`watch`/`update`/`patch` on `workerdeployments.temporal.io` (no `create`/`delete` - the
+CRD's own lifecycle is managed by `k8s/processing-versioned`, not this activity), and one
+`RoleBinding` per target namespace (`temporal-oms-apps`, `temporal-oms-processing`,
+`temporal-oms-fulfillment`) binding that ClusterRole scoped to just that namespace - not a
+`ClusterRoleBinding`, and not `cluster-admin`.
+
+**Per-version image tag was requested but never built.** `applyVersionedDeployment`/
+`patchWorkerDeploymentCrd` originally computed `image = imageRepository + ":" + buildId` (e.g.
+`apps-worker:v1`). Neither `scripts/kind/app-deploy.sh` nor `scripts/k3d/app-deploy.sh` ever builds
+or loads a per-version tag for `apps`/`fulfillment` - only `:latest` - and `processing` only gets an
+extra `:v1` tag (a leftover from its older, separate `deploy-processing-workers.sh` CLI demo, not
+v2-v4). A promoted pod's image pull silently never happened (`imagePullPolicy: Never`), the pod
+never started, its pollers never registered, and `set-current-version` legitimately timed out -
+while `OmsVersionRolloutImpl` (next bug below) still reported the step as succeeded. Fixed: always
+request `:latest` (`RUNTIME_IMAGE_TAG` in `DeploymentActivitiesImpl`) for every version of every
+context this workflow promotes - correct because every version's code already ships in that one
+image, the entire point of spec.md's package-per-version convention.
+
+**`currentVersionSet` was computed but never checked.** `deployWorkerVersion` already returns
+`currentVersionSet: boolean` - `false` when `set-current-version` timed out without throwing - and
+the per-context Advanced UI already surfaces that to the operator. But `OmsVersionRolloutImpl
+.runStep` marked a step `SUCCEEDED` the moment the activity call returned at all, never checking the
+flag. Fixed: `runStep` now treats `currentVersionSet == false` as a failed step, stopping the
+rollout, matching the fail-fast design already documented above.
+
+**Considered and rejected: deriving the workflow class from `TEMPORAL_WORKER_BUILD_ID` instead of a
+separate `ACME_*_ORDER_WORKFLOW_CLASS` env var.** Since `TEMPORAL_WORKER_BUILD_ID` is already set
+reliably, `acme.<context>.yaml`'s `workflow-classes` entry could just interpolate it directly
+(`com.acme.apps.workflows.${TEMPORAL_WORKER_BUILD_ID}.OrderImpl`), dropping the second,
+independently-computed env var entirely. Rejected: `workshop/safe-fulfillment-handoff/SOLUTION.md`'s
+own exercise deliberately edits code in place inside an *existing* `vN/OrderImpl.java` file and
+deploys the result under a **different, decoupled build-id** (its `apps v3`/`processing v3` steps
+run `v2.OrderImpl`'s file under build-id `v3`) - collapsing the two into one derived value breaks
+that workshop's teaching point, which needs build-id and code-package-version to vary
+independently. The two env vars stay separate. (This also means the workflow-class mechanism itself
+was never actually the bug in this feature - the image tag above was sufficient on its own to
+explain the symptom, since the pod that would have used it never started.)
+
+#### Risks and Mitigations
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| `enablements-workers` image lacked `kubectl`/`temporal` binaries | Every deploy activity failed with a process-start error | Resolved: moved to `io.kubernetes:client-java` and the SDK's native gRPC stub, no CLI subprocess left in `DeploymentActivitiesImpl` |
+| No RBAC existed for cross-namespace Deployment/CRD management | Deploy activity would fail on authorization even with the client library in place | Resolved: `k8s/base/enablements/rbac.yaml` adds a scoped ServiceAccount + ClusterRole + one RoleBinding per namespace |
+| `io.kubernetes:client-java`'s CRD API version drifting from the cluster's installed CRD version | Silent patch failures or wrong-shape requests against `workerdeployments.temporal.io` | Pinned `client-java.version=27.0.0` in `java/pom.xml`; still needs a run against a real/local cluster to confirm the read-modify-write on the CRD, not yet done (the k3d cluster used to design this went down before that verification pass) |
+| A per-version image tag was requested for apps/fulfillment/processing versions the deploy scripts never build | New pod's image pull never happens, pollers never register, set-current-version times out | Always request the one built `:latest` tag; every version's code already ships in it |
+| A failed `set-current-version` (returned `false`, didn't throw) was reported as rollout success | OMS-version rollout silently leaves the previous version current while claiming success | `OmsVersionRolloutImpl.runStep` now checks `currentVersionSet` and fails the step if false |
+| `processing`'s CRD-managed rollout was calling `setWorkerDeploymentCurrentVersion` directly with our own build-id string | Confirmed live: the Temporal Worker Controller computes its own build-id (`{imageTag}-{podSpecHash}`, e.g. `latest-f966`) independent of `TEMPORAL_WORKER_BUILD_ID`; our call targeted a build-id that was never registered and could never confirm, while the controller's own Progressive rollout had already completed the promotion on its own | For CRD-managed contexts, `deployWorkerVersion` no longer calls `set-current-version` at all - it patches the CRD, then polls the CRD's own `status.currentVersion.buildID`/`status.targetVersion.buildID` until they match (`waitForWorkerDeploymentCrdRollout`, `crd-rollout-timeout-seconds`, default 180s). Manual/raw-API version control for a bounded context *not* running under a Worker Controller is an intentionally deferred follow-up, not built now. |
 
 ### Risks and Mitigations
 

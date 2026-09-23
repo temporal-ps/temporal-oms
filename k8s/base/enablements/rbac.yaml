@@ -1,0 +1,66 @@
+# RBAC for enablements-workers' DeploymentActivitiesImpl (hosting.md "Deploy and Version
+# Clients"): promotes apps/fulfillment Deployments/Services and patches processing's
+# WorkerDeployment CRD, none of which the enablements-workers pod could touch before this
+# existed. Scoped to exactly the resources and namespaces it manages - not cluster-admin.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: enablements-workers
+  namespace: temporal-oms-enablements
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: enablements-worker-deployments
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+  - apiGroups: ["temporal.io"]
+    resources: ["workerdeployments"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: enablements-worker-deployments
+  namespace: temporal-oms-apps
+subjects:
+  - kind: ServiceAccount
+    name: enablements-workers
+    namespace: temporal-oms-enablements
+roleRef:
+  kind: ClusterRole
+  name: enablements-worker-deployments
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: enablements-worker-deployments
+  namespace: temporal-oms-processing
+subjects:
+  - kind: ServiceAccount
+    name: enablements-workers
+    namespace: temporal-oms-enablements
+roleRef:
+  kind: ClusterRole
+  name: enablements-worker-deployments
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: enablements-worker-deployments
+  namespace: temporal-oms-fulfillment
+subjects:
+  - kind: ServiceAccount
+    name: enablements-workers
+    namespace: temporal-oms-enablements
+roleRef:
+  kind: ClusterRole
+  name: enablements-worker-deployments
+  apiGroup: rbac.authorization.k8s.io

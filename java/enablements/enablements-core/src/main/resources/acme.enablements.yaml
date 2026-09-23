@@ -29,9 +29,14 @@ enablements:
     # template).
     manifest-template: k8s/base/templates/worker-deployment-template.yaml
     # How long deployWorkerVersion retries `temporal worker deployment
-    # set-current-version` before giving up (seconds).
+    # set-current-version` before giving up (seconds). apps/fulfillment only -
+    # processing's WorkerDeployment CRD is controller-managed (see below).
     set-current-version-timeout-seconds: 60
     retry-interval-seconds: 2
+    # How long deployWorkerVersion waits for the Temporal Worker Controller's own
+    # Progressive rollout (WorkerDeployment CRD, processing) to finish before giving
+    # up (seconds). Comfortably above the CRD's configured ramp/pause steps.
+    crd-rollout-timeout-seconds: 180
 
   payments:
     auto-capture-delay: PT5S   # documents the intended default; PaymentChargeImpl's timer duration is a code constant (see PROGRESS.md)

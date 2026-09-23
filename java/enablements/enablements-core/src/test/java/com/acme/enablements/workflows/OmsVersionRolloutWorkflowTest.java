@@ -35,6 +35,7 @@ class OmsVersionRolloutWorkflowTest {
         final List<String> deployedContextsInOrder = new ArrayList<>();
         final Map<String, String> currentBuildIds = new java.util.HashMap<>();
         String failContext;
+        String neverConfirmsContext;
 
         @Override
         public DeployWorkerVersionResponse deployWorkerVersion(DeployWorkerVersionRequest cmd) {
@@ -42,7 +43,8 @@ class OmsVersionRolloutWorkflowTest {
                 throw new RuntimeException("simulated failure for " + failContext);
             }
             deployedContextsInOrder.add(cmd.getDeploymentName());
-            return DeployWorkerVersionResponse.newBuilder().setCurrentVersionSet(true).build();
+            boolean currentVersionSet = !cmd.getDeploymentName().equals(neverConfirmsContext);
+            return DeployWorkerVersionResponse.newBuilder().setCurrentVersionSet(currentVersionSet).build();
         }
 
         @Override
@@ -139,6 +141,26 @@ class OmsVersionRolloutWorkflowTest {
         var steps = stub.getState().getStepsList();
         assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.SUCCEEDED); // processing
         assertThat(steps.get(1).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // fulfillment
+        assertThat(steps.get(2).getStatus()).isEqualTo(RolloutStepStatus.PENDING); // apps, never attempted
+    }
+
+    @Test
+    void unconfirmedCurrentVersionSetIsTreatedAsAFailedStepNotASilentSuccess() throws Exception {
+        deploymentActivities.currentBuildIds.put("apps", "v1");
+        deploymentActivities.neverConfirmsContext = "processing";
+        var stub = newStub("rollout-unconfirmed");
+        var request = StartOmsVersionRolloutRequest.newBuilder()
+                .setRolloutId("rollout-unconfirmed").setOmsVersion("v4").build();
+
+        WorkflowClient.execute(stub::execute, request).get(30, TimeUnit.SECONDS);
+
+        // deployWorkerVersion didn't throw for processing, but never confirmed the cutover;
+        // that must still stop the rollout, not report success.
+        assertThat(deploymentActivities.deployedContextsInOrder).containsExactly("processing");
+        assertThat(stub.getState().getOverallStatus()).isEqualTo(RolloutStepStatus.FAILED);
+        var steps = stub.getState().getStepsList();
+        assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // processing
+        assertThat(steps.get(0).getErrorMessage()).isNotBlank();
         assertThat(steps.get(2).getStatus()).isEqualTo(RolloutStepStatus.PENDING); // apps, never attempted
     }
 }

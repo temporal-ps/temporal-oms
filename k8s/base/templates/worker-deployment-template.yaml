@@ -6,6 +6,10 @@
 # Placeholders substituted by DeploymentActivitiesImpl: {NAME}, {NAMESPACE},
 # {REPLICAS}, {IMAGE}, {MANAGEMENT_PORT}, {DEPLOYMENT_NAME}, {BUILD_ID},
 # {WORKFLOW_CLASS_ENV}, {WORKFLOW_CLASS_VALUE}, {CONFIGMAP_NAME}, {SECRET_NAME}.
+# {IMAGE} is always the same tag every version uses (every version's code
+# ships in one image, see spec.md's package-per-version convention) -
+# {WORKFLOW_CLASS_ENV}/{WORKFLOW_CLASS_VALUE} is what actually selects which
+# OrderImpl class runs.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -87,6 +91,12 @@ spec:
       - name: temporal-secret
         secret:
           secretName: {SECRET_NAME}
+          # Local Temporal doesn't create this Secret at all (mirrors k8s/overlays/local's
+          # own patch, which strips this volume entirely from the base apps/processing/
+          # fulfillment Deployments for the same reason) - this Deployment is created
+          # programmatically at runtime, so that kustomize patch can never reach it.
+          # optional: true degrades to an empty mount instead of blocking pod startup.
+          optional: true
           defaultMode: 0444
 ---
 apiVersion: v1

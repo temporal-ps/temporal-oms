@@ -107,23 +107,27 @@ pick a bounded context, type a target version (e.g. `v3`), click **Promote**. Us
 
 ---
 
-## Known gap: orphaned `local` build-id pods for apps/fulfillment
+## The `local` baseline gets cleaned up automatically
 
-`app-deploy.sh` deletes the plain `processing-workers` Deployment before applying the
-`k8s/processing-versioned` `WorkerDeployment` CRD, so processing has no leftover state.
-It does **not** do the equivalent for `apps` or `fulfillment`: their base Deployments
-(`apps-worker`, `fulfillment-workers`, image tag `:latest`) keep running registered under
-build-id `local` even after you promote to a real OMS version. This is harmless —
-Temporal stops routing new tasks to `local` once a real build-id is current — but the pods
-stay up, unlabeled, and `deployWorkerVersion`'s cleanup (`removeStaleVersions`) can't find
-them to remove since they predate the `bounded-context`/`oms-build-id` labeling scheme.
+Before your first promotion, `apps` and `fulfillment` run their base Deployments
+(`apps-worker`, `fulfillment-workers`, image tag `:latest`) registered under build-id
+`local` — that's `acme.apps.yaml`/`acme.fulfillment.yaml`'s default
+(`build-id: ${TEMPORAL_WORKER_BUILD_ID:local}`) when `app-deploy.sh` doesn't set the
+`TEMPORAL_WORKER_BUILD_ID` env var. `k8s/base/apps/deployment-workers.yaml` and
+`k8s/base/fulfillment/deployment-workers.yaml` label these Deployments
+`bounded-context: apps`/`fulfillment`, `oms-build-id: "local"` — the same labels the
+versioned template (`k8s/base/templates/worker-deployment-template.yaml`) applies to the
+Deployments a promotion creates. That means the very first real promotion's cleanup step
+(`DeploymentActivitiesImpl.removeStaleVersions`, `kubectl delete deployment -l
+bounded-context=<context>,oms-build-id!=<newBuildId>`) matches and removes the `local`
+baseline Deployment too, exactly like it removes any other stale version. No manual
+cleanup needed.
 
-To tidy up after your first promotion:
-
-```bash
-kubectl scale deployment apps-worker -n temporal-oms-apps --replicas=0
-kubectl scale deployment fulfillment-workers -n temporal-oms-fulfillment --replicas=0
-```
+**One caveat:** re-running `app-deploy.sh` after a promotion re-applies the kustomize base,
+which recreates the `local`-labeled `apps-worker`/`fulfillment-workers` Deployment even
+though a real build-id is already current. It sits idle (Temporal only routes to the
+current build-id) until your next promotion's cleanup removes it again — harmless, but
+don't be surprised to see it reappear after a redeploy.
 
 ---
 

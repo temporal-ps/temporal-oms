@@ -6,6 +6,8 @@ metadata:
   labels:
     app: fulfillment-workers
     component: worker
+    bounded-context: fulfillment
+    oms-build-id: "local"
 spec:
   replicas: 1
   selector:
@@ -17,6 +19,8 @@ spec:
         app: fulfillment-workers
         component: worker
         version: "1.0.0"
+        bounded-context: fulfillment
+        oms-build-id: "local"
       annotations:
         instrumentation.opentelemetry.io/inject-sdk: "true"
     spec:

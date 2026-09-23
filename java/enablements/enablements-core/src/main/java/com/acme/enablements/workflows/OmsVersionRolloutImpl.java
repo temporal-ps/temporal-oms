@@ -99,6 +99,22 @@ public class OmsVersionRolloutImpl implements OmsVersionRollout {
                     .setVersion(step.getTargetVersion())
                     .setBuildId(step.getTargetVersion())
                     .build());
+            if (!result.getCurrentVersionSet()) {
+                // deployWorkerVersion didn't throw, but set-current-version never confirmed
+                // within its retry window (e.g. the new pod's pollers hadn't registered
+                // yet) - Temporal is still routing new work to whatever was current
+                // before. Treat that as a failed step, not a silent success.
+                updateStep(index, step.toBuilder()
+                        .setStatus(RolloutStepStatus.FAILED)
+                        .setErrorMessage("set-current-version did not confirm within its retry window")
+                        .setResult(result)
+                        .build());
+                state = state.toBuilder()
+                        .setOverallStatus(RolloutStepStatus.FAILED)
+                        .setErrorMessage(step.getBoundedContext() + " failed: set-current-version did not confirm")
+                        .build();
+                return false;
+            }
             updateStep(index, step.toBuilder()
                     .setStatus(RolloutStepStatus.SUCCEEDED)
                     .setResult(result)
