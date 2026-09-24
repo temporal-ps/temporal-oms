@@ -31,7 +31,7 @@ spec:
         image: temporal-oms/processing-workers:v1
         imagePullPolicy: Never
         ports:
-        - containerPort: 9092
+        - containerPort: 9082
           name: management
           protocol: TCP
         env:

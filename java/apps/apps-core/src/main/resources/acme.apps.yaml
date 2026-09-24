@@ -7,7 +7,7 @@ spring.temporal:
   workers:
     - task-queue: apps
       workflow-classes:
-        - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.OrderImpl}
+        - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
       activity-beans:
         - options-activities
       deployment-properties:

@@ -15,6 +15,17 @@ TEMPORAL_FULFILLMENT_NAMESPACE="${TEMPORAL_FULFILLMENT_NAMESPACE:-fulfillment}"
 TEMPORAL_ENABLEMENTS_NAMESPACE="${TEMPORAL_ENABLEMENTS_NAMESPACE:-default}"
 TEMPORAL_CLI=(temporal --disable-config-file --disable-config-env --address "$TEMPORAL_ADDRESS")
 
+# Once any build-id is set current for a Worker Deployment name, there is no Temporal API
+# to unset it back to "no current version" - only to change it to a different registered
+# one (confirmed: `worker deployment delete-version` refuses while it's current; `delete`
+# refuses while any version exists). So registering build-id=local as current here is a
+# one-way door: it rules out ever demonstrating OMS v1 (spec.md's true, no-Worker-
+# Versioning-at-all baseline) against this apps/processing/fulfillment namespace again.
+# SKIP_VERSION_REGISTRATION=1 leaves them with zero version history from the start, so
+# the OMS-rollout Admin UI's first promotion - even to v1 - is the one engaging Worker
+# Versioning for the first time, cleanly, instead of colliding with this script's own.
+SKIP_VERSION_REGISTRATION="${SKIP_VERSION_REGISTRATION:-1}"
+
 create_namespace() {
   local namespace="$1"
   echo "Creating namespace: $namespace"
@@ -73,38 +84,50 @@ create_namespace "$TEMPORAL_PROCESSING_NAMESPACE"
 create_namespace "$TEMPORAL_FULFILLMENT_NAMESPACE"
 create_namespace "$TEMPORAL_ENABLEMENTS_NAMESPACE"
 
-echo ""
-echo "Setting 'apps' Worker Deployment to build-id='local'"
-echo ""
-"${TEMPORAL_CLI[@]}" worker deployment set-current-version \
-  --deployment-name apps \
-  --build-id local \
-  --allow-no-pollers \
-  --namespace "$TEMPORAL_APPS_NAMESPACE" \
-  --command-timeout 30s \
-  --yes 2>/dev/null || echo "  (skipped)"
+if [ "$SKIP_VERSION_REGISTRATION" = "1" ]; then
+  echo ""
+  echo "SKIP_VERSION_REGISTRATION=1: leaving apps/processing/fulfillment Worker Deployments"
+  echo "with no current version (OMS v1's baseline - no Worker Versioning at all). New"
+  echo "workflow starts on these task queues route via classic, non-versioned dispatch"
+  echo "until something is promoted through the Admin UI (or set-current-version) later."
+  echo ""
+  echo "Note: if PROCESSING_WORKER_MODE=versioned is set explicitly, processing's Worker"
+  echo "Versioning is engaged independently by the Temporal Worker Controller once its"
+  echo "WorkerDeployment CRD comes up - this flag does not affect that path."
+else
+  echo ""
+  echo "Setting 'apps' Worker Deployment to build-id='local'"
+  echo ""
+  "${TEMPORAL_CLI[@]}" worker deployment set-current-version \
+    --deployment-name apps \
+    --build-id local \
+    --allow-no-pollers \
+    --namespace "$TEMPORAL_APPS_NAMESPACE" \
+    --command-timeout 30s \
+    --yes 2>/dev/null || echo "  (skipped)"
 
-echo ""
-echo "Setting 'processing' Worker Deployment to build-id='local'"
-echo ""
-"${TEMPORAL_CLI[@]}" worker deployment set-current-version \
-  --deployment-name processing \
-  --build-id local \
-  --allow-no-pollers \
-  --namespace "$TEMPORAL_PROCESSING_NAMESPACE" \
-  --command-timeout 30s \
-  --yes 2>/dev/null || echo "  (skipped)"
+  echo ""
+  echo "Setting 'processing' Worker Deployment to build-id='local'"
+  echo ""
+  "${TEMPORAL_CLI[@]}" worker deployment set-current-version \
+    --deployment-name processing \
+    --build-id local \
+    --allow-no-pollers \
+    --namespace "$TEMPORAL_PROCESSING_NAMESPACE" \
+    --command-timeout 30s \
+    --yes 2>/dev/null || echo "  (skipped)"
 
-echo ""
-echo "Setting 'fulfillment' Worker Deployment to build-id='local'"
-echo ""
-"${TEMPORAL_CLI[@]}" worker deployment set-current-version \
-  --deployment-name fulfillment \
-  --build-id local \
-  --allow-no-pollers \
-  --namespace "$TEMPORAL_FULFILLMENT_NAMESPACE" \
-  --command-timeout 30s \
-  --yes 2>/dev/null || echo "  (skipped)"
+  echo ""
+  echo "Setting 'fulfillment' Worker Deployment to build-id='local'"
+  echo ""
+  "${TEMPORAL_CLI[@]}" worker deployment set-current-version \
+    --deployment-name fulfillment \
+    --build-id local \
+    --allow-no-pollers \
+    --namespace "$TEMPORAL_FULFILLMENT_NAMESPACE" \
+    --command-timeout 30s \
+    --yes 2>/dev/null || echo "  (skipped)"
+fi
 
 echo ""
 echo "Registering Nexus endpoints..."

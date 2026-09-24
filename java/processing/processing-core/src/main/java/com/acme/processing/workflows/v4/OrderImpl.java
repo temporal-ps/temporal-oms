@@ -1,25 +1,27 @@
-package com.acme.processing.workflows;
+package com.acme.processing.workflows.v4;
 
 import com.acme.oms.services.CommerceAppService;
 import com.acme.oms.services.ProductInformationManagementService;
-import com.acme.processing.workflows.activities.Fulfillments;
+import com.acme.processing.workflows.Order;
 import com.acme.processing.workflows.activities.Options;
 import com.acme.processing.workflows.activities.Support;
 import com.acme.proto.acme.processing.domain.processing.v1.*;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.activity.LocalActivityOptions;
-import io.temporal.failure.ActivityFailure;
 import io.temporal.common.VersioningBehavior;
-import io.temporal.failure.ApplicationFailure;
+import io.temporal.failure.ActivityFailure;
 import io.temporal.workflow.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
+/**
+ * processing.Order workflow with the Kafka fulfillment handoff fully retired.
+ * Fulfillment ownership belongs entirely to fulfillment.Order by this version.
+ */
 public class OrderImpl implements Order {
     private final Options optionsActs;
-    private final Fulfillments fulfillments;
     private GetProcessOrderStateResponse state;
     private Logger logger = LoggerFactory.getLogger(OrderImpl.class);
 
@@ -33,9 +35,6 @@ public class OrderImpl implements Order {
                 LocalActivityOptions.newBuilder()
                         .setScheduleToCloseTimeout(Duration.ofSeconds(2))
                         .build());
-        this.fulfillments = Workflow.newActivityStub(Fulfillments.class,
-                ActivityOptions.newBuilder()
-                        .setScheduleToCloseTimeout(Duration.ofSeconds(60)).build());
     }
 
     @Override
@@ -71,11 +70,8 @@ public class OrderImpl implements Order {
                                 .build())
                         .build());
 
-        boolean sendFulfillment = !opts.hasSendFulfillment() || opts.getSendFulfillment();
-
         // 1. validate order (immediate or manual correction via support)
         // 2. enrich order
-        // 3. fulfill order
         // if any of this fails, cancel order
         var scope = Workflow.newCancellationScope(inner -> {
 
@@ -103,23 +99,10 @@ public class OrderImpl implements Order {
             this.state = this.state.toBuilder().setEnrichment(
                     pimService.enrichOrder(EnrichOrderRequest.newBuilder()
                             .setOrder(request.getOrder()).build())).build();
-
-
-            if (sendFulfillment) {
-                try {
-                    this.state = this.state.toBuilder().setFulfillment(this.fulfillments.fulfillOrder(FulfillOrderRequest.newBuilder()
-                            .setOrder(request.getOrder()).addAllItems(this.state.getEnrichment().getItemsList()).build())).build();
-                } catch (ApplicationFailure e) {
-                    if (e.isNonRetryable()) {
-                        // permanent failure
-                        // move this to the support workflow
-                    }
-                }
-            }
         });
 
         Workflow.newTimer(Duration.ofSeconds(timeoutSecs)).thenApply(result -> {
-            if (!state.hasEnrichment() || (sendFulfillment && !state.hasFulfillment())) {
+            if (!state.hasEnrichment()) {
                 scope.cancel();
             }
             return null;

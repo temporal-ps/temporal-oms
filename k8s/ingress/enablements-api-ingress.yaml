@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: enablements-api
+  namespace: temporal-oms-enablements
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: webui
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /api/v1/integrations
+        pathType: Prefix
+        backend:
+          service:
+            name: enablements-api
+            port:
+              number: 8050
+      - path: /api/v1/enablements
+        pathType: Prefix
+        backend:
+          service:
+            name: enablements-api
+            port:
+              number: 8050

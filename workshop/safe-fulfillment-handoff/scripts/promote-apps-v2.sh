@@ -9,5 +9,5 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 prepare_environment
 require_command temporal
 
-set_current_version apps v2 "$TEMPORAL_APPS_NAMESPACE"
+set_current_version apps v3 "$TEMPORAL_APPS_NAMESPACE"
 describe_deployment apps "$TEMPORAL_APPS_NAMESPACE"

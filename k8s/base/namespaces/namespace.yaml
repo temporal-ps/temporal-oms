@@ -37,3 +37,13 @@ metadata:
     name: temporal-oms-enablements
     app: temporal-oms
     component: enablements
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: temporal-oms-web
+  labels:
+    name: temporal-oms-web
+    app: temporal-oms
+    component: web

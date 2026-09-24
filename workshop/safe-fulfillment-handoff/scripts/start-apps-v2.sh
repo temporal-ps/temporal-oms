@@ -13,9 +13,9 @@ require_command curl
 build_apps_worker
 
 start_service apps-workers-v2 env \
-  ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.OrderImplV1 \
+  ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.v2.OrderImpl \
   TEMPORAL_DEPLOYMENT_NAME=apps \
-  TEMPORAL_WORKER_BUILD_ID=v2 \
+  TEMPORAL_WORKER_BUILD_ID=v3 \
   java -jar "$ROOT_DIR/java/apps/apps-workers/target/apps-workers-1.0.0-SNAPSHOT.jar" \
   --server.port=8082 \
   --management.server.port=9093

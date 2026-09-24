@@ -6,6 +6,8 @@ metadata:
   labels:
     app: processing-workers
     component: worker
+    bounded-context: processing
+    oms-build-id: "local"
 spec:
   replicas: 1
   selector:
@@ -17,6 +19,8 @@ spec:
         app: processing-workers
         component: worker
         version: "1.0.0"
+        bounded-context: processing
+        oms-build-id: "local"
       annotations:
         instrumentation.opentelemetry.io/inject-sdk: "true"
     spec:
@@ -25,12 +29,12 @@ spec:
         image: temporal-oms/processing-workers:latest
         imagePullPolicy: Never
         ports:
-        - containerPort: 9092
+        - containerPort: 9082
           name: management
           protocol: TCP
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: k8s
+          value: k8s,unversioned
         - name: JAVA_OPTS
           value: "-Dgrpc.netty.keepaliveTime=30 -Dgrpc.netty.keepaliveTimeout=5 -Dgrpc.netty.keepaliveWithoutCalls=true"
         envFrom:
@@ -41,13 +45,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
-            port: 9092
+            port: 9082
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /actuator/health/readiness
-            port: 9092
+            port: 9082
           initialDelaySeconds: 20
           periodSeconds: 5
         volumeMounts:
@@ -86,7 +90,7 @@ spec:
   selector:
     app: processing-workers
   ports:
-  - port: 9092
-    targetPort: 9092
+  - port: 9082
+    targetPort: 9082
     protocol: TCP
     name: management

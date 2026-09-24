@@ -271,7 +271,7 @@ run_temporal_setup() {
   local log="$LOG_DIR/temporal-setup.log"
 
   echo "Setting up Temporal namespaces and Nexus endpoints ..."
-  if ! "$ROOT_DIR/scripts/setup-temporal-namespaces.sh" >"$log" 2>&1; then
+  if ! SKIP_VERSION_REGISTRATION=0 "$ROOT_DIR/scripts/setup-temporal-namespaces.sh" >"$log" 2>&1; then
     echo "ERROR: Temporal namespace setup failed. Log: $log" >&2
     tail -n 120 "$log" >&2 || true
     exit 1

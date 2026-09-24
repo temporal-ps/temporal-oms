@@ -114,6 +114,7 @@ If you want to run the full application stack in Kubernetes (locally via KinD/k3
 - Support for both local Temporal and Temporal Cloud
 - Production-like Kubernetes environment
 - Traefik ingress for API access
+- The same Web UI: Commerce + Payments demo described below, deployed and routed through Traefik
 
 ---
 

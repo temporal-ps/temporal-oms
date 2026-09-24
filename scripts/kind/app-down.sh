@@ -10,6 +10,7 @@ kubectl delete namespace \
   temporal-oms-processing \
   temporal-oms-fulfillment \
   temporal-oms-enablements \
+  temporal-oms-web \
   --ignore-not-found \
   --wait=false \
   2>/dev/null || true

@@ -1,13 +1,23 @@
 # Worker Versioning Enablements Specification
 
 **Feature Name:** Worker Version Deployment with Build-ID Routing
-**Status:** Draft - Ready for Tech Lead Review
+**Status:** Superseded by [`SPECS/oms-evolution/hosting.md`](../../oms-evolution/hosting.md) (Mode B: Sequential On-Demand Rollout), 2026-09-17
 **Owner:** [Your Name]
 **Created:** 2026-03-18
 **Updated:** 2026-03-18
 
 **Part of:** [Worker Version Enablement Initiative](../INDEX.md)
 **Depends on:** [Worker Version Enablement Workflow](../load-generation/spec.md)
+
+> This spec was written against Temporal's deprecated build-id-compatibility API
+> (`updateWorkerBuildIdCompatibility` / `temporal worker-build-id update-compatibility`), before this
+> repo standardized on the modern Worker Deployment API (`temporal worker deployment
+> set-current-version`, `k8s/processing-versioned`'s `WorkerDeployment` CRD). Its ideas carry forward
+> into `hosting.md`'s Mode B on the modern API: build-id-based routing, canary/gradual traffic shift
+> (now ramp-percentage, deferred there for a first pass), rollback (the same promote operation with
+> an older build-id), and its version-transition test scenario, all reconciled there so nothing here
+> is lost, just re-based on the API this repo actually uses. Kept as historical reference; do not
+> implement further against this document.
 
 ---
 

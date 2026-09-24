@@ -6,7 +6,7 @@
       "description": "Premium blue t-shirt with modern fit",
       "price_cents": 2500,
       "image_url": "/images/aprl-001.jpg",
-      "initial_stock": 25
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-002",
@@ -14,7 +14,7 @@
       "description": "Classic black jeans, straight fit",
       "price_cents": 5500,
       "image_url": "/images/aprl-002.jpg",
-      "initial_stock": 20
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-003",
@@ -22,7 +22,7 @@
       "description": "Heavyweight gray hoodie",
       "price_cents": 4800,
       "image_url": "/images/aprl-003.jpg",
-      "initial_stock": 18
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-004",
@@ -30,7 +30,7 @@
       "description": "Water-resistant navy jacket",
       "price_cents": 9900,
       "image_url": "/images/aprl-004.jpg",
-      "initial_stock": 12
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-005",
@@ -38,7 +38,7 @@
       "description": "Slim-fit beige chinos",
       "price_cents": 4500,
       "image_url": "/images/aprl-005.jpg",
-      "initial_stock": 22
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-006",
@@ -46,7 +46,7 @@
       "description": "Wrinkle-resistant cotton dress shirt",
       "price_cents": 5200,
       "image_url": "/images/aprl-006.jpg",
-      "initial_stock": 16
+      "initial_stock": 5000
     },
     {
       "item_id": "APRL-007",
@@ -54,7 +54,7 @@
       "description": "Merino wool crew-neck sweater",
       "price_cents": 6800,
       "image_url": "/images/aprl-007.jpg",
-      "initial_stock": 14
+      "initial_stock": 5000
     },
     {
       "item_id": "FOOT-001",
@@ -62,7 +62,7 @@
       "description": "Everyday white sneakers",
       "price_cents": 7200,
       "image_url": "/images/foot-001.jpg",
-      "initial_stock": 15
+      "initial_stock": 5000
     },
     {
       "item_id": "FOOT-002",
@@ -70,7 +70,7 @@
       "description": "Waterproof leather work boots",
       "price_cents": 11000,
       "image_url": "/images/foot-002.jpg",
-      "initial_stock": 10
+      "initial_stock": 5000
     },
     {
       "item_id": "FOOT-003",
@@ -78,7 +78,7 @@
       "description": "Slip-on leather loafers",
       "price_cents": 8900,
       "image_url": "/images/foot-003.jpg",
-      "initial_stock": 12
+      "initial_stock": 5000
     },
     {
       "item_id": "ACC-001",
@@ -86,7 +86,7 @@
       "description": "Adjustable red baseball cap",
       "price_cents": 1800,
       "image_url": "/images/acc-001.jpg",
-      "initial_stock": 30
+      "initial_stock": 5000
     },
     {
       "item_id": "ACC-002",
@@ -94,7 +94,7 @@
       "description": "Full-grain leather belt",
       "price_cents": 3200,
       "image_url": "/images/acc-002.jpg",
-      "initial_stock": 24
+      "initial_stock": 5000
     },
     {
       "item_id": "ACC-003",
@@ -102,7 +102,7 @@
       "description": "UV400 polarized aviator sunglasses",
       "price_cents": 4200,
       "image_url": "/images/acc-003.jpg",
-      "initial_stock": 20
+      "initial_stock": 5000
     },
     {
       "item_id": "ACC-004",
@@ -110,7 +110,7 @@
       "description": "Lambswool winter scarf",
       "price_cents": 2900,
       "image_url": "/images/acc-004.jpg",
-      "initial_stock": 18
+      "initial_stock": 5000
     },
     {
       "item_id": "BAG-001",
@@ -118,7 +118,7 @@
       "description": "Water-resistant everyday backpack",
       "price_cents": 6400,
       "image_url": "/images/bag-001.jpg",
-      "initial_stock": 10
+      "initial_stock": 5000
     },
     {
       "item_id": "BAG-002",
@@ -126,7 +126,7 @@
       "description": "Heavy-duty canvas tote bag",
       "price_cents": 2600,
       "image_url": "/images/bag-002.jpg",
-      "initial_stock": 20
+      "initial_stock": 5000
     },
     {
       "item_id": "BAG-003",
@@ -134,7 +134,7 @@
       "description": "40L weekend travel duffel",
       "price_cents": 7800,
       "image_url": "/images/bag-003.jpg",
-      "initial_stock": 8
+      "initial_stock": 5000
     }
   ]
 }

@@ -84,6 +84,9 @@ spec:
     - name: processing
       port: 8070
       targetPort: 8070
+    - name: webui
+      port: 3000
+      targetPort: 3000
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -109,6 +112,7 @@ spec:
             - --entrypoints.web.address=:8000
             - --entrypoints.websecure.address=:8443
             - --entrypoints.processing.address=:8070
+            - --entrypoints.webui.address=:3000
             - --providers.kubernetesIngress
             - --providers.kubernetesIngress.ingressClass=traefik
           ports:
@@ -118,6 +122,8 @@ spec:
               containerPort: 8443
             - name: processing
               containerPort: 8070
+            - name: webui
+              containerPort: 3000
           resources:
             requests:
               cpu: 100m

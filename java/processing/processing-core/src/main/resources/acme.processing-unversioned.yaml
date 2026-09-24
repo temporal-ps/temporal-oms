@@ -1,0 +1,32 @@
+spring.config.import: classpath:acme.oms.yaml
+
+spring.temporal:
+    connection:
+      target: ${TEMPORAL_PROCESSING_ADDRESS:localhost:7233}
+      api-key: ${TEMPORAL_PROCESSING_API_KEY:}
+    namespace: ${TEMPORAL_PROCESSING_NAMESPACE:processing}
+    workers:
+      - task-queue: processing
+        workflow-classes:
+          - ${ACME_PROCESSING_ORDER_WORKFLOW_CLASS:com.acme.processing.workflows.v4.OrderImpl}
+        activity-beans:
+          - processing-options-activities
+          - enrichment-activities
+          - fulfillment-activities
+        nexus-service-beans:
+          - processing-service
+      - task-queue: commerce-app
+        activity-beans:
+          - commerce-app-activities
+        rate-limits:
+          max-task-queue-activities-per-second: 150
+      - task-queue: support
+        workflow-classes:
+          - com.acme.processing.workflows.SupportTeamImpl
+        activity-beans:
+          - support-activities
+
+spring:
+  kafka:
+    topic: "order-fulfillment"
+    groupId: "processing-service"

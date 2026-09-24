@@ -77,7 +77,66 @@ message DeployWorkerVersionRequest {
   optional int32 replica_count = 4;
 }
 message DeployWorkerVersionResponse {
+  // Fully-qualified workflow class resolved for the request's deployment_name + version,
+  // e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+  string workflow_class = 1;
+  // True once `temporal worker deployment set-current-version` succeeded for this build id.
+  bool current_version_set = 2;
+  // Raw `temporal worker deployment describe --output json` text captured right after the
+  // set-current-version call, so a silent no-op can't happen unnoticed.
+  string describe_output = 3;
+}
 
+// One row of spec.md's OMS version -> component version mapping table
+// (hosting.md "OMS-Version-Driven Promotion"). fulfillment_version is
+// "embedded" for OMS versions before fulfillment existed as its own
+// deployable component.
+message OmsVersionRow {
+  string oms_version = 1;
+  string apps_version = 2;
+  string processing_version = 3;
+  string fulfillment_version = 4;
+  string description = 5;
+  bool future = 6;
+}
+
+message ListOmsVersionsResponse {
+  repeated OmsVersionRow rows = 1;
+}
+
+// Starts the OmsVersionRollout workflow for a target OMS version.
+message StartOmsVersionRolloutRequest {
+  string rollout_id = 1;
+  string oms_version = 2;
+}
+
+// Shared by OmsVersionRolloutStep.status and OmsVersionRolloutState.overall_status:
+// kept top-level, not nested in one message, since it's a status for both.
+enum RolloutStepStatus {
+  ROLLOUT_STEP_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  IN_PROGRESS = 2;
+  SUCCEEDED = 3;
+  FAILED = 4;
+  SKIPPED = 5;
+}
+
+// One bounded-context promotion within an OMS version rollout.
+message OmsVersionRolloutStep {
+  string bounded_context = 1;
+  string target_version = 2;
+  RolloutStepStatus status = 3;
+  string error_message = 4;
+  DeployWorkerVersionResponse result = 5;
+}
+
+// Current state of the OmsVersionRollout workflow.
+message OmsVersionRolloutState {
+  string rollout_id = 1;
+  string oms_version = 2;
+  RolloutStepStatus overall_status = 3;
+  repeated OmsVersionRolloutStep steps = 4;
+  string error_message = 5;
 }
 
 // Current state of the runSubmissionLoop Standalone Activity Execution that

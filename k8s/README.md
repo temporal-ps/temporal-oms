@@ -11,6 +11,7 @@ Kubernetes namespaces:
 - `temporal-oms-processing`: `processing-api`, `processing-workers`
 - `temporal-oms-enablements`: `enablements-api`, `enablements-workers`
 - `temporal-oms-fulfillment`: `fulfillment-workers`, `fulfillment-python-worker`
+- `temporal-oms-web`: `web` (Svelte Commerce + Payments demo UI)
 
 Temporal namespaces and task queues are configured by `scripts/setup-temporal-namespaces.sh`:
 
@@ -76,6 +77,8 @@ Endpoints:
 - Apps API: `http://localhost:8080/api/actuator/health`
 - Processing API: `http://localhost:8070/actuator/health`
 - Enablements API: `http://localhost:8050/actuator/health`
+- Web UI: `http://localhost:3000` (Traefik `webui` entrypoint; routes `/api/v1/integrations` and
+  `/api/v1/enablements` to `enablements-api`, the rest of `/api` to `apps-api`, `/` to the web pod)
 
 `scripts/kind/app-deploy.sh` and `scripts/k3d/app-deploy.sh` default to
 `PROCESSING_WORKER_MODE=versioned`, preserving the Temporal Worker Controller path for the

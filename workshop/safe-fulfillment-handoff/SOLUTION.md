@@ -7,22 +7,22 @@ This file contains the code solution used during the exercise. Use it as a sidec
 [participant guide](README.md): the README controls the exercise flow, and this file only covers
 the code edits for the implementation steps.
 
-You may apply the `processing v2` and `apps v2` code changes separately, matching the exercise
+You may apply the `processing v3` and `apps v3` code changes separately, matching the exercise
 steps, or apply all code changes in one pass. The safe rollout order is still:
 
-1. Start and promote `processing v2`.
-2. Start and ramp or promote `apps v2`.
+1. Start and promote `processing v3`.
+2. Start and ramp or promote `apps v3`.
 
 Paths and code-generation commands in this file are repo-root relative. Any command that starts
 with `scripts/` means the project-root `scripts/` directory, not this exercise's local `scripts/`
 directory. The exercise step scripts can still be run from
 `workshop/safe-fulfillment-handoff`.
 
-## Processing v2 Code
+## Processing v3 Code
 
-You are here from [README Step 4: Implement `processing v2`](README.md#4-implement-processing-v2).
+You are here from [README Step 4: Implement `processing v3`](README.md#4-implement-processing-v3).
 After completing this section, return to
-[README Step 5: Start `processing v2`](README.md#5-start-processing-v2).
+[README Step 5: Start `processing v3`](README.md#5-start-processing-v3).
 
 Treat the processing change as a copy/paste safety patch. The goal is not to make attendees reason
 through Java control flow; the goal is to preserve the old Kafka handoff unless a caller explicitly
@@ -64,7 +64,7 @@ Do not hand-edit generated files.
 ### 2. Add The Compatibility Guard
 
 File:
-[java/processing/processing-core/src/main/java/com/acme/processing/workflows/OrderImplV1.java](../../java/processing/processing-core/src/main/java/com/acme/processing/workflows/OrderImplV1.java)
+[java/processing/processing-core/src/main/java/com/acme/processing/workflows/v2/OrderImpl.java](../../java/processing/processing-core/src/main/java/com/acme/processing/workflows/v2/OrderImpl.java)
 
 Find the request options block near the top of `execute(...)`:
 
@@ -85,7 +85,7 @@ boolean sendFulfillment =
         !opts.hasSendFulfillment() || opts.getSendFulfillment();
 ```
 
-What this does: `apps v1` does not know about `send_fulfillment`, so `processing v2` treats the
+What this does: `apps v2` does not know about `send_fulfillment`, so `processing v3` treats the
 missing field as `true` and keeps the legacy handoff working.
 
 ### 3. Wrap The Legacy Kafka Handoff
@@ -148,16 +148,16 @@ What this does: when processing is no longer responsible for fulfillment, enrich
 Do not use `Workflow.getVersion` for this handoff. Pinned Worker Versioning keeps old executions on
 old code; the routing slip records the per-order contract.
 
-Return to [README Step 5: Start `processing v2`](README.md#5-start-processing-v2).
+Return to [README Step 5: Start `processing v3`](README.md#5-start-processing-v3).
 
-## Apps v2 Code
+## Apps v3 Code
 
-You are here from [README Step 7: Implement `apps v2`](README.md#7-implement-apps-v2).
+You are here from [README Step 7: Implement `apps v3`](README.md#7-implement-apps-v3).
 After completing this section, return to
 [README Step 8: Start Fulfillment Workers For The New Path](README.md#8-start-fulfillment-workers-for-the-new-path).
 
 File:
-[java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImplV1.java](../../java/apps/apps-core/src/main/java/com/acme/apps/workflows/OrderImplV1.java)
+[java/apps/apps-core/src/main/java/com/acme/apps/workflows/v2/OrderImpl.java](../../java/apps/apps-core/src/main/java/com/acme/apps/workflows/v2/OrderImpl.java)
 
 The Java-heavy fulfillment code is already in private helper methods at the bottom of this class.
 Those helpers have `WORKSHOP Exercise 01` comments explaining what they do. The exercise is to make
@@ -168,7 +168,7 @@ the `execute(...)` path call them and to set the routing slip sent to processing
 Find this `WORKSHOP` marker after the existing processing Nexus stub:
 
 ```java
-// WORKSHOP Exercise 01: apps v2 also configures the fulfillment Nexus stub here:
+// WORKSHOP Exercise 01: apps v3 also configures the fulfillment Nexus stub here:
 // configureFulfillmentNexusStub(remainingTime);
 ```
 
@@ -186,7 +186,7 @@ has started yet.
 Find this `WORKSHOP` marker after the cancellation check:
 
 ```java
-// WORKSHOP Exercise 01: apps v2 starts fulfillment.Order validation before processing:
+// WORKSHOP Exercise 01: apps v3 starts fulfillment.Order validation before processing:
 // var validatePromise = startFulfillmentValidation();
 ```
 
@@ -221,7 +221,7 @@ Add the routing slip line before `.build()`:
         .build())).build();
 ```
 
-This is the important handoff contract: `apps v2` tells `processing v2` not to publish the legacy
+This is the important handoff contract: `apps v3` tells `processing v3` not to publish the legacy
 Kafka fulfillment handoff.
 
 ### 4. Finish Fulfillment After Processing
@@ -229,7 +229,7 @@ Kafka fulfillment handoff.
 Find this `WORKSHOP` marker in the success block after `scope.run()`:
 
 ```java
-// WORKSHOP Exercise 01: apps v2 completes fulfillment after processing succeeds:
+// WORKSHOP Exercise 01: apps v3 completes fulfillment after processing succeeds:
 // finishFulfillmentAfterProcessing(validatePromise);
 ```
 
@@ -288,7 +288,7 @@ Rules:
 The participant guide uses exercise-specific scripts for these steps. The commands below are the
 manual equivalent that those scripts wrap.
 
-Build processing after applying `processing v2`:
+Build processing after applying `processing v3`:
 
 ```bash
 cd java
@@ -296,18 +296,18 @@ mvn -pl processing/processing-workers -am -DskipTests install
 cd ..
 ```
 
-Run `processing v2`:
+Run `processing v3`:
 
 ```bash
-ACME_PROCESSING_ORDER_WORKFLOW_CLASS=com.acme.processing.workflows.OrderImplV1 \
+ACME_PROCESSING_ORDER_WORKFLOW_CLASS=com.acme.processing.workflows.v2.OrderImpl \
 TEMPORAL_DEPLOYMENT_NAME=processing \
-TEMPORAL_WORKER_BUILD_ID=v2 \
+TEMPORAL_WORKER_BUILD_ID=v3 \
 java -jar java/processing/processing-workers/target/processing-workers-1.0.0-SNAPSHOT.jar \
   --server.port=8072 \
   --management.server.port=9083
 ```
 
-Build apps after applying `apps v2`:
+Build apps after applying `apps v3`:
 
 ```bash
 cd java
@@ -315,12 +315,12 @@ mvn -pl apps/apps-workers -am -DskipTests install
 cd ..
 ```
 
-Run `apps v2`:
+Run `apps v3`:
 
 ```bash
-ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.OrderImplV1 \
+ACME_APPS_ORDER_WORKFLOW_CLASS=com.acme.apps.workflows.v2.OrderImpl \
 TEMPORAL_DEPLOYMENT_NAME=apps \
-TEMPORAL_WORKER_BUILD_ID=v2 \
+TEMPORAL_WORKER_BUILD_ID=v3 \
 java -jar java/apps/apps-workers/target/apps-workers-1.0.0-SNAPSHOT.jar \
   --server.port=8082 \
   --management.server.port=9093
@@ -354,9 +354,9 @@ For this exercise, order IDs start with `order-${ENABLEMENT_ID}`.
 
 Minimum acceptance checks:
 
-- `processing v2` with no `send_fulfillment` option still calls `Fulfillments.fulfillOrder`.
-- `processing v2` with `send_fulfillment=false` skips `Fulfillments.fulfillOrder`.
-- `apps v2` creates a `ProcessOrderRequest` whose options include `send_fulfillment=false`.
+- `processing v3` with no `send_fulfillment` option still calls `Fulfillments.fulfillOrder`.
+- `processing v3` with `send_fulfillment=false` skips `Fulfillments.fulfillOrder`.
+- `apps v3` creates a `ProcessOrderRequest` whose options include `send_fulfillment=false`.
 - A new-path order creates a `fulfillment.Order` execution.
 - A new-path order does not create a Kafka fulfillment record.
 - Old pinned `apps.Order` and `processing.Order` executions complete on their original build IDs.

@@ -6,6 +6,8 @@ metadata:
   labels:
     app: apps-worker
     component: worker
+    bounded-context: apps
+    oms-build-id: "local"
 spec:
   replicas: 1
   selector:
@@ -17,6 +19,8 @@ spec:
         app: apps-worker
         component: worker
         version: "1.0.0"
+        bounded-context: apps
+        oms-build-id: "local"
       annotations:
         instrumentation.opentelemetry.io/inject-sdk: "true"
     spec:
@@ -30,7 +34,7 @@ spec:
           protocol: TCP
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: k8s
+          value: k8s,unversioned
         envFrom:
         - configMapRef:
             name: temporal-oms-config

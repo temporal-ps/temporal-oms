@@ -9,4 +9,58 @@ package com.acme.proto.acme.enablements.v1;
 public interface DeployWorkerVersionResponseOrBuilder extends
     // @@protoc_insertion_point(interface_extends:acme.enablements.v1.DeployWorkerVersionResponse)
     com.google.protobuf.MessageOrBuilder {
+
+  /**
+   * <pre>
+   * Fully-qualified workflow class resolved for the request's deployment_name + version,
+   * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+   * </pre>
+   *
+   * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+   * @return The workflowClass.
+   */
+  java.lang.String getWorkflowClass();
+  /**
+   * <pre>
+   * Fully-qualified workflow class resolved for the request's deployment_name + version,
+   * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+   * </pre>
+   *
+   * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+   * @return The bytes for workflowClass.
+   */
+  com.google.protobuf.ByteString
+      getWorkflowClassBytes();
+
+  /**
+   * <pre>
+   * True once `temporal worker deployment set-current-version` succeeded for this build id.
+   * </pre>
+   *
+   * <code>bool current_version_set = 2 [json_name = "currentVersionSet"];</code>
+   * @return The currentVersionSet.
+   */
+  boolean getCurrentVersionSet();
+
+  /**
+   * <pre>
+   * Raw `temporal worker deployment describe --output json` text captured right after the
+   * set-current-version call, so a silent no-op can't happen unnoticed.
+   * </pre>
+   *
+   * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+   * @return The describeOutput.
+   */
+  java.lang.String getDescribeOutput();
+  /**
+   * <pre>
+   * Raw `temporal worker deployment describe --output json` text captured right after the
+   * set-current-version call, so a silent no-op can't happen unnoticed.
+   * </pre>
+   *
+   * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+   * @return The bytes for describeOutput.
+   */
+  com.google.protobuf.ByteString
+      getDescribeOutputBytes();
 }

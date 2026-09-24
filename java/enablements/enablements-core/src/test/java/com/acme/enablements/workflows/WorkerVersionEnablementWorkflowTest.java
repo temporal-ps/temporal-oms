@@ -77,7 +77,8 @@ class WorkerVersionEnablementWorkflowTest {
         }
 
         @Override
-        public void registerCompatibility() {
+        public String currentBuildId(String deploymentName) {
+            return "";
         }
     }
 

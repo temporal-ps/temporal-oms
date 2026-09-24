@@ -28,6 +28,8 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private DeployWorkerVersionResponse() {
+    workflowClass_ = "";
+    describeOutput_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -48,6 +50,119 @@ private static final long serialVersionUID = 0L;
             com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse.class, com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse.Builder.class);
   }
 
+  public static final int WORKFLOW_CLASS_FIELD_NUMBER = 1;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object workflowClass_ = "";
+  /**
+   * <pre>
+   * Fully-qualified workflow class resolved for the request's deployment_name + version,
+   * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+   * </pre>
+   *
+   * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+   * @return The workflowClass.
+   */
+  @java.lang.Override
+  public java.lang.String getWorkflowClass() {
+    java.lang.Object ref = workflowClass_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      workflowClass_ = s;
+      return s;
+    }
+  }
+  /**
+   * <pre>
+   * Fully-qualified workflow class resolved for the request's deployment_name + version,
+   * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+   * </pre>
+   *
+   * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+   * @return The bytes for workflowClass.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getWorkflowClassBytes() {
+    java.lang.Object ref = workflowClass_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      workflowClass_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int CURRENT_VERSION_SET_FIELD_NUMBER = 2;
+  private boolean currentVersionSet_ = false;
+  /**
+   * <pre>
+   * True once `temporal worker deployment set-current-version` succeeded for this build id.
+   * </pre>
+   *
+   * <code>bool current_version_set = 2 [json_name = "currentVersionSet"];</code>
+   * @return The currentVersionSet.
+   */
+  @java.lang.Override
+  public boolean getCurrentVersionSet() {
+    return currentVersionSet_;
+  }
+
+  public static final int DESCRIBE_OUTPUT_FIELD_NUMBER = 3;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object describeOutput_ = "";
+  /**
+   * <pre>
+   * Raw `temporal worker deployment describe --output json` text captured right after the
+   * set-current-version call, so a silent no-op can't happen unnoticed.
+   * </pre>
+   *
+   * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+   * @return The describeOutput.
+   */
+  @java.lang.Override
+  public java.lang.String getDescribeOutput() {
+    java.lang.Object ref = describeOutput_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      describeOutput_ = s;
+      return s;
+    }
+  }
+  /**
+   * <pre>
+   * Raw `temporal worker deployment describe --output json` text captured right after the
+   * set-current-version call, so a silent no-op can't happen unnoticed.
+   * </pre>
+   *
+   * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+   * @return The bytes for describeOutput.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getDescribeOutputBytes() {
+    java.lang.Object ref = describeOutput_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      describeOutput_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -62,6 +177,15 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(workflowClass_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 1, workflowClass_);
+    }
+    if (currentVersionSet_ != false) {
+      output.writeBool(2, currentVersionSet_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(describeOutput_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 3, describeOutput_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -71,6 +195,16 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(workflowClass_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, workflowClass_);
+    }
+    if (currentVersionSet_ != false) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(2, currentVersionSet_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(describeOutput_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(3, describeOutput_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -86,6 +220,12 @@ private static final long serialVersionUID = 0L;
     }
     com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse other = (com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse) obj;
 
+    if (!getWorkflowClass()
+        .equals(other.getWorkflowClass())) return false;
+    if (getCurrentVersionSet()
+        != other.getCurrentVersionSet()) return false;
+    if (!getDescribeOutput()
+        .equals(other.getDescribeOutput())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -97,6 +237,13 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
+    hash = (37 * hash) + WORKFLOW_CLASS_FIELD_NUMBER;
+    hash = (53 * hash) + getWorkflowClass().hashCode();
+    hash = (37 * hash) + CURRENT_VERSION_SET_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+        getCurrentVersionSet());
+    hash = (37 * hash) + DESCRIBE_OUTPUT_FIELD_NUMBER;
+    hash = (53 * hash) + getDescribeOutput().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -227,6 +374,10 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
+      workflowClass_ = "";
+      currentVersionSet_ = false;
+      describeOutput_ = "";
       return this;
     }
 
@@ -253,8 +404,22 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse buildPartial() {
       com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse result = new com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse(this);
+      if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.workflowClass_ = workflowClass_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.currentVersionSet_ = currentVersionSet_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.describeOutput_ = describeOutput_;
+      }
     }
 
     @java.lang.Override
@@ -269,6 +434,19 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse other) {
       if (other == com.acme.proto.acme.enablements.v1.DeployWorkerVersionResponse.getDefaultInstance()) return this;
+      if (!other.getWorkflowClass().isEmpty()) {
+        workflowClass_ = other.workflowClass_;
+        bitField0_ |= 0x00000001;
+        onChanged();
+      }
+      if (other.getCurrentVersionSet() != false) {
+        setCurrentVersionSet(other.getCurrentVersionSet());
+      }
+      if (!other.getDescribeOutput().isEmpty()) {
+        describeOutput_ = other.describeOutput_;
+        bitField0_ |= 0x00000004;
+        onChanged();
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -295,6 +473,21 @@ private static final long serialVersionUID = 0L;
             case 0:
               done = true;
               break;
+            case 10: {
+              workflowClass_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000001;
+              break;
+            } // case 10
+            case 16: {
+              currentVersionSet_ = input.readBool();
+              bitField0_ |= 0x00000002;
+              break;
+            } // case 16
+            case 26: {
+              describeOutput_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000004;
+              break;
+            } // case 26
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -308,6 +501,245 @@ private static final long serialVersionUID = 0L;
       } finally {
         onChanged();
       } // finally
+      return this;
+    }
+    private int bitField0_;
+
+    private java.lang.Object workflowClass_ = "";
+    /**
+     * <pre>
+     * Fully-qualified workflow class resolved for the request's deployment_name + version,
+     * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+     * </pre>
+     *
+     * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+     * @return The workflowClass.
+     */
+    public java.lang.String getWorkflowClass() {
+      java.lang.Object ref = workflowClass_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        workflowClass_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Fully-qualified workflow class resolved for the request's deployment_name + version,
+     * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+     * </pre>
+     *
+     * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+     * @return The bytes for workflowClass.
+     */
+    public com.google.protobuf.ByteString
+        getWorkflowClassBytes() {
+      java.lang.Object ref = workflowClass_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        workflowClass_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Fully-qualified workflow class resolved for the request's deployment_name + version,
+     * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+     * </pre>
+     *
+     * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+     * @param value The workflowClass to set.
+     * @return This builder for chaining.
+     */
+    public Builder setWorkflowClass(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      workflowClass_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Fully-qualified workflow class resolved for the request's deployment_name + version,
+     * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+     * </pre>
+     *
+     * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearWorkflowClass() {
+      workflowClass_ = getDefaultInstance().getWorkflowClass();
+      bitField0_ = (bitField0_ & ~0x00000001);
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Fully-qualified workflow class resolved for the request's deployment_name + version,
+     * e.g. "com.acme.apps.workflows.v3.OrderImpl" (spec.md's package-per-version convention).
+     * </pre>
+     *
+     * <code>string workflow_class = 1 [json_name = "workflowClass"];</code>
+     * @param value The bytes for workflowClass to set.
+     * @return This builder for chaining.
+     */
+    public Builder setWorkflowClassBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      workflowClass_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+
+    private boolean currentVersionSet_ ;
+    /**
+     * <pre>
+     * True once `temporal worker deployment set-current-version` succeeded for this build id.
+     * </pre>
+     *
+     * <code>bool current_version_set = 2 [json_name = "currentVersionSet"];</code>
+     * @return The currentVersionSet.
+     */
+    @java.lang.Override
+    public boolean getCurrentVersionSet() {
+      return currentVersionSet_;
+    }
+    /**
+     * <pre>
+     * True once `temporal worker deployment set-current-version` succeeded for this build id.
+     * </pre>
+     *
+     * <code>bool current_version_set = 2 [json_name = "currentVersionSet"];</code>
+     * @param value The currentVersionSet to set.
+     * @return This builder for chaining.
+     */
+    public Builder setCurrentVersionSet(boolean value) {
+
+      currentVersionSet_ = value;
+      bitField0_ |= 0x00000002;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * True once `temporal worker deployment set-current-version` succeeded for this build id.
+     * </pre>
+     *
+     * <code>bool current_version_set = 2 [json_name = "currentVersionSet"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearCurrentVersionSet() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      currentVersionSet_ = false;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object describeOutput_ = "";
+    /**
+     * <pre>
+     * Raw `temporal worker deployment describe --output json` text captured right after the
+     * set-current-version call, so a silent no-op can't happen unnoticed.
+     * </pre>
+     *
+     * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+     * @return The describeOutput.
+     */
+    public java.lang.String getDescribeOutput() {
+      java.lang.Object ref = describeOutput_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        describeOutput_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Raw `temporal worker deployment describe --output json` text captured right after the
+     * set-current-version call, so a silent no-op can't happen unnoticed.
+     * </pre>
+     *
+     * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+     * @return The bytes for describeOutput.
+     */
+    public com.google.protobuf.ByteString
+        getDescribeOutputBytes() {
+      java.lang.Object ref = describeOutput_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        describeOutput_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Raw `temporal worker deployment describe --output json` text captured right after the
+     * set-current-version call, so a silent no-op can't happen unnoticed.
+     * </pre>
+     *
+     * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+     * @param value The describeOutput to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDescribeOutput(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      describeOutput_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Raw `temporal worker deployment describe --output json` text captured right after the
+     * set-current-version call, so a silent no-op can't happen unnoticed.
+     * </pre>
+     *
+     * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearDescribeOutput() {
+      describeOutput_ = getDefaultInstance().getDescribeOutput();
+      bitField0_ = (bitField0_ & ~0x00000004);
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Raw `temporal worker deployment describe --output json` text captured right after the
+     * set-current-version call, so a silent no-op can't happen unnoticed.
+     * </pre>
+     *
+     * <code>string describe_output = 3 [json_name = "describeOutput"];</code>
+     * @param value The bytes for describeOutput to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDescribeOutputBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      describeOutput_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
 

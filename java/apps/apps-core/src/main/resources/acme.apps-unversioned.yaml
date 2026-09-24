@@ -1,0 +1,12 @@
+spring.config.import: classpath:acme.oms.yaml
+spring.temporal:
+  namespace: ${TEMPORAL_APPS_NAMESPACE:apps}
+  connection:
+    target: ${TEMPORAL_APPS_ADDRESS:localhost:7233}
+    api-key: ${TEMPORAL_APPS_API_KEY:}
+  workers:
+    - task-queue: apps
+      workflow-classes:
+        - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
+      activity-beans:
+        - options-activities

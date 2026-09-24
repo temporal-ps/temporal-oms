@@ -4,7 +4,7 @@ set -euo pipefail
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$PROJECT_DIR"
 
-TEMPORAL_WORKER_CONTROLLER_CHART_VERSION="${TEMPORAL_WORKER_CONTROLLER_CHART_VERSION:-0.29.1}"
+TEMPORAL_WORKER_CONTROLLER_CHART_VERSION="${TEMPORAL_WORKER_CONTROLLER_CHART_VERSION:-0.30.0}"
 TEMPORAL_WORKER_CONTROLLER_NAMESPACE="temporal-worker-controller-system"
 
 echo "🔧 Setting up KinD infrastructure..."
@@ -25,6 +25,7 @@ kubectl create namespace temporal-oms-apps --dry-run=client -o yaml | kubectl ap
 kubectl create namespace temporal-oms-processing --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 kubectl create namespace temporal-oms-fulfillment --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 kubectl create namespace temporal-oms-enablements --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+kubectl create namespace temporal-oms-web --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 
 echo "→ Installing cert-manager..."
 if ! kubectl get crd certificates.cert-manager.io &>/dev/null; then

@@ -156,7 +156,6 @@ public class WorkerVersionEnablementImpl implements WorkerVersionEnablement {
         while (state.getDeployRequestsCount() > 0) {
             var cmd = state.getDeployRequests(0);
             var result = deploymentActivities.deployWorkerVersion(cmd);
-            deploymentActivities.registerCompatibility();
             state = state.toBuilder()
                     .removeDeployRequests(0)
                     .addDeployments(result)

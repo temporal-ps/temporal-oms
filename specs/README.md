@@ -130,11 +130,20 @@ Provide feedback in PROGRESS.md → Feedback Items section.
 - **Goal:** K8s deployment changes for `fulfillment-workers`, Worker Versioning rollout for `apps` and `processing` task queues
 - **Next:** Spec to be written after fulfillment-order-workflow spec is approved
 
+### OMS Evolution
+- **Status:** Draft - Ready for Review
+- **Goal:** Represent every `apps.Order`/`processing.Order`/fulfillment version as real, coexisting code (package-per-version), and define OMS version as a named pin of one apps version + one processing version + one fulfillment version, so workshops/demos can run any point in the OMS's evolution
+- **Owner:** Temporal FDE Team
+- **Spec:** `SPECS/oms-evolution/spec.md`
+- **Sibling doc:** `SPECS/oms-evolution/hosting.md` - hosting/running/accessing OMS versions, reviewed separately: Mode A runs every version at once with per-request pinning, Mode B does on-demand sequential rollouts (reusing/fixing `WorkerVersionEnablementImpl`/`DeploymentActivitiesImpl`) with load and deployment kept independent
+- **Next:** Awaiting tech lead review (see PROGRESS.md)
+
 ### Worker Version Enablement
 - **Status:** Draft - Ready for Review
 - **Goal:** Generate load + deploy worker versions + validate zero failures
 - **Owner:** [Your Name]
 - **Next:** Awaiting tech lead review (see PROGRESS.md)
+- **Note:** Its `worker-versioning` sub-spec (`SPECS/enablements/worker-versioning/`) is superseded by `SPECS/oms-evolution/hosting.md`'s Mode B; `load-generation` and `validation-framework` are unaffected
 
 ## Example: Complete Workflow
 

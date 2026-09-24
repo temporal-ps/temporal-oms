@@ -28,47 +28,72 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_StartWorkerVersionEnablementRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_ScenarioWeight_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_ScenarioWeight_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_BusinessScenarioWeight_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_BusinessScenarioWeight_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_WorkerVersionEnablementState_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_WorkerVersionEnablementState_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_SubmitOneOrderRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_SubmitOneOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_SubmitOneOrderResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_SubmitOneOrderResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_DeployWorkerVersionRequest_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_DeployWorkerVersionRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_DeployWorkerVersionResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_OmsVersionRow_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_OmsVersionRow_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_ListOmsVersionsResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_ListOmsVersionsResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_StartOmsVersionRolloutRequest_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_StartOmsVersionRolloutRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_OmsVersionRolloutStep_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_OmsVersionRolloutStep_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_v1_OmsVersionRolloutState_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_v1_OmsVersionRolloutState_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_v1_LoadGenerationState_descriptor;
-  static final
+  static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_v1_LoadGenerationState_fieldAccessorTable;
 
@@ -135,20 +160,50 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
       "loymentName\022\031\n\010build_id\030\002 \001(\tR\007buildId\022\030" +
       "\n\007version\030\003 \001(\tR\007version\022(\n\rreplica_coun" +
       "t\030\004 \001(\005H\000R\014replicaCount\210\001\001B\020\n\016_replica_c" +
-      "ount\"\035\n\033DeployWorkerVersionResponse\"\255\002\n\023" +
-      "LoadGenerationState\022#\n\renablement_id\030\001 \001" +
-      "(\tR\014enablementId\022P\n\006status\030\002 \001(\01628.acme." +
-      "enablements.v1.LoadGenerationState.Execu" +
-      "tionStatusR\006status\0224\n\026orders_submitted_c" +
-      "ount\030\003 \001(\005R\024ordersSubmittedCount\"i\n\017Exec" +
-      "utionStatus\022 \n\034EXECUTION_STATUS_UNSPECIF" +
-      "IED\020\000\022\013\n\007RUNNING\020\001\022\r\n\tCOMPLETED\020\002\022\014\n\010CAN" +
-      "CELED\020\003\022\n\n\006FAILED\020\004B\260\001\n\"com.acme.proto.a" +
-      "cme.enablements.v1B\034WorkerVersionEnablem" +
-      "entProtoP\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002" +
-      "\023Acme\\Enablements\\V1\342\002\037Acme\\Enablements\\" +
-      "V1\\GPBMetadata\352\002\025Acme::Enablements::V1b\006" +
-      "proto3"
+      "ount\"\235\001\n\033DeployWorkerVersionResponse\022%\n\016" +
+      "workflow_class\030\001 \001(\tR\rworkflowClass\022.\n\023c" +
+      "urrent_version_set\030\002 \001(\010R\021currentVersion" +
+      "Set\022\'\n\017describe_output\030\003 \001(\tR\016describeOu" +
+      "tput\"\355\001\n\rOmsVersionRow\022\037\n\013oms_version\030\001 " +
+      "\001(\tR\nomsVersion\022!\n\014apps_version\030\002 \001(\tR\013a" +
+      "ppsVersion\022-\n\022processing_version\030\003 \001(\tR\021" +
+      "processingVersion\022/\n\023fulfillment_version" +
+      "\030\004 \001(\tR\022fulfillmentVersion\022 \n\013descriptio" +
+      "n\030\005 \001(\tR\013description\022\026\n\006future\030\006 \001(\010R\006fu" +
+      "ture\"Q\n\027ListOmsVersionsResponse\0226\n\004rows\030" +
+      "\001 \003(\0132\".acme.enablements.v1.OmsVersionRo" +
+      "wR\004rows\"_\n\035StartOmsVersionRolloutRequest" +
+      "\022\035\n\nrollout_id\030\001 \001(\tR\trolloutId\022\037\n\013oms_v" +
+      "ersion\030\002 \001(\tR\nomsVersion\"\226\002\n\025OmsVersionR" +
+      "olloutStep\022\'\n\017bounded_context\030\001 \001(\tR\016bou" +
+      "ndedContext\022%\n\016target_version\030\002 \001(\tR\rtar" +
+      "getVersion\022>\n\006status\030\003 \001(\0162&.acme.enable" +
+      "ments.v1.RolloutStepStatusR\006status\022#\n\rer" +
+      "ror_message\030\004 \001(\tR\014errorMessage\022H\n\006resul" +
+      "t\030\005 \001(\01320.acme.enablements.v1.DeployWork" +
+      "erVersionResponseR\006result\"\216\002\n\026OmsVersion" +
+      "RolloutState\022\035\n\nrollout_id\030\001 \001(\tR\trollou" +
+      "tId\022\037\n\013oms_version\030\002 \001(\tR\nomsVersion\022M\n\016" +
+      "overall_status\030\003 \001(\0162&.acme.enablements." +
+      "v1.RolloutStepStatusR\roverallStatus\022@\n\005s" +
+      "teps\030\004 \003(\0132*.acme.enablements.v1.OmsVers" +
+      "ionRolloutStepR\005steps\022#\n\rerror_message\030\005" +
+      " \001(\tR\014errorMessage\"\255\002\n\023LoadGenerationSta" +
+      "te\022#\n\renablement_id\030\001 \001(\tR\014enablementId\022" +
+      "P\n\006status\030\002 \001(\01628.acme.enablements.v1.Lo" +
+      "adGenerationState.ExecutionStatusR\006statu" +
+      "s\0224\n\026orders_submitted_count\030\003 \001(\005R\024order" +
+      "sSubmittedCount\"i\n\017ExecutionStatus\022 \n\034EX" +
+      "ECUTION_STATUS_UNSPECIFIED\020\000\022\013\n\007RUNNING\020" +
+      "\001\022\r\n\tCOMPLETED\020\002\022\014\n\010CANCELED\020\003\022\n\n\006FAILED" +
+      "\020\004*~\n\021RolloutStepStatus\022#\n\037ROLLOUT_STEP_" +
+      "STATUS_UNSPECIFIED\020\000\022\013\n\007PENDING\020\001\022\017\n\013IN_" +
+      "PROGRESS\020\002\022\r\n\tSUCCEEDED\020\003\022\n\n\006FAILED\020\004\022\013\n" +
+      "\007SKIPPED\020\005B\260\001\n\"com.acme.proto.acme.enabl" +
+      "ements.v1B\034WorkerVersionEnablementProtoP" +
+      "\001\242\002\003AEX\252\002\023Acme.Enablements.V1\312\002\023Acme\\Ena" +
+      "blements\\V1\342\002\037Acme\\Enablements\\V1\\GPBMet" +
+      "adata\352\002\025Acme::Enablements::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -204,9 +259,39 @@ public final class WorkerVersionEnablementProto extends com.google.protobuf.Gene
     internal_static_acme_enablements_v1_DeployWorkerVersionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_DeployWorkerVersionResponse_descriptor,
-        new java.lang.String[] { });
-    internal_static_acme_enablements_v1_LoadGenerationState_descriptor =
+        new java.lang.String[] { "WorkflowClass", "CurrentVersionSet", "DescribeOutput", });
+    internal_static_acme_enablements_v1_OmsVersionRow_descriptor =
       getDescriptor().getMessageType(8);
+    internal_static_acme_enablements_v1_OmsVersionRow_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_OmsVersionRow_descriptor,
+        new java.lang.String[] { "OmsVersion", "AppsVersion", "ProcessingVersion", "FulfillmentVersion", "Description", "Future", });
+    internal_static_acme_enablements_v1_ListOmsVersionsResponse_descriptor =
+      getDescriptor().getMessageType(9);
+    internal_static_acme_enablements_v1_ListOmsVersionsResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_ListOmsVersionsResponse_descriptor,
+        new java.lang.String[] { "Rows", });
+    internal_static_acme_enablements_v1_StartOmsVersionRolloutRequest_descriptor =
+      getDescriptor().getMessageType(10);
+    internal_static_acme_enablements_v1_StartOmsVersionRolloutRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_StartOmsVersionRolloutRequest_descriptor,
+        new java.lang.String[] { "RolloutId", "OmsVersion", });
+    internal_static_acme_enablements_v1_OmsVersionRolloutStep_descriptor =
+      getDescriptor().getMessageType(11);
+    internal_static_acme_enablements_v1_OmsVersionRolloutStep_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_OmsVersionRolloutStep_descriptor,
+        new java.lang.String[] { "BoundedContext", "TargetVersion", "Status", "ErrorMessage", "Result", });
+    internal_static_acme_enablements_v1_OmsVersionRolloutState_descriptor =
+      getDescriptor().getMessageType(12);
+    internal_static_acme_enablements_v1_OmsVersionRolloutState_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_v1_OmsVersionRolloutState_descriptor,
+        new java.lang.String[] { "RolloutId", "OmsVersion", "OverallStatus", "Steps", "ErrorMessage", });
+    internal_static_acme_enablements_v1_LoadGenerationState_descriptor =
+      getDescriptor().getMessageType(13);
     internal_static_acme_enablements_v1_LoadGenerationState_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_v1_LoadGenerationState_descriptor,

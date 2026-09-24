@@ -20,6 +20,7 @@ spec:
       annotations:
         instrumentation.opentelemetry.io/inject-sdk: "true"
     spec:
+      serviceAccountName: enablements-workers
       containers:
       - name: worker
         image: temporal-oms/enablements-workers:latest
@@ -29,6 +30,8 @@ spec:
           value: k8s
         - name: JAVA_OPTS
           value: "-Dgrpc.netty.keepaliveTime=30 -Dgrpc.netty.keepaliveTimeout=5 -Dgrpc.netty.keepaliveWithoutCalls=true"
+        - name: ENABLEMENTS_DEPLOYMENT_MANIFEST_TEMPLATE
+          value: /etc/config/k8s-templates/worker-deployment-template.yaml
         envFrom:
         - configMapRef:
             name: temporal-oms-config
@@ -40,6 +43,9 @@ spec:
           readOnly: true
         - name: temporal-secret
           mountPath: /etc/config/temporal-secret
+          readOnly: true
+        - name: worker-deployment-template
+          mountPath: /etc/config/k8s-templates
           readOnly: true
         resources:
           requests:
@@ -56,4 +62,8 @@ spec:
       - name: temporal-secret
         secret:
           secretName: temporal-enablements-api-key
+          defaultMode: 0444
+      - name: worker-deployment-template
+        configMap:
+          name: worker-deployment-template
           defaultMode: 0444

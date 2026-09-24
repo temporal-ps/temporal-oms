@@ -22,12 +22,21 @@ enablements:
     base-url: http://localhost:8070
 
   deployment:
-    # Kubernetes namespace for worker deployments
-    namespace: temporal-oms-processing
-    # Path to manifest template (supports variable substitution: {VERSION}, {BUILD_ID}, {REPLICAS})
-    manifest-template: k8s/base/processing/processing-workers-deployment-template.yaml
-    # Optional kubeconfig path (leave empty to use default)
-    kubeconfig: ""
+    # Path to the generalized worker Deployment/Service template (apps, processing,
+    # fulfillment all resolve their own k8s namespace/image/env from
+    # DeploymentActivitiesImpl's per-bounded-context config; processing patches its
+    # existing k8s/processing-versioned WorkerDeployment CRD instead of applying this
+    # template).
+    manifest-template: k8s/base/templates/worker-deployment-template.yaml
+    # How long deployWorkerVersion retries `temporal worker deployment
+    # set-current-version` before giving up (seconds). apps/fulfillment only -
+    # processing's WorkerDeployment CRD is controller-managed (see below).
+    set-current-version-timeout-seconds: 60
+    retry-interval-seconds: 2
+    # How long deployWorkerVersion waits for the Temporal Worker Controller's own
+    # Progressive rollout (WorkerDeployment CRD, processing) to finish before giving
+    # up (seconds). Comfortably above the CRD's configured ramp/pause steps.
+    crd-rollout-timeout-seconds: 180
 
   payments:
     auto-capture-delay: PT5S   # documents the intended default; PaymentChargeImpl's timer duration is a code constant (see PROGRESS.md)
@@ -59,6 +68,7 @@ spring.temporal:
       - task-queue: enablements
         workflow-classes:
           - com.acme.enablements.workflows.WorkerVersionEnablementImpl
+          - com.acme.enablements.workflows.OmsVersionRolloutImpl
         activity-beans:
           - order-activities
           - deployment-activities

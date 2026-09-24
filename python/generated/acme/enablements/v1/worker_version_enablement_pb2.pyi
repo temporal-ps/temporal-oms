@@ -12,6 +12,21 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class RolloutStepStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    ROLLOUT_STEP_STATUS_UNSPECIFIED: _ClassVar[RolloutStepStatus]
+    PENDING: _ClassVar[RolloutStepStatus]
+    IN_PROGRESS: _ClassVar[RolloutStepStatus]
+    SUCCEEDED: _ClassVar[RolloutStepStatus]
+    FAILED: _ClassVar[RolloutStepStatus]
+    SKIPPED: _ClassVar[RolloutStepStatus]
+ROLLOUT_STEP_STATUS_UNSPECIFIED: RolloutStepStatus
+PENDING: RolloutStepStatus
+IN_PROGRESS: RolloutStepStatus
+SUCCEEDED: RolloutStepStatus
+FAILED: RolloutStepStatus
+SKIPPED: RolloutStepStatus
+
 class StartWorkerVersionEnablementRequest(_message.Message):
     __slots__ = ()
     ENABLEMENT_ID_FIELD_NUMBER: _ClassVar[int]
@@ -114,7 +129,71 @@ class DeployWorkerVersionRequest(_message.Message):
 
 class DeployWorkerVersionResponse(_message.Message):
     __slots__ = ()
-    def __init__(self) -> None: ...
+    WORKFLOW_CLASS_FIELD_NUMBER: _ClassVar[int]
+    CURRENT_VERSION_SET_FIELD_NUMBER: _ClassVar[int]
+    DESCRIBE_OUTPUT_FIELD_NUMBER: _ClassVar[int]
+    workflow_class: str
+    current_version_set: bool
+    describe_output: str
+    def __init__(self, workflow_class: _Optional[str] = ..., current_version_set: _Optional[bool] = ..., describe_output: _Optional[str] = ...) -> None: ...
+
+class OmsVersionRow(_message.Message):
+    __slots__ = ()
+    OMS_VERSION_FIELD_NUMBER: _ClassVar[int]
+    APPS_VERSION_FIELD_NUMBER: _ClassVar[int]
+    PROCESSING_VERSION_FIELD_NUMBER: _ClassVar[int]
+    FULFILLMENT_VERSION_FIELD_NUMBER: _ClassVar[int]
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    FUTURE_FIELD_NUMBER: _ClassVar[int]
+    oms_version: str
+    apps_version: str
+    processing_version: str
+    fulfillment_version: str
+    description: str
+    future: bool
+    def __init__(self, oms_version: _Optional[str] = ..., apps_version: _Optional[str] = ..., processing_version: _Optional[str] = ..., fulfillment_version: _Optional[str] = ..., description: _Optional[str] = ..., future: _Optional[bool] = ...) -> None: ...
+
+class ListOmsVersionsResponse(_message.Message):
+    __slots__ = ()
+    ROWS_FIELD_NUMBER: _ClassVar[int]
+    rows: _containers.RepeatedCompositeFieldContainer[OmsVersionRow]
+    def __init__(self, rows: _Optional[_Iterable[_Union[OmsVersionRow, _Mapping]]] = ...) -> None: ...
+
+class StartOmsVersionRolloutRequest(_message.Message):
+    __slots__ = ()
+    ROLLOUT_ID_FIELD_NUMBER: _ClassVar[int]
+    OMS_VERSION_FIELD_NUMBER: _ClassVar[int]
+    rollout_id: str
+    oms_version: str
+    def __init__(self, rollout_id: _Optional[str] = ..., oms_version: _Optional[str] = ...) -> None: ...
+
+class OmsVersionRolloutStep(_message.Message):
+    __slots__ = ()
+    BOUNDED_CONTEXT_FIELD_NUMBER: _ClassVar[int]
+    TARGET_VERSION_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    RESULT_FIELD_NUMBER: _ClassVar[int]
+    bounded_context: str
+    target_version: str
+    status: RolloutStepStatus
+    error_message: str
+    result: DeployWorkerVersionResponse
+    def __init__(self, bounded_context: _Optional[str] = ..., target_version: _Optional[str] = ..., status: _Optional[_Union[RolloutStepStatus, str]] = ..., error_message: _Optional[str] = ..., result: _Optional[_Union[DeployWorkerVersionResponse, _Mapping]] = ...) -> None: ...
+
+class OmsVersionRolloutState(_message.Message):
+    __slots__ = ()
+    ROLLOUT_ID_FIELD_NUMBER: _ClassVar[int]
+    OMS_VERSION_FIELD_NUMBER: _ClassVar[int]
+    OVERALL_STATUS_FIELD_NUMBER: _ClassVar[int]
+    STEPS_FIELD_NUMBER: _ClassVar[int]
+    ERROR_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    rollout_id: str
+    oms_version: str
+    overall_status: RolloutStepStatus
+    steps: _containers.RepeatedCompositeFieldContainer[OmsVersionRolloutStep]
+    error_message: str
+    def __init__(self, rollout_id: _Optional[str] = ..., oms_version: _Optional[str] = ..., overall_status: _Optional[_Union[RolloutStepStatus, str]] = ..., steps: _Optional[_Iterable[_Union[OmsVersionRolloutStep, _Mapping]]] = ..., error_message: _Optional[str] = ...) -> None: ...
 
 class LoadGenerationState(_message.Message):
     __slots__ = ()
