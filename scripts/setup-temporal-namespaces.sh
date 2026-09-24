@@ -24,7 +24,7 @@ TEMPORAL_CLI=(temporal --disable-config-file --disable-config-env --address "$TE
 # SKIP_VERSION_REGISTRATION=1 leaves them with zero version history from the start, so
 # the OMS-rollout Admin UI's first promotion - even to v1 - is the one engaging Worker
 # Versioning for the first time, cleanly, instead of colliding with this script's own.
-SKIP_VERSION_REGISTRATION="${SKIP_VERSION_REGISTRATION:-0}"
+SKIP_VERSION_REGISTRATION="${SKIP_VERSION_REGISTRATION:-1}"
 
 create_namespace() {
   local namespace="$1"
@@ -91,10 +91,9 @@ if [ "$SKIP_VERSION_REGISTRATION" = "1" ]; then
   echo "workflow starts on these task queues route via classic, non-versioned dispatch"
   echo "until something is promoted through the Admin UI (or set-current-version) later."
   echo ""
-  echo "Note: this only covers apps/fulfillment. processing's Worker Versioning is engaged"
-  echo "independently by the Temporal Worker Controller once its WorkerDeployment CRD comes"
-  echo "up (scripts/kind|k3d/app-deploy.sh's default PROCESSING_WORKER_MODE=versioned) - this"
-  echo "flag does not affect that."
+  echo "Note: if PROCESSING_WORKER_MODE=versioned is set explicitly, processing's Worker"
+  echo "Versioning is engaged independently by the Temporal Worker Controller once its"
+  echo "WorkerDeployment CRD comes up - this flag does not affect that path."
 else
   echo ""
   echo "Setting 'apps' Worker Deployment to build-id='local'"

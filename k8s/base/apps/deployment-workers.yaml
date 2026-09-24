@@ -34,7 +34,7 @@ spec:
           protocol: TCP
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: k8s
+          value: k8s,unversioned
         envFrom:
         - configMapRef:
             name: temporal-oms-config

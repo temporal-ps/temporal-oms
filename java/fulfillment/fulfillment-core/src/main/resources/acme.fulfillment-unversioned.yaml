@@ -7,7 +7,7 @@ spring.temporal:
   workers:
     - task-queue: fulfillment
       workflow-classes:
-        - com.acme.fulfillment.workflows.v1.OrderImpl
+        - ${ACME_FULFILLMENT_ORDER_WORKFLOW_CLASS:com.acme.fulfillment.workflows.v2.OrderImpl}
       activity-beans:
         - fulfillmentOptionsLoaderActivities
       nexus-service-beans:

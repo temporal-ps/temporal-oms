@@ -57,7 +57,8 @@ public class FulfillmentImpl {
                     validateRequest,
                     UpdateOptions.<ValidateOrderResponse>newBuilder()
                             .setWaitForStage(WorkflowUpdateStage.COMPLETED)
-                            .setUpdateName(details.getRequestId())
+                            .setUpdateName("validateOrder")
+                            .setUpdateId(details.getRequestId())
                             .build(),
                     new WithStartWorkflowOperation<>(orderWorkflow::execute, request));
         });

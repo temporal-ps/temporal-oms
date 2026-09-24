@@ -7,6 +7,6 @@ spring.temporal:
   workers:
     - task-queue: apps
       workflow-classes:
-        - com.acme.apps.workflows.v1.OrderImpl
+        - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
       activity-beans:
         - options-activities

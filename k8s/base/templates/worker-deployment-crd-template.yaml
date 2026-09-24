@@ -1,14 +1,22 @@
+# Template for a CRD-managed bounded context's WorkerDeployment (hosting.md Mode B).
+# Mirrors k8s/processing-versioned/base/temporal-worker-deployment.yaml; used only by
+# DeploymentActivitiesImpl to recreate that CRD if it's ever missing when a versioned
+# promotion runs (the deploy scripts provision it once at bring-up and never delete it,
+# so this is a recovery path, not the normal creation path).
+#
+# Placeholders substituted by DeploymentActivitiesImpl: {NAME}, {NAMESPACE}, {REPLICAS},
+# {IMAGE}, {MANAGEMENT_PORT}, {DEPLOYMENT_NAME}, {CONFIGMAP_NAME}.
 apiVersion: temporal.io/v1alpha1
 kind: WorkerDeployment
 metadata:
-  name: processing-workers
-  namespace: temporal-oms-processing
+  name: {NAME}
+  namespace: {NAMESPACE}
 spec:
-  replicas: 1
+  replicas: {REPLICAS}
   workerOptions:
     connectionRef:
       name: temporal-connection
-    temporalNamespace: processing
+    temporalNamespace: {DEPLOYMENT_NAME}
   sunset:
     scaledownDelay: 30s
     deleteDelay: 120s
@@ -22,16 +30,16 @@ spec:
   template:
     metadata:
       labels:
-        app: processing-workers
+        app: {NAME}
       annotations:
         instrumentation.opentelemetry.io/inject-sdk: "true"
     spec:
       containers:
       - name: worker
-        image: temporal-oms/processing-workers:v1
+        image: {IMAGE}
         imagePullPolicy: Never
         ports:
-        - containerPort: 9082
+        - containerPort: {MANAGEMENT_PORT}
           name: management
           protocol: TCP
         env:
@@ -48,22 +56,8 @@ spec:
         - name: temporal-config
           mountPath: /etc/config/temporal
           readOnly: true
-        - name: temporal-secret
-          mountPath: /etc/config/temporal-secret
-          readOnly: true
-        resources:
-          requests:
-            memory: "384Mi"
-            cpu: "200m"
-          limits:
-            memory: "2Gi"
-            cpu: "2000m"
       volumes:
       - name: temporal-config
         configMap:
-          name: temporal-processing-config
-          defaultMode: 0444
-      - name: temporal-secret
-        secret:
-          secretName: temporal-processing-api-key
+          name: {CONFIGMAP_NAME}
           defaultMode: 0444

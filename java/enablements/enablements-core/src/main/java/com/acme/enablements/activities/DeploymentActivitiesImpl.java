@@ -68,10 +68,15 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
     private static final String BUILD_ID_ENV_VAR = "TEMPORAL_WORKER_BUILD_ID";
     // Every version's code ships in one image (spec.md's package-per-version convention);
     // the workflow-class env var (below), not the image tag, is what selects which
-    // OrderImpl class actually runs - there is no per-version image tag to request. Kept
-    // as its own env var rather than derived from TEMPORAL_WORKER_BUILD_ID: the Safe
-    // Fulfillment Handoff workshop deliberately edits an existing vN package in place and
-    // deploys it under an unrelated, decoupled build-id, so the two must stay independent.
+    // OrderImpl class actually runs. Kept as its own env var rather than derived from
+    // TEMPORAL_WORKER_BUILD_ID: the Safe Fulfillment Handoff workshop deliberately edits
+    // an existing vN package in place and deploys it under an unrelated, decoupled build
+    // id, so the two must stay independent. Used for the plain-Deployment path (apps,
+    // fulfillment, processing v1); the CRD path uses cmd.getBuildId() as the image tag
+    // instead (see patchWorkerDeploymentCrd), purely so the Temporal Worker Controller's
+    // own computed build-id (image tag + pod spec hash) reads as v2-<hash> rather than
+    // latest-<hash> - the deploy scripts tag every processing vN with the same image
+    // content, so this never changes which code actually runs.
     private static final String RUNTIME_IMAGE_TAG = "latest";
 
     private record BoundedContextConfig(
@@ -93,7 +98,7 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
                     "temporal-apps-config", "temporal-apps-api-key", false),
             "processing", new BoundedContextConfig(
                     "processing", "temporal-oms-processing", "com.acme.processing.workflows",
-                    "ACME_PROCESSING_ORDER_WORKFLOW_CLASS", "temporal-oms/processing-workers", 9092,
+                    "ACME_PROCESSING_ORDER_WORKFLOW_CLASS", "temporal-oms/processing-workers", 9082,
                     "temporal-processing-config", "temporal-processing-api-key", true),
             "fulfillment", new BoundedContextConfig(
                     "fulfillment", "temporal-oms-fulfillment", "com.acme.fulfillment.workflows",
@@ -102,6 +107,9 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
 
     @Value("${enablements.deployment.manifest-template:k8s/base/templates/worker-deployment-template.yaml}")
     private String manifestTemplatePath;
+
+    @Value("${enablements.deployment.crd-manifest-template:k8s/base/templates/worker-deployment-crd-template.yaml}")
+    private String crdManifestTemplatePath;
 
     @Value("${enablements.deployment.set-current-version-timeout-seconds:60}")
     private int setCurrentVersionTimeoutSeconds;
@@ -305,12 +313,9 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
     private void patchWorkerDeploymentCrd(DeployWorkerVersionRequest cmd, BoundedContextConfig context,
                                            String workflowClass, int replicas) throws ApiException, IOException {
         String resourceName = cmd.getDeploymentName() + "-workers";
-        String image = context.imageRepository() + ":" + RUNTIME_IMAGE_TAG;
+        String image = context.imageRepository() + ":" + cmd.getBuildId();
 
-        Object raw = customObjectsApi().getNamespacedCustomObject(
-                WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, context.k8sNamespace(),
-                WORKER_DEPLOYMENT_PLURAL, resourceName).execute();
-        JsonObject workerDeployment = GSON.toJsonTree(raw).getAsJsonObject();
+        JsonObject workerDeployment = readOrCreateWorkerDeploymentCrd(resourceName, context, image);
 
         JsonObject spec = workerDeployment.getAsJsonObject("spec");
         spec.addProperty("replicas", replicas);
@@ -326,6 +331,41 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
         customObjectsApi().replaceNamespacedCustomObject(
                 WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, context.k8sNamespace(),
                 WORKER_DEPLOYMENT_PLURAL, resourceName, workerDeployment).fieldManager("enablements-workers").execute();
+    }
+
+    /**
+     * Read the WorkerDeployment CRD, or create it from {@code crdManifestTemplatePath}
+     * if it doesn't exist. The deploy scripts provision this CRD once at bring-up and
+     * never delete it (only scale it), so a missing CRD here means something removed it
+     * out of band - a promotion must recover from that instead of failing outright.
+     */
+    private JsonObject readOrCreateWorkerDeploymentCrd(String resourceName, BoundedContextConfig context, String image)
+            throws ApiException, IOException {
+        try {
+            Object raw = customObjectsApi().getNamespacedCustomObject(
+                    WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, context.k8sNamespace(),
+                    WORKER_DEPLOYMENT_PLURAL, resourceName).execute();
+            return GSON.toJsonTree(raw).getAsJsonObject();
+        } catch (ApiException e) {
+            if (e.getCode() != 404) {
+                throw e;
+            }
+            logger.warn("WorkerDeployment CRD {}/{} not found; creating it from {}",
+                    context.k8sNamespace(), resourceName, crdManifestTemplatePath);
+            String manifest = Files.readString(Paths.get(crdManifestTemplatePath))
+                    .replace("{NAME}", resourceName)
+                    .replace("{NAMESPACE}", context.k8sNamespace())
+                    .replace("{REPLICAS}", "0")
+                    .replace("{IMAGE}", image)
+                    .replace("{MANAGEMENT_PORT}", String.valueOf(context.managementPort()))
+                    .replace("{DEPLOYMENT_NAME}", context.temporalNamespace())
+                    .replace("{CONFIGMAP_NAME}", context.configMapName());
+            Object body = new org.yaml.snakeyaml.Yaml().load(manifest);
+            Object created = customObjectsApi().createNamespacedCustomObject(
+                    WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, context.k8sNamespace(),
+                    WORKER_DEPLOYMENT_PLURAL, body).fieldManager("enablements-workers").execute();
+            return GSON.toJsonTree(created).getAsJsonObject();
+        }
     }
 
     /**

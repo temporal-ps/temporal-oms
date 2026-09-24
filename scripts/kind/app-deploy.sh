@@ -9,7 +9,7 @@ cd "$PROJECT_DIR"
 export KUBECONFIG=/tmp/kind-config.yaml
 
 OVERLAY="${OVERLAY:-local}"
-PROCESSING_WORKER_MODE="${PROCESSING_WORKER_MODE:-versioned}"
+PROCESSING_WORKER_MODE="${PROCESSING_WORKER_MODE:-unversioned}"
 
 echo "📦 Building and deploying applications to KinD (${OVERLAY} Temporal)..."
 
@@ -27,7 +27,11 @@ docker build -q -t temporal-oms/apps-worker:latest \
 docker build -q -t temporal-oms/processing-api:latest \
   -f java/processing/processing-api/docker/Dockerfile java/processing/processing-api
 
-docker build -q -t temporal-oms/processing-workers:latest -t temporal-oms/processing-workers:v1 \
+docker build -q -t temporal-oms/processing-workers:latest \
+  -t temporal-oms/processing-workers:v1 \
+  -t temporal-oms/processing-workers:v2 \
+  -t temporal-oms/processing-workers:v3 \
+  -t temporal-oms/processing-workers:v4 \
   -f java/processing/processing-workers/docker/Dockerfile java/processing/processing-workers
 
 docker build -q -t temporal-oms/enablements-api:latest \
@@ -51,6 +55,9 @@ kind load docker-image temporal-oms/apps-worker:latest --name temporal-oms
 kind load docker-image temporal-oms/processing-api:latest --name temporal-oms
 kind load docker-image temporal-oms/processing-workers:latest --name temporal-oms
 kind load docker-image temporal-oms/processing-workers:v1 --name temporal-oms
+kind load docker-image temporal-oms/processing-workers:v2 --name temporal-oms
+kind load docker-image temporal-oms/processing-workers:v3 --name temporal-oms
+kind load docker-image temporal-oms/processing-workers:v4 --name temporal-oms
 kind load docker-image temporal-oms/enablements-api:latest --name temporal-oms
 kind load docker-image temporal-oms/enablements-workers:latest --name temporal-oms
 kind load docker-image temporal-oms/fulfillment-workers:latest --name temporal-oms
@@ -59,12 +66,39 @@ kind load docker-image temporal-oms/web:latest --name temporal-oms
 
 echo "→ Deploying to KinD..."
 kubectl apply -k "k8s/overlays/${OVERLAY}" >/dev/null
+# The WorkerDeployment CRD may already exist and be mid-promotion (the Admin UI's
+# deployWorkerVersion activity patches it directly) - never assume a fresh, non-CRD
+# bring-up. Only provision/scale it on its first creation; on every later redeploy,
+# leave its spec exactly as the last promotion left it and just decide, from its
+# observed replica count, whether the plain baseline Deployment needs to stay deleted.
+crd_replicas=""
+if kubectl get workerdeployment processing-workers -n temporal-oms-processing >/dev/null 2>&1; then
+  crd_replicas="$(kubectl get workerdeployment processing-workers -n temporal-oms-processing -o jsonpath='{.spec.replicas}')"
+fi
+
+crd_is_active=false
 if [ "$PROCESSING_WORKER_MODE" = "versioned" ]; then
+  crd_is_active=true
+elif [ -n "$crd_replicas" ] && [ "$crd_replicas" -gt 0 ]; then
+  crd_is_active=true
+fi
+
+if [ -z "$crd_replicas" ]; then
+  echo "  provisioning processing-workers WorkerDeployment CRD"
+  kubectl apply -k "k8s/processing-versioned/overlays/${OVERLAY}" >/dev/null
+  if [ "$crd_is_active" != true ]; then
+    kubectl patch workerdeployment processing-workers -n temporal-oms-processing \
+      --type=merge -p '{"spec":{"replicas":0}}' >/dev/null 2>&1 || true
+  fi
+else
+  echo "  processing-workers WorkerDeployment CRD already exists (replicas=${crd_replicas}); leaving its spec as-is"
+fi
+
+if [ "$crd_is_active" = true ]; then
   echo "  using WorkerDeployment for processing-workers"
   kubectl delete deployment processing-workers -n temporal-oms-processing --ignore-not-found >/dev/null
-  kubectl apply -k "k8s/processing-versioned/overlays/${OVERLAY}" >/dev/null
 else
-  kubectl delete workerdeployment processing-workers -n temporal-oms-processing --ignore-not-found --wait=false >/dev/null
+  echo "  processing-workers stays on the unversioned baseline Deployment"
 fi
 kubectl apply -f k8s/ingress/apps-api-ingress.yaml >/dev/null
 kubectl apply -f k8s/ingress/processing-api-ingress.yaml >/dev/null

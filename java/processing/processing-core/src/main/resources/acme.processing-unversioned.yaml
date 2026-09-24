@@ -8,7 +8,7 @@ spring.temporal:
     workers:
       - task-queue: processing
         workflow-classes:
-          - com.acme.processing.workflows.v1.OrderImpl
+          - ${ACME_PROCESSING_ORDER_WORKFLOW_CLASS:com.acme.processing.workflows.v4.OrderImpl}
         activity-beans:
           - processing-options-activities
           - enrichment-activities

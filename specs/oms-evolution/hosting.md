@@ -325,6 +325,13 @@ safe to repeat). It also already does the right per-context k8s action on its ow
 `processing` it patches the existing `WorkerDeployment` CRD in place. The rollout workflow does not
 need any k8s logic of its own.
 
+That stale-version cleanup only works because `k8s/base/apps/deployment-workers.yaml` and
+`k8s/base/fulfillment/deployment-workers.yaml` carry the same `bounded-context`/`oms-build-id: "local"`
+labels the versioned template applies - without them, the very first real promotion for a context
+would leave that base Deployment running forever as an orphan, since kustomize's own resources are
+invisible to `removeStaleVersions`' label selector otherwise. Full rationale in
+[`docs/ADMIN_WORKER_VERSIONS.md`](../../docs/ADMIN_WORKER_VERSIONS.md#the-local-baseline-gets-cleaned-up-automatically).
+
 **Admin UI: coexists with, does not replace, the three per-context rows.** Add an OMS-version
 dropdown (sourced from `GET /api/v1/enablements/oms-versions`) and a "Start rollout" action above the
 existing per-context section, which is relabeled "Advanced: promote a single bounded context" and
@@ -405,6 +412,33 @@ kustomization.yaml`), mounted read-only at `/etc/config/k8s-templates/` on `enab
 (`k8s/base/enablements/deployment-workers.yaml`), with `ENABLEMENTS_DEPLOYMENT_MANIFEST_TEMPLATE`
 overriding the property to that mounted path - the same ConfigMap-mount pattern this Deployment
 already uses for its Temporal connection config, not a new mechanism.
+
+**The versioned Deployment template's `temporal-secret` volume has the same "assumes something
+that only exists for Cloud" problem, hit live the first time a promotion actually created a pod.**
+`k8s/base/templates/worker-deployment-template.yaml` mounts a per-context Secret
+(`temporal-{context}-api-key`) that only exists under the `cloud` overlay; `local`'s kustomize
+patch strips that volume from the *static* `apps-worker`/`fulfillment-workers` Deployments for
+exactly this reason, but that patch can never reach a Deployment `DeploymentActivitiesImpl` creates
+programmatically at runtime (`apps-worker-v1`, etc.) - confirmed live: `apps-worker-v1` sat in
+`ContainerCreating` on `MountVolume.SetUp failed ... secret "temporal-apps-api-key" not found`.
+Fixed with `optional: true` on that volume in the template - degrades to an empty mount when the
+Secret is absent (local), still populates normally when present (cloud); no overlay-specific
+branching needed since it's one shared template.
+
+**Calling Worker Deployment management APIs from Temporal Cloud will very likely need a different,
+more privileged credential than the one this code currently uses - not yet hit live, since testing
+has been local/OSS only.** `DeploymentActivitiesImpl`'s `setWorkerDeploymentCurrentVersion`/
+`describeWorkerDeployment` calls ride on `workflowClient.getWorkflowServiceStubs()` - the
+`enablements` namespace's own connection/API key. Locally this is a non-issue: an empty API key and
+`TEMPORAL_TLS_ENABLED=false` mean no auth interceptor is configured at all, so these calls ride the
+exact same unauthenticated channel as every other Temporal SDK call already working against the OSS
+dev server. Against Cloud, per this repo's own Level 3 setup (`README.md`'s service-account table),
+Worker Deployment management already needs the elevated `acme-automations-service-account`
+(Developer-or-Admin), separate from each bounded context's own Developer-scoped key - that's
+explicitly why the Temporal Worker Controller gets its own dedicated account. The `enablements`
+namespace's connection is presumably Developer-scoped, not the automations account, so the first
+Cloud run of this feature will likely fail on authorization, not confirm/timeout like the local
+issues above.
 
 **RBAC, added:** `k8s/base/enablements/rbac.yaml` adds a dedicated `enablements-workers`
 ServiceAccount (bound to the Deployment via `spec.template.spec.serviceAccountName`), a
@@ -550,6 +584,7 @@ context).
 | A per-version image tag was requested for apps/fulfillment/processing versions the deploy scripts never build | New pod's image pull never happens, pollers never register, set-current-version times out | Always request the one built `:latest` tag; every version's code already ships in it |
 | A failed `set-current-version` (returned `false`, didn't throw) was reported as rollout success | OMS-version rollout silently leaves the previous version current while claiming success | `OmsVersionRolloutImpl.runStep` now checks `currentVersionSet` and fails the step if false |
 | `processing`'s CRD-managed rollout was calling `setWorkerDeploymentCurrentVersion` directly with our own build-id string | Confirmed live: the Temporal Worker Controller computes its own build-id (`{imageTag}-{podSpecHash}`, e.g. `latest-f966`) independent of `TEMPORAL_WORKER_BUILD_ID`; our call targeted a build-id that was never registered and could never confirm, while the controller's own Progressive rollout had already completed the promotion on its own | For CRD-managed contexts, `deployWorkerVersion` no longer calls `set-current-version` at all - it patches the CRD, then polls the CRD's own `status.currentVersion.buildID`/`status.targetVersion.buildID` until they match (`waitForWorkerDeploymentCrdRollout`, `crd-rollout-timeout-seconds`, default 180s). Manual/raw-API version control for a bounded context *not* running under a Worker Controller is an intentionally deferred follow-up, not built now. |
+| The Temporal Worker Controller's own leader-election flapped between its 2 replica pods on a local cluster, not this code | `processing`'s WorkerDeployment CRD gets permanently stuck (`ManagerIdentity '...ccfb10e7...' does not match user identity '...9414416e...'`) - confirmed the CR's own manager identity changes mid-lifetime, not just across restarts, since a *freshly recreated* CR hit the identical error within under 2 minutes | Operational, not a code fix: scale `temporal-worker-controller-manager` (`temporal-worker-controller-system` namespace) to 1 replica on resource-constrained local clusters, where HA leader election adds no value. Recovery for an already-stuck CRD, if it happens again: `kubectl delete workerdeployment <name>-workers -n <namespace> --timeout=30s` (falls back to stripping the `temporal.io/delete-protection` finalizer via `--type=merge -p '{"metadata":{"finalizers":[]}}'` if that hangs), then reapply the `k8s/processing-versioned` overlay. |
 
 ### Risks and Mitigations
 
