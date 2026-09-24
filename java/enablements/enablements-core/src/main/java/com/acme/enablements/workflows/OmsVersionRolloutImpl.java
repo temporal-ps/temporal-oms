@@ -21,13 +21,21 @@ import java.util.List;
 /**
  * Calls {@code DeploymentActivities.deployWorkerVersion} once per bounded
  * context needed for the target OMS version, skipping fulfillment when its
- * target is {@code embedded} (not a deployable component yet). Ordering is
- * direction-aware around apps: apps is the only component whose version
- * change affects whether it depends on processing's {@code send_fulfillment}
- * support and fulfillment's existence, so promoting in a fixed order is
- * unsafe when rolling back (it can transiently pair a newer apps with an
- * older processing/fulfillment that doesn't understand the pairing). Stops
- * at the first failed step; it does not attempt the remaining contexts.
+ * target is {@code embedded} (not a deployable component yet). Two named
+ * paths, chosen by comparing the target apps version to the currently
+ * deployed one:
+ *
+ * <ul>
+ *   <li>Upgrade (target apps &gt;= current): fulfillment, then processing,
+ *       then apps last, since apps is the one that starts depending on the
+ *       others being ready first.</li>
+ *   <li>Downgrade (target apps &lt; current): apps first, then fulfillment,
+ *       then processing, since the older processing/fulfillment apps is
+ *       about to run alongside doesn't understand a newer apps' handoff.</li>
+ * </ul>
+ *
+ * Stops at the first failed step; it does not attempt the remaining
+ * contexts.
  */
 public class OmsVersionRolloutImpl implements OmsVersionRollout {
 
@@ -148,13 +156,15 @@ public class OmsVersionRolloutImpl implements OmsVersionRollout {
                 : pendingStep("fulfillment", target.getFulfillmentVersion());
 
         int direction = Integer.compare(versionNumber(target.getAppsVersion()), versionNumber(currentAppsBuildId));
-        // Rolling back (target apps < current apps): apps must land first, since the
-        // OLDER processing/fulfillment it's about to run alongside doesn't understand
-        // the newer apps' handoff. Forward or unchanged: apps goes last, since apps is
-        // the one that starts depending on the others being ready first.
+        // Downgrade (target apps < current apps): apps must land first, since the OLDER
+        // processing/fulfillment it's about to run alongside doesn't understand the
+        // newer apps' handoff. Upgrade or unchanged: apps goes last. Fulfillment goes
+        // before processing in both paths; that ordering isn't part of the identified
+        // unsafe pairing (which is specifically about apps/processing), so it's free to
+        // fix at fulfillment-first for consistency.
         return direction < 0
-                ? List.of(appsStep, processingStep, fulfillmentStep)
-                : List.of(processingStep, fulfillmentStep, appsStep);
+                ? List.of(appsStep, fulfillmentStep, processingStep)
+                : List.of(fulfillmentStep, processingStep, appsStep);
     }
 
     private static OmsVersionRolloutStep pendingStep(String boundedContext, String targetVersion) {

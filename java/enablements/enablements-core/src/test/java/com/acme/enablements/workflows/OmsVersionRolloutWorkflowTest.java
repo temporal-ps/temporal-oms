@@ -80,7 +80,7 @@ class OmsVersionRolloutWorkflowTest {
     }
 
     @Test
-    void forwardRolloutPromotesProcessingAndFulfillmentBeforeApps() throws Exception {
+    void forwardRolloutPromotesFulfillmentAndProcessingBeforeApps() throws Exception {
         deploymentActivities.currentBuildIds.put("apps", "v1");
         var stub = newStub("rollout-forward");
         var request = StartOmsVersionRolloutRequest.newBuilder()
@@ -89,7 +89,7 @@ class OmsVersionRolloutWorkflowTest {
         WorkflowClient.execute(stub::execute, request).get(30, TimeUnit.SECONDS);
 
         assertThat(deploymentActivities.deployedContextsInOrder)
-                .containsExactly("processing", "fulfillment", "apps");
+                .containsExactly("fulfillment", "processing", "apps");
         assertThat(stub.getState().getOverallStatus()).isEqualTo(RolloutStepStatus.SUCCEEDED);
         assertThat(stub.getState().getStepsList())
                 .extracting(OmsVersionRolloutStep::getStatus)
@@ -135,12 +135,12 @@ class OmsVersionRolloutWorkflowTest {
 
         WorkflowClient.execute(stub::execute, request).get(30, TimeUnit.SECONDS);
 
-        // processing (before the failing fulfillment step) ran; apps (after it) never did.
-        assertThat(deploymentActivities.deployedContextsInOrder).containsExactly("processing");
+        // fulfillment fails first (before processing/apps run at all).
+        assertThat(deploymentActivities.deployedContextsInOrder).isEmpty();
         assertThat(stub.getState().getOverallStatus()).isEqualTo(RolloutStepStatus.FAILED);
         var steps = stub.getState().getStepsList();
-        assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.SUCCEEDED); // processing
-        assertThat(steps.get(1).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // fulfillment
+        assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // fulfillment
+        assertThat(steps.get(1).getStatus()).isEqualTo(RolloutStepStatus.PENDING); // processing, never attempted
         assertThat(steps.get(2).getStatus()).isEqualTo(RolloutStepStatus.PENDING); // apps, never attempted
     }
 
@@ -156,11 +156,12 @@ class OmsVersionRolloutWorkflowTest {
 
         // deployWorkerVersion didn't throw for processing, but never confirmed the cutover;
         // that must still stop the rollout, not report success.
-        assertThat(deploymentActivities.deployedContextsInOrder).containsExactly("processing");
+        assertThat(deploymentActivities.deployedContextsInOrder).containsExactly("fulfillment", "processing");
         assertThat(stub.getState().getOverallStatus()).isEqualTo(RolloutStepStatus.FAILED);
         var steps = stub.getState().getStepsList();
-        assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // processing
-        assertThat(steps.get(0).getErrorMessage()).isNotBlank();
+        assertThat(steps.get(0).getStatus()).isEqualTo(RolloutStepStatus.SUCCEEDED); // fulfillment
+        assertThat(steps.get(1).getStatus()).isEqualTo(RolloutStepStatus.FAILED); // processing
+        assertThat(steps.get(1).getErrorMessage()).isNotBlank();
         assertThat(steps.get(2).getStatus()).isEqualTo(RolloutStepStatus.PENDING); // apps, never attempted
     }
 }

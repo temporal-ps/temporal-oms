@@ -301,18 +301,23 @@ skips the fulfillment step entirely (reports it as `SKIPPED`, not attempted) and
 fulfillment deployment currently exists running idle, rather than erroring or tearing anything down -
 acceptable indefinitely for a demo app; no teardown mechanism is built for this.
 
-**Rollout ordering: direction-aware around apps, not a fixed sequence.** apps is the only component
-whose version change affects whether it depends on processing's `send_fulfillment` support and
-fulfillment's existence; a fixed processing→fulfillment→apps order is *not* safe in both directions
-(verified: rolling back OMS v4→v1 with a fixed forward-safe order transiently produces apps v3 +
-processing v1, which is exactly as unsafe as the documented apps v3 + processing v2 pairing - the
-same "processing doesn't understand `send_fulfillment`, always-Kafka" mechanism, generalized. This
-extends the spec's one named unsafe pairing to any apps v3 + processing {v1, v2} combination.)
+**Rollout ordering: two named paths, chosen by direction, not a single fixed sequence.** apps is the
+only component whose version change affects whether it depends on processing's `send_fulfillment`
+support and fulfillment's existence, so which path applies is decided once per rollout by comparing
+the target apps version to the *current* apps version (queried live, not client-supplied):
 
-Rule, applied once per rollout using the *current* apps version (queried live, not client-supplied):
-- Target apps version > current: promote processing and fulfillment to their targets first, apps last.
-- Target apps version < current: promote apps first, then processing/fulfillment.
-- Target apps version unchanged: processing/fulfillment order doesn't matter.
+- **Upgrade path** (target apps version >= current): **Fulfillment → Processing → Apps.** Apps goes
+  last because apps is the one that starts depending on the other two being ready first.
+- **Downgrade path** (target apps version < current): **Apps → Fulfillment → Processing.** Apps goes
+  *first* here - a fixed forward-safe order applied on rollback is *not* safe (verified: rolling back
+  OMS v4→v1 with the upgrade path's order transiently produces apps v3 + processing v1, exactly as
+  unsafe as the documented apps v3 + processing v2 pairing - the same "processing doesn't understand
+  `send_fulfillment`, always-Kafka" mechanism, generalized to any apps v3 + processing {v1, v2}
+  combination).
+
+Fulfillment goes before processing in both paths. That relative order isn't part of the identified
+unsafe pairing (which is specifically about apps vs. processing), so it's free to pin at
+fulfillment-first for both paths rather than leaving it unordered.
 
 Requires one new small activity to read the current apps build id. See
 "Deploy and Version Clients" below for how that's read (a native SDK call, not CLI output parsing).
