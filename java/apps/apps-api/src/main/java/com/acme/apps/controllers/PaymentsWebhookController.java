@@ -82,6 +82,7 @@ public class PaymentsWebhookController {
             Instant now = Instant.now();
             var workflowRequest = CompleteOrderRequest.newBuilder()
                 .setOrderId(orderId)
+                .setCustomerId(request.getCustomerId())
                 .setTimestamp(Timestamp.newBuilder()
                     .setSeconds(now.getEpochSecond())
                     .setNanos(now.getNano())
