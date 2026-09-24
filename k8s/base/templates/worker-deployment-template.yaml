@@ -1,15 +1,19 @@
 # Generalized plain-Deployment template for on-demand worker version promotion
 # (hosting.md Mode B). Used for bounded contexts that run as a plain Kubernetes
-# Deployment (apps, fulfillment) rather than a temporal.io WorkerDeployment CRD
-# (processing keeps using k8s/processing-versioned instead).
+# Deployment: apps and fulfillment always, processing only for v1 (spec.md's true
+# unversioned baseline - see DeploymentActivitiesImpl's class Javadoc); processing's
+# other versions keep using k8s/processing-versioned's WorkerDeployment CRD instead.
 #
 # Placeholders substituted by DeploymentActivitiesImpl: {NAME}, {NAMESPACE},
 # {REPLICAS}, {IMAGE}, {MANAGEMENT_PORT}, {DEPLOYMENT_NAME}, {BUILD_ID},
-# {WORKFLOW_CLASS_ENV}, {WORKFLOW_CLASS_VALUE}, {CONFIGMAP_NAME}, {SECRET_NAME}.
-# {IMAGE} is always the same tag every version uses (every version's code
-# ships in one image, see spec.md's package-per-version convention) -
-# {WORKFLOW_CLASS_ENV}/{WORKFLOW_CLASS_VALUE} is what actually selects which
-# OrderImpl class runs.
+# {SPRING_PROFILES_ACTIVE}, {WORKFLOW_CLASS_ENV}, {WORKFLOW_CLASS_VALUE},
+# {CONFIGMAP_NAME}, {SECRET_NAME}. {IMAGE} is always the same tag every version
+# uses (every version's code ships in one image, see spec.md's package-per-version
+# convention) - {WORKFLOW_CLASS_ENV}/{WORKFLOW_CLASS_VALUE} is what actually
+# selects which OrderImpl class runs. {SPRING_PROFILES_ACTIVE} is "k8s,unversioned"
+# for build-id v1, plain "k8s" otherwise - the unversioned profile's
+# acme.<context>-unversioned.yaml has no deployment-properties block at all, the
+# only way to get zero Worker Versioning registration.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,7 +49,7 @@ spec:
           protocol: TCP
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: k8s
+          value: {SPRING_PROFILES_ACTIVE}
         - name: TEMPORAL_DEPLOYMENT_NAME
           value: {DEPLOYMENT_NAME}
         - name: TEMPORAL_WORKER_BUILD_ID

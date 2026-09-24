@@ -20,6 +20,25 @@ same ports. Examples below use `kind`; substitute `k3d` throughout for the other
 ./scripts/kind/app-deploy.sh
 ```
 
+**To start genuinely at OMS v1 (no Worker Versioning anywhere)**, set
+`SKIP_VERSION_REGISTRATION=1` on the setup script instead - registering `build-id=local` as
+current is a one-way door (Temporal has no API to unset a Worker Deployment's current version,
+only to change it), so it has to be skipped from the very first bring-up:
+
+```bash
+SKIP_VERSION_REGISTRATION=1 ./scripts/setup-temporal-namespaces.sh
+```
+
+This only affects `apps`/`fulfillment`. `processing` still starts versioned regardless (its
+Worker Versioning is engaged by the Temporal Worker Controller the moment its CRD comes up, not
+by this script) - promoting it to OMS v1 later still works via the Admin UI, this only changes
+what state the cluster starts in.
+
+**Don't place any orders before your first Admin UI promotion.** The raw, freshly-deployed
+`apps-worker`/`fulfillment-workers` pods poll successfully but receive zero tasks until some
+version is explicitly made current - promote to a target OMS version (v1 included) first, then
+start load or place orders.
+
 If you deployed before this feature existed, redeploy so `enablements-workers` picks up
 `OmsVersionRolloutImpl`:
 

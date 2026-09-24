@@ -1,0 +1,19 @@
+spring.config.import: classpath:acme.oms.yaml
+spring.temporal:
+  namespace: ${TEMPORAL_FULFILLMENT_NAMESPACE:fulfillment}
+  connection:
+    target: ${TEMPORAL_FULFILLMENT_ADDRESS:localhost:7233}
+    api-key: ${TEMPORAL_FULFILLMENT_API_KEY:}
+  workers:
+    - task-queue: fulfillment
+      workflow-classes:
+        - com.acme.fulfillment.workflows.v1.OrderImpl
+      activity-beans:
+        - fulfillmentOptionsLoaderActivities
+      nexus-service-beans:
+        - fulfillment-service
+    - task-queue: fulfillment-carriers
+      activity-beans:
+        - carriersActivities
+      rate-limits:
+        max-task-queue-activities-per-second: 2

@@ -448,6 +448,98 @@ independently. The two env vars stay separate. (This also means the workflow-cla
 was never actually the bug in this feature - the image tag above was sufficient on its own to
 explain the symptom, since the pod that would have used it never started.)
 
+**Worker Versioning still applied to OMS v1, which spec.md defines as having none at all.**
+`deployment-properties.use-versioning: false` does not disable Worker Versioning - confirmed
+against `temporal-spring-boot-autoconfigure` 1.38.0's source (`WorkerOptionsTemplate`):
+`WorkerOptions.setDeploymentOptions(...)` is called unconditionally whenever a deployment-
+name/build-id is configured, regardless of `useVersioning`. The worker still registers a Worker
+Deployment version with Temporal either way. The only way to get zero Worker Versioning
+registration is for the `deployment-properties` block to be absent from the resolved Spring config
+entirely.
+
+Fixed with a new `unversioned` Spring profile per bounded context: `acme.<context>-unversioned.yaml`
+(new) defines `spring.temporal.workers` fixed to the `v1` class, with no `deployment-properties`
+block at all; `application-unversioned.yaml` (new, matching the existing `application-k8s.yaml`
+pattern) imports it. Verified empirically, not assumed: booting `apps-workers` with
+`SPRING_PROFILES_ACTIVE=k8s,unversioned` registered exactly one worker for the `apps` task queue
+running `v1.OrderImpl`, replacing the versioned worker list rather than merging with it (Spring's
+documented behavior for profile-specific `List`-typed properties).
+
+`DeploymentActivitiesImpl.deployWorkerVersion` sets `SPRING_PROFILES_ACTIVE` to
+`k8s,unversioned` instead of `k8s` whenever the target build-id is `v1`
+(`isUnversionedTarget`/`springProfilesActive`), for every bounded context - this is a template-level
+concern, unrelated to which kind of k8s resource represents that context (see next).
+
+**processing's WorkerDeployment CRD can't represent "no Worker Versioning" either - v1 takes the
+plain-Deployment path too, not a per-context fixed choice.** The CRD only makes sense when Worker
+Versioning is active (the Temporal Worker Controller's whole job is managing a versioned rollout);
+there's nothing for it to manage at zero versioning. So `managedByWorkerDeploymentCrd` is no longer
+a fixed per-context flag - `deployWorkerVersion` now decides per request (`useCrd = context
+.supportsWorkerDeploymentCrd() && !isUnversionedTarget(buildId)`): processing v1 goes through the
+same generalized template as apps/fulfillment; processing v2+ keeps patching the CRD. Whichever
+path is *not* active is kept at zero pollers, never deleted: promoting processing to v1 scales the
+CRD to zero replicas (`scaleWorkerDeploymentCrd`) rather than deleting it - deleting and recreating
+the CRD is unnecessary risk (and the delete-protection finalizer's own behavior under a live
+controller is not something this design wants to depend on) when a scale-down/scale-back-up
+achieves the same "exactly one pooling mechanism live" result. Promoting back to v2+ restores the
+CRD's replica count in the same patch that sets its image/env, and `removeStaleVersions` (now called
+unconditionally on success, not just on the plain-Deployment path) cleans up the stale plain v1
+Deployment/Service.
+
+**Corollary bug, hit live: calling `set-current-version` for an unversioned target never confirms,
+because there is no version to make current.** The plain-Deployment branch above called
+`setCurrentVersion` unconditionally for every non-CRD promotion, including `v1` - but a pod running
+the `unversioned` profile has no `deployment-properties` at all, so it never registers *any* Worker
+Deployment build-id with Temporal in the first place. Asking Temporal to set build-id `v1` as
+current for a Worker Deployment that was never registered can never succeed, no matter how long the
+retry window is - confirmed live (`processing` timed out with exactly this shape: `applyVersionedDeployment`
+running as expected, then `Timed out setting processing current version to v1`). Fixed: `deployWorkerVersion`
+now skips `setCurrentVersion` entirely for `isUnversionedTarget` and treats the pod coming up as
+success directly - the classic, unversioned poller doesn't have or need a "current version." This
+applies uniformly to all three contexts' `v1`, not just processing.
+
+**Resolved, hit live and confirmed as a hard Temporal limitation, not a bug: once a Worker Deployment
+name has any current version, there is no API to ever clear it back to "none."** `temporal worker
+deployment delete-version` refuses while the version is current; `delete` refuses while any version
+exists. There is no `unset-current-version` equivalent. And `default-versioning-behavior: PINNED`
+means every new workflow start (with no explicit override) pins to whatever's current *at start
+time* - permanently, even after that build-id's pollers are gone, since Pinned never falls back.
+Confirmed live: `apps`'s `routingConfig.currentVersionBuildID` stayed `"local"` after promoting to
+the unversioned `v1` profile (which correctly never calls `setCurrentVersion` - see above), so *every*
+new order kept pinning to a build-id with zero live pollers and hung forever, including orders placed
+after the promotion, not just ones already in flight.
+
+The root cause wasn't the promotion logic - it's that `scripts/setup-temporal-namespaces.sh`
+unconditionally registers `build-id=local` as current for `apps`/`processing`/`fulfillment` on every
+Level 2/3 bring-up, before any demo or OMS-rollout action ever happens. That's a one-way door: once
+it runs, that namespace's Worker Deployment can never demonstrate spec.md's true "no Worker
+Versioning at all" baseline again. Fixed: `SKIP_VERSION_REGISTRATION=1` on that script skips the
+three `set-current-version` calls entirely, so `apps`/`fulfillment` start with zero version history -
+the OMS-rollout Admin UI's first promotion (even to `v1`) is then the first time Worker Versioning is
+engaged at all for that namespace, with no prior pin to collide with.
+
+**Two things this does not cover, by design, not oversight:**
+- **`processing` is unaffected by this flag.** Its Worker Versioning is engaged autonomously by the
+  Temporal Worker Controller the moment its WorkerDeployment CRD comes up
+  (`PROCESSING_WORKER_MODE=versioned`, the `app-deploy.sh` default) - independent of anything this
+  script does. A fresh cluster's `processing` starts versioned regardless of
+  `SKIP_VERSION_REGISTRATION`. Making processing also start at a genuine unversioned baseline would
+  need `app-deploy.sh`'s default mode changed too, a separate decision not made here.
+- **Demoting from `v2`+ back to `v1` *after* a real version has already been made current remains
+  fundamentally impossible to do cleanly** - the same "no unset" limitation applies no matter which
+  script ran at setup time. `SKIP_VERSION_REGISTRATION` only helps a namespace that has *never* had a
+  version registered; it is not a general fix for the rollout's existing forward/backward ordering
+  design, which assumes any target version (including `v1`) is reachable from any other. In practice:
+  the operator's first action against a freshly-baselined cluster must be an Admin UI promotion
+  (to whatever starting version) before placing any orders - the raw, unpromoted base pods poll
+  successfully but receive zero tasks with nothing yet current, per this repo's own documented
+  Worker Versioning behavior (`java/enablements/README.md`).
+
+Not yet verified against a live cluster: the CRD scale-to-zero/restore round trip, and the
+`processing`/`fulfillment` variants of the unversioned-profile boot check (only `apps` was verified
+directly; the same Spring mechanism applies, but the exact YAML content wasn't re-tested per
+context).
+
 #### Risks and Mitigations
 
 | Risk | Impact | Mitigation |

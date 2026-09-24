@@ -37,12 +37,18 @@ import java.util.Optional;
  * Promotes a bounded context (apps, processing, fulfillment) to a new component version
  * on demand (hosting.md Mode B), independent of load generation.
  * <p>
- * apps and fulfillment run as plain Kubernetes Deployments: promotion applies a new
- * versioned Deployment/Service from the generalized template, calls
- * {@code set-current-version}, confirms via {@code describe}, then removes prior-version
- * Deployments/Services for that bounded context. processing keeps its existing
- * {@code k8s/processing-versioned} WorkerDeployment CRD: promotion patches that
- * resource's image and env in place instead of applying a new Deployment.
+ * apps and fulfillment always run as plain Kubernetes Deployments: promotion applies a
+ * new versioned Deployment/Service from the generalized template, calls
+ * {@code set-current-version} directly, confirms via {@code describe}, then removes
+ * prior-version Deployments/Services for that bounded context.
+ * <p>
+ * processing uses the {@code k8s/processing-versioned} WorkerDeployment CRD for every
+ * version except {@code v1} - spec.md's true, unversioned baseline can't be represented
+ * under Worker Versioning at all (see {@link #isUnversionedTarget}), so {@code v1} takes
+ * the same plain-Deployment path as apps/fulfillment instead, and the CRD is scaled to
+ * zero replicas (never deleted) so its pollers and the plain Deployment's are never both
+ * live on the {@code processing} task queue at once. Promoting back to {@code v2}+
+ * restores the CRD's replica count and removes the stale plain Deployment.
  * <p>
  * Talks to Kubernetes via {@code io.kubernetes:client-java} and to Temporal via the SDK's
  * native {@code setWorkerDeploymentCurrentVersion}/{@code describeWorkerDeployment} gRPC
@@ -77,7 +83,7 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
             int managementPort,
             String configMapName,
             String secretName,
-            boolean managedByWorkerDeploymentCrd) {
+            boolean supportsWorkerDeploymentCrd) {
     }
 
     private static final Map<String, BoundedContextConfig> BOUNDED_CONTEXTS = Map.of(
@@ -121,24 +127,49 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
         String workflowClass = context.workflowClassPackage() + "." + cmd.getVersion() + ".OrderImpl";
         int replicas = cmd.hasReplicaCount() ? cmd.getReplicaCount() : 1;
 
+        // Only processing has a WorkerDeployment CRD to use at all, and only for v2+: v1 is
+        // spec.md's true, unversioned baseline, which can't be represented under the CRD
+        // (see isUnversionedTarget) - it takes the same plain-Deployment path as apps/fulfillment.
+        boolean useCrd = context.supportsWorkerDeploymentCrd() && !isUnversionedTarget(cmd.getBuildId());
+
         try {
             boolean currentVersionSet;
-            if (context.managedByWorkerDeploymentCrd()) {
+            if (useCrd) {
                 // The Temporal Worker Controller owns this transition: it computes its own
                 // build-id from image tag + pod spec hash (confirmed live: patching this CRD
                 // with TEMPORAL_WORKER_BUILD_ID=v1 registered as current build-id "latest-f966",
                 // not "v1") and runs its own Progressive rollout (ramp/pause steps already in
                 // the CRD). Calling setWorkerDeploymentCurrentVersion directly here would target
                 // a build-id string that was never actually registered and can never confirm.
-                // Patch the pod template, then wait for the controller's own rollout to finish.
-                patchWorkerDeploymentCrd(cmd, context, workflowClass);
+                // Patch the pod template (restoring its replica count, in case a prior v1
+                // promotion scaled it to zero), then wait for the controller's own rollout.
+                patchWorkerDeploymentCrd(cmd, context, workflowClass, replicas);
                 currentVersionSet = waitForWorkerDeploymentCrdRollout(cmd.getDeploymentName(), context.k8sNamespace());
             } else {
                 applyVersionedDeployment(cmd, context, workflowClass, replicas);
-                currentVersionSet = setCurrentVersion(cmd.getDeploymentName(), cmd.getBuildId(), context.temporalNamespace());
-                if (currentVersionSet) {
-                    removeStaleVersions(cmd, context);
+                if (isUnversionedTarget(cmd.getBuildId())) {
+                    // The unversioned Spring profile has no deployment-properties block at
+                    // all, so this pod never registers a Worker Deployment build-id with
+                    // Temporal in the first place - there is no "current version" to set,
+                    // and calling setCurrentVersion would just time out forever asking
+                    // Temporal to make current a build-id that can never be registered.
+                    // The pod coming up as a classic, unversioned poller is success.
+                    currentVersionSet = true;
+                } else {
+                    currentVersionSet = setCurrentVersion(cmd.getDeploymentName(), cmd.getBuildId(), context.temporalNamespace());
                 }
+                if (currentVersionSet && context.supportsWorkerDeploymentCrd()) {
+                    // processing only: keep exactly one pooling mechanism live on the task
+                    // queue. Scale the CRD's own pods to zero rather than deleting the CRD -
+                    // deleting and recreating it is unnecessary risk when a simple scale down
+                    // achieves the same "no CRD-managed pollers" result and promoting back to
+                    // v2+ just restores the replica count in patchWorkerDeploymentCrd above.
+                    scaleWorkerDeploymentCrd(cmd.getDeploymentName(), context.k8sNamespace(), 0);
+                }
+            }
+
+            if (currentVersionSet) {
+                removeStaleVersions(cmd, context);
             }
 
             String describeOutput = describeDeployment(cmd.getDeploymentName(), context.temporalNamespace());
@@ -164,6 +195,29 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
         return tryDescribeWorkerDeployment(context.temporalNamespace(), deploymentName)
                 .map(r -> r.getWorkerDeploymentInfo().getRoutingConfig().getCurrentDeploymentVersion().getBuildId())
                 .orElse("");
+    }
+
+    /**
+     * v1 is spec.md's true, unversioned baseline for every bounded context (apps v1,
+     * processing v1, fulfillment v1) - "no Worker Versioning anywhere". Setting
+     * {@code deployment-properties.use-versioning: false} does not achieve that: the
+     * Temporal Spring Boot starter calls {@code WorkerOptions.setDeploymentOptions(...)}
+     * unconditionally whenever a deployment-name/build-id is configured, regardless of
+     * {@code useVersioning} (confirmed against temporal-spring-boot-autoconfigure
+     * 1.38.0's {@code WorkerOptionsTemplate} source) - the worker still registers a
+     * Worker Deployment version with Temporal either way. The only way to get zero
+     * Worker Versioning registration is for the {@code deployment-properties} block to
+     * be absent from the resolved Spring config entirely, which is what the
+     * {@code unversioned} Spring profile's {@code acme.<context>-unversioned.yaml}
+     * achieves (verified: activating it produces exactly one worker registration for
+     * the v1 class, replacing the versioned worker list, not merging with it).
+     */
+    private static boolean isUnversionedTarget(String buildId) {
+        return "v1".equals(buildId);
+    }
+
+    private static String springProfilesActive(String buildId) {
+        return isUnversionedTarget(buildId) ? "k8s,unversioned" : "k8s";
     }
 
     private static BoundedContextConfig requireContext(String deploymentName) {
@@ -192,6 +246,7 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
                 .replace("{MANAGEMENT_PORT}", String.valueOf(context.managementPort()))
                 .replace("{DEPLOYMENT_NAME}", cmd.getDeploymentName())
                 .replace("{BUILD_ID}", cmd.getBuildId())
+                .replace("{SPRING_PROFILES_ACTIVE}", springProfilesActive(cmd.getBuildId()))
                 .replace("{WORKFLOW_CLASS_ENV}", context.workflowClassEnvVar())
                 .replace("{WORKFLOW_CLASS_VALUE}", workflowClass)
                 .replace("{CONFIGMAP_NAME}", context.configMapName())
@@ -237,16 +292,18 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
     }
 
     /**
-     * Patch the existing WorkerDeployment CRD (processing) in place: new image tag and
-     * the env vars that select this version's workflow class and build id. A generic CRD
-     * has no typed model, so this reads it as a {@link JsonObject}, mutates the same
-     * fields {@code kubectl patch}/{@code kubectl set env} used to, and replaces it
-     * whole - {@code kubectl set env}'s upsert-by-name behavior for the env list (add if
-     * missing, update in place if present, leave every other entry alone) since the CRD's
-     * base manifest doesn't predeclare these two env vars.
+     * Patch the existing WorkerDeployment CRD (processing) in place: new image tag, the
+     * env vars that select this version's workflow class and build id, and the replica
+     * count (restoring it in case a prior promotion to processing v1 scaled it to zero -
+     * see the class Javadoc). A generic CRD has no typed model, so this reads it as a
+     * {@link JsonObject}, mutates the same fields {@code kubectl patch}/{@code kubectl
+     * set env} used to, and replaces it whole - {@code kubectl set env}'s upsert-by-name
+     * behavior for the env list (add if missing, update in place if present, leave every
+     * other entry alone) since the CRD's base manifest doesn't predeclare these two env
+     * vars.
      */
     private void patchWorkerDeploymentCrd(DeployWorkerVersionRequest cmd, BoundedContextConfig context,
-                                           String workflowClass) throws ApiException, IOException {
+                                           String workflowClass, int replicas) throws ApiException, IOException {
         String resourceName = cmd.getDeploymentName() + "-workers";
         String image = context.imageRepository() + ":" + RUNTIME_IMAGE_TAG;
 
@@ -255,8 +312,9 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
                 WORKER_DEPLOYMENT_PLURAL, resourceName).execute();
         JsonObject workerDeployment = GSON.toJsonTree(raw).getAsJsonObject();
 
-        JsonObject container = workerDeployment
-                .getAsJsonObject("spec")
+        JsonObject spec = workerDeployment.getAsJsonObject("spec");
+        spec.addProperty("replicas", replicas);
+        JsonObject container = spec
                 .getAsJsonObject("template")
                 .getAsJsonObject("spec")
                 .getAsJsonArray("containers")
@@ -268,6 +326,28 @@ public class DeploymentActivitiesImpl implements DeploymentActivities {
         customObjectsApi().replaceNamespacedCustomObject(
                 WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, context.k8sNamespace(),
                 WORKER_DEPLOYMENT_PLURAL, resourceName, workerDeployment).fieldManager("enablements-workers").execute();
+    }
+
+    /**
+     * Scale the WorkerDeployment CRD's replica count without touching anything else -
+     * used only to take it to zero pods while processing v1 (unversioned, plain
+     * Deployment) is active, per the class Javadoc. Never deletes the CRD.
+     */
+    private void scaleWorkerDeploymentCrd(String deploymentName, String namespace, int replicas) {
+        String resourceName = deploymentName + "-workers";
+        try {
+            Object raw = customObjectsApi().getNamespacedCustomObject(
+                    WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, namespace,
+                    WORKER_DEPLOYMENT_PLURAL, resourceName).execute();
+            JsonObject workerDeployment = GSON.toJsonTree(raw).getAsJsonObject();
+            workerDeployment.getAsJsonObject("spec").addProperty("replicas", replicas);
+            customObjectsApi().replaceNamespacedCustomObject(
+                    WORKER_DEPLOYMENT_GROUP, WORKER_DEPLOYMENT_VERSION, namespace,
+                    WORKER_DEPLOYMENT_PLURAL, resourceName, workerDeployment).fieldManager("enablements-workers").execute();
+        } catch (Exception e) {
+            logger.warn("Failed to scale {} WorkerDeployment CRD to {} replicas (non-fatal)",
+                    deploymentName, replicas, e);
+        }
     }
 
     /**
