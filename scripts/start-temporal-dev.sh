@@ -12,4 +12,6 @@ exec temporal server start-dev \
   --dynamic-config-value 'history.enableUpdateCallbacks=true' \
   --dynamic-config-value 'nexusoperation.enableStandalone=true' \
   --dynamic-config-value 'activity.enableStandalone=true' \
+  --dynamic-config-value 'frontend.pollerAutoscalingAutoEnroll=true' \
+  --dynamic-config-value 'matching.enablePollerScalingDecisionMetrics=true' \
   "$@"
