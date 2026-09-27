@@ -215,9 +215,9 @@ In [Temporal Cloud](https://cloud.temporal.io) > Namespaces, create:
 
 Your fully-qualified namespace names will be `<namespace-name>.<account-id>`.
 
-The cloud overlay currently points enablements workers at `default`. If your account does not have
-that namespace, create or choose an enablements namespace and update the cloud configmaps before
-deploying.
+Enablements (commerce/payments simulators, integrations, load generation, Admin UI promotion) is
+intended to stay on the local Temporal dev server in cloud mode. The cloud overlay does not do
+that yet. See the TODO list in [docs/CLOUD.md](docs/CLOUD.md#known-gaps-todo).
 
 #### b) Create Service Accounts and API Keys
 
@@ -238,17 +238,39 @@ For each service account, generate an API key. Copy the values. They are shown o
 
 In Temporal Cloud > Nexus, create:
 
-| Endpoint name | Target namespace | Target task queue |
-|--------------|----------------|-----------------|
-| `oms-processing-v1` | `processing` | `processing` |
-| `oms-apps-v1` | `apps` | `apps` |
-| `oms-integrations-v1` | `default` or your enablements namespace | `integrations` |
-| `oms-fulfillment-v1` | `fulfillment` | `fulfillment` |
-| `oms-fulfillment-agents-v1` | `fulfillment` | `agents` |
+| Endpoint name | Target namespace | Target task queue | Caller namespaces (allowlist) |
+|--------------|----------------|-----------------|-----------------|
+| `oms-processing-v1` | `processing` | `processing` | `apps` |
+| `oms-apps-v1` | `apps` | `apps` | `processing`, `fulfillment` |
+| `oms-integrations-v1` | see TODO below | `integrations` | `processing`, `fulfillment` |
+| `oms-fulfillment-v1` | `fulfillment` | `fulfillment` | `apps` |
+| `oms-fulfillment-agents-v1` | `fulfillment` | `agents` | `fulfillment` |
 
-Use fully-qualified namespace names, for example `apps.<account-id>`. The
-`scripts/setup-temporal-namespaces.sh` helper is for local Temporal unless it is extended with Cloud
-API key and TLS flags.
+Use fully-qualified namespace names, for example `apps.<account-id>`. The scripts do not create
+Cloud endpoints; `scripts/setup-temporal-namespaces.sh` targets local Temporal only. With `tcld`
+logged in to your account:
+
+```bash
+ACCT=<account-id>
+tcld nexus endpoint create --name oms-processing-v1 \
+  --target-namespace processing.$ACCT --target-task-queue processing \
+  --allow-namespace apps.$ACCT
+tcld nexus endpoint create --name oms-apps-v1 \
+  --target-namespace apps.$ACCT --target-task-queue apps \
+  --allow-namespace processing.$ACCT --allow-namespace fulfillment.$ACCT
+tcld nexus endpoint create --name oms-fulfillment-v1 \
+  --target-namespace fulfillment.$ACCT --target-task-queue fulfillment \
+  --allow-namespace apps.$ACCT
+tcld nexus endpoint create --name oms-fulfillment-agents-v1 \
+  --target-namespace fulfillment.$ACCT --target-task-queue agents \
+  --allow-namespace fulfillment.$ACCT
+```
+
+> **TODO:** `oms-integrations-v1` targets the `integrations` task queue served by
+> `enablements-workers`. Enablements stays on local Temporal, and a Cloud Nexus endpoint cannot
+> target a local server, so processing and fulfillment integrations calls (inventory, PIMS,
+> commerce) have no handler in cloud mode. Options are tracked in
+> [docs/CLOUD.md](docs/CLOUD.md#known-gaps-todo).
 
 #### d) Note Your Region Endpoint
 

@@ -107,6 +107,40 @@ values are ever written to committed files:
 
 ---
 
+## Known Gaps (TODO)
+
+`OVERLAY=cloud` is not end-to-end functional yet. Intended model: `apps`, `processing`, and
+`fulfillment` run against Temporal Cloud; enablements stays on the local Temporal dev server
+(`host.k3d.internal:7233` or `host.docker.internal:7233`, namespace `default`, no TLS, no API key).
+
+- [ ] **Enablements points at Cloud in the cloud overlay.** `k8s/overlays/cloud/kustomization.yaml`
+  and `k8s/overlays/cloud/configmap/temporal-enablements.yaml` set the Cloud address, TLS, and
+  namespace `default`, which cannot exist in Cloud (`<name>.<account-id>` only). Point them at
+  local Temporal as `k8s/overlays/k3d-local` does, and drop the `temporal-secret` volume from
+  `enablements-api` and `enablements-workers` the way `k8s/overlays/local` does. The kind
+  address differs (`host.docker.internal`), so this likely needs `k3d-cloud` and `kind-cloud`
+  overlays, or an address patch per cluster type.
+- [ ] **`oms-integrations-v1` has no handler in cloud mode.** Processing and fulfillment (Java
+  `OrderImpl` v1/v2, Python `shipping_agent.py`) call the `integrations` Nexus service hosted by
+  `enablements-workers`. A Cloud endpoint cannot target local Temporal. Candidate fixes:
+  - `enablements-workers` keeps its own workflows local but runs a second Temporal client and
+    worker for the `integrations` task queue against a Cloud namespace (Java change).
+  - A second `enablements-workers` Deployment, profile-gated to serve only `integrations`
+    against Cloud (config only, one more pod).
+- [ ] **Python fulfillment worker has no Cloud credentials.** It reads
+  `TEMPORAL_FULFILLMENT_API_KEY` from `temporal-oms-secrets`, which `k8s/base` sets to empty and
+  every `kubectl apply -k` resets. Patch it after apply in `app-deploy.sh` (same pattern as
+  `scripts/_lib/k8s-runtime-secrets.sh`) from `config/acme.fulfillment.secret.yaml`.
+- [ ] **Admin UI worker promotion targets local namespaces only.** `DeploymentActivitiesImpl`
+  calls `setWorkerDeploymentCurrentVersion` through the enablements client with hardcoded
+  namespaces `apps`, `processing`, `fulfillment`. With enablements local, promotion cannot reach
+  Cloud. The processing `WorkerDeployment` (Worker Controller) path is unaffected.
+- [ ] **Cloud namespaces are hardcoded to `*.sdvdw`** in `k8s/overlays/cloud` and
+  `k8s/processing-versioned/overlays/cloud`. Anyone else must edit five files. Consider sourcing
+  the account id and region from a gitignored config file at deploy time.
+
+---
+
 ## Switching Back to Local
 
 ```bash
