@@ -47,7 +47,7 @@ Identified during planning; all resolved.
 | # | Question | Needed By | Status |
 |---|----------|-----------|--------|
 | Q1 | `src/worker.py` does not exist but `Dockerfile` runs `python -m src.worker`. Missing placeholder? | Phase 2 — Worker registration | ✅ Create it in Phase 2; it's a gap, not a choice |
-| Q2 | Worker process structure: 3 separate containers or one process with 3 `Worker` objects? | Phase 2 — Worker registration | ✅ One process, 3 `Worker` objects started concurrently; consistent with single `Dockerfile`; each `Worker` enforces its own `max_activities_per_second` independently |
+| Q2 | Worker process structure: 3 separate containers or one process with 3 `Worker` objects? | Phase 2 — Worker registration | ✅ One process, 3 `Worker` objects started concurrently; consistent with single `Dockerfile`; each `Worker` enforces its own `max_task_queue_activities_per_second` independently |
 | Q3 | `call_llm` I/O types: Anthropic SDK types, custom Pydantic mirrors, or plain `dict`? | Phase 2 — `call_llm` | ✅ Use Anthropic SDK types directly — they are already Pydantic models; Temporal's data converter handles them without any wrapper |
 | Q4 | Margin threshold source for `MARGIN_SPIKE` condition? | Phase 1 — proto, Phase 3 — system prompt | ✅ Use `selected_shipment.paid_price` from `RecommendShippingOptionRequest`; prompt text calls this the customer paid price. |
 | Q5 | EasyPost parcel dimensions missing from `GetCarrierRatesRequest` — activity needs weight/dims | Phase 1 — proto, Phase 2 — `get_carrier_rates` | ✅ Hardcode default parcel for V1 (1 lb, 6×6×4 in); no proto field added; noted inline in activity |
@@ -167,7 +167,7 @@ Identified during planning; all resolved.
 
 - [x] `python/fulfillment/src/workers/fulfillment_worker.py`: Temporal worker for `fulfillment` task queue
   - Register `ShippingAgent` workflow + `LookupInventoryActivities` + `LlmActivities`
-  - No `max_activities_per_second` constraint
+  - No `max_task_queue_activities_per_second` constraint
   - Namespace: `fulfillment`; connect to `TEMPORAL_ADDRESS` env var
 
 - [x] `python/fulfillment/src/workers/shipping_worker.py`: Temporal worker for `fulfillment-shipping` task queue
