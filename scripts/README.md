@@ -77,9 +77,33 @@ OVERLAY=local ./scripts/k3d/app-deploy.sh
 Tear everything down:
 
 ```bash
-./scripts/kind/demo-down.sh
-./scripts/k3d/demo-down.sh
+HARD=1 ./scripts/kind/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 ```
+
+### Soft down and resume
+
+`demo-down.sh` stops the cluster instead of deleting it: `k3d cluster stop` on
+k3d, `docker stop temporal-oms-control-plane` on KinD. The next `demo-up.sh`
+starts the cluster and reuses the deployed apps when `OVERLAY` matches, so it
+skips the Maven build, Docker builds, and image import. The same commands work
+with `scripts/kind/` in place of `scripts/k3d/`.
+
+```bash
+OVERLAY=local ./scripts/k3d/demo-up.sh               # first run: full build and deploy
+./scripts/k3d/demo-down.sh                           # soft down: stop the cluster
+OVERLAY=local ./scripts/k3d/demo-up.sh               # resume: start cluster, wait for apps
+REDEPLOY=1 OVERLAY=local ./scripts/k3d/demo-up.sh    # rebuild and redeploy current code
+HARD=1 ./scripts/k3d/demo-down.sh                    # full teardown: delete the cluster
+```
+
+KinD has no native stop command. Restarting the node container works for this
+single-node cluster; if a resumed KinD cluster misbehaves, run
+`HARD=1 ./scripts/kind/demo-down.sh` and bring it up again.
+
+The resume path does not rebuild images or re-apply secrets. Use `REDEPLOY=1`
+after code or API key changes. A different `OVERLAY` from the deployed one
+triggers the full path automatically.
 
 ## Modular Workflow
 
@@ -179,8 +203,8 @@ WORKSHOP_PIN_OUTPUT=false ./scripts/serve-workshop-api-keys.sh
 | `app-deploy.sh` | Build Java projects, build Docker images, load/import images, deploy apps |
 | `app-down.sh` | Remove applications while keeping the cluster running |
 | `infra-down.sh` | Delete the cluster and all infrastructure |
-| `demo-up.sh` | Full setup: runs `infra-up.sh` and `app-deploy.sh` |
-| `demo-down.sh` | Full teardown: runs `app-down.sh` and `infra-down.sh` |
+| `demo-up.sh` | Full setup: runs `infra-up.sh` and `app-deploy.sh`. Resumes a stopped cluster and reuses its apps when `OVERLAY` matches; `REDEPLOY=1` forces the full path |
+| `demo-down.sh` | Stops the cluster by default; `HARD=1` runs `app-down.sh` and `infra-down.sh` for a full teardown |
 | `deploy-processing-workers.sh` | Build and deploy a new processing worker image through TWC |
 | `tunnel.sh` | Port-forward APIs |
 | `status.sh` | Show deployment status |
@@ -261,9 +285,9 @@ kubectl logs -n temporal-oms-processing -l app=processing-workers -f
 Reset everything:
 
 ```bash
-./scripts/kind/demo-down.sh
+HARD=1 ./scripts/kind/demo-down.sh
 ./scripts/kind/demo-up.sh
 
-./scripts/k3d/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 ./scripts/k3d/demo-up.sh
 ```

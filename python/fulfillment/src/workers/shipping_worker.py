@@ -31,5 +31,5 @@ async def build_shipping_worker() -> Worker:
             shipping_activities.get_carrier_rates,
         ],
         activity_executor=ThreadPoolExecutor(max_workers=10),
-        max_activities_per_second=3.0,
+        max_task_queue_activities_per_second=3.0,
     )

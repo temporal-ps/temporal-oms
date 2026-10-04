@@ -103,7 +103,8 @@ Cloud overlay defaults currently use:
 - Apps namespace: `fde-oms-apps.sdvdw`
 - Processing namespace: `fde-oms-processing.sdvdw`
 - Fulfillment namespace: `fde-oms-fulfillment.sdvdw`
-- Enablements namespace: `default`
+- Enablements namespace: `default` (TODO: should stay on local Temporal; see
+  [docs/CLOUD.md](../docs/CLOUD.md#known-gaps-todo))
 
 Update `k8s/overlays/cloud/configmap/*.yaml` and `k8s/overlays/cloud/kustomization.yaml` if your Temporal Cloud namespace names differ.
 

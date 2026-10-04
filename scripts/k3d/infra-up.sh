@@ -13,7 +13,8 @@ if ! k3d cluster list temporal-oms 2>/dev/null | grep -q temporal-oms; then
     echo "→ Creating k3d cluster (temporal-oms)..."
     k3d cluster create temporal-oms --k3s-arg '--disable=traefik@server:0'
 else
-    echo "✓ k3d cluster (temporal-oms) already exists"
+    echo "✓ k3d cluster (temporal-oms) already exists; starting it if stopped"
+    k3d cluster start temporal-oms --wait >/dev/null
 fi
 
 # Always (re)write the kubeconfig — /tmp can be wiped between sessions.

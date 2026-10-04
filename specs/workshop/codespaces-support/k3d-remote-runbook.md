@@ -332,7 +332,7 @@ fi
 Tear down k3d:
 
 ```bash
-./scripts/k3d/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 ```
 
 Stop local Temporal:

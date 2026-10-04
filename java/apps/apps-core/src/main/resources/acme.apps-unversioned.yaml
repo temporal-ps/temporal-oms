@@ -10,3 +10,13 @@ spring.temporal:
         - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
       activity-beans:
         - options-activities
+      workflow-task-pollers-configuration:
+        poller-behavior-autoscaling:
+          min-concurrent-task-pollers: 2 # preserve default
+          max-concurrent-task-pollers: 10
+      activity-task-pollers-configuration:
+        poller-behavior-autoscaling:
+          enabled: true
+      nexus-task-pollers-configuration:
+        poller-behavior-autoscaling:
+          enabled: true
