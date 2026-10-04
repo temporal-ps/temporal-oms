@@ -10,6 +10,8 @@ spring.temporal:
         - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
       activity-beans:
         - options-activities
+      nexus-service-beans:
+        - apps-service
       workflow-task-pollers-configuration:
         poller-behavior-autoscaling:
           min-concurrent-task-pollers: 2 # preserve default

@@ -11,71 +11,88 @@ import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.*;
-import io.temporal.nexus.Nexus;
+import io.temporal.nexus.TemporalOperationHandler;
+import io.temporal.nexus.TemporalOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Component("apps-service")
 @ServiceImpl(service = AppsService.class)
 public class AppsServiceImpl {
     private Logger logger = LoggerFactory.getLogger(AppsServiceImpl.class);
 
+    /**
+     * Starts the Order workflow with UpdateWithStart when the request carries a
+     * complete_order_request; otherwise sends the update to the existing Order workflow.
+     */
     @OperationImpl
     public OperationHandler<CapturePaymentRequest, GetCompleteOrderStateResponse> capturePayment() {
-        return OperationHandler.sync((ctx, details,  request) -> {
-
+        return TemporalOperationHandler.create((context, client, request) -> {
             var orderId = request.getOrderId();
-            var wfOpts = WorkflowOptions.newBuilder()
-                    .setWorkflowId(orderId)
-                    .setTaskQueue("apps")
-                    .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
-                    // using ALLOW_DUPLICATE so we won't fail the operation if the workflow completes
-                    // as it would if we used ALLOW_DUPLICATE_FAILED_ONLY
-                    .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE)
-                    .build();
-            var tcli = Nexus.getOperationContext().getWorkflowClient();
-            var workflow = tcli.newWorkflowStub(Order.class, wfOpts);
-
-            // UpdateWithStart: start the workflow if needed and wait for the update result.
-            // this is safe for synchronously, quickly scheduling this command
-            return WorkflowClient.executeUpdateWithStart(
-                    workflow::capturePayment,
+            if (request.hasCompleteOrderRequest()) {
+                var workflow = client.getWorkflowClient().newWorkflowStub(Order.class, startOptions(orderId));
+                // Synchronous UpdateWithStart: the update must complete within the Nexus sync deadline.
+                return TemporalOperationResult.sync(WorkflowClient.executeUpdateWithStart(
+                        workflow::capturePayment,
+                        request,
+                        UpdateOptions.<GetCompleteOrderStateResponse>newBuilder()
+                                .setUpdateId(context.getRequestId())
+                                .build(),
+                        new WithStartWorkflowOperation<>(workflow::execute, request.getCompleteOrderRequest())));
+            }
+            return client.startWorkflowUpdate(
+                    Order.class,
+                    orderId,
+                    Order::capturePayment,
                     request,
-                    UpdateOptions.<GetCompleteOrderStateResponse>newBuilder()
-                            .setUpdateId(details.getRequestId())
-                            .build(),
-                    new WithStartWorkflowOperation<>(workflow::execute, request.getCompleteOrderRequest()));
+                    UpdateOptions.newBuilder(GetCompleteOrderStateResponse.class)
+                            .setUpdateName("capturePayment")
+                            .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+                            .build());
         });
     }
 
+    /**
+     * Starts the Order workflow with UpdateWithStart when the request carries a
+     * complete_order_request; otherwise sends the update to the existing Order workflow.
+     */
     @OperationImpl
     public OperationHandler<SubmitOrderRequest, GetCompleteOrderStateResponse> submitOrder() {
-        return OperationHandler.sync((ctx, details,  request) -> {
+        return TemporalOperationHandler.create((context, client, request) -> {
             var orderId = request.getOrderId();
-            var wfOpts = WorkflowOptions.newBuilder()
-                    .setWorkflowId(orderId)
-                    .setTaskQueue("apps")
-                    .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
-                    // using ALLOW_DUPLICATE so we won't fail the operation if the workflow completes
-                    // as it would if we used ALLOW_DUPLICATE_FAILED_ONLY
-                    .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE)
-                    .build();
-            var tcli = Nexus.getOperationContext().getWorkflowClient();
-            var workflow = tcli.newWorkflowStub(Order.class, wfOpts);
-
-            // UpdateWithStart: start the workflow if needed and wait for the update result.
-            // this is safe for synchronously, quickly scheduling this command
-            return WorkflowClient.executeUpdateWithStart(
-                    workflow::submitOrder,
+            if (request.hasCompleteOrderRequest()) {
+                var workflow = client.getWorkflowClient().newWorkflowStub(Order.class, startOptions(orderId));
+                // Synchronous UpdateWithStart: the update must complete within the Nexus sync deadline.
+                return TemporalOperationResult.sync(WorkflowClient.executeUpdateWithStart(
+                        workflow::submitOrder,
+                        request,
+                        UpdateOptions.<GetCompleteOrderStateResponse>newBuilder()
+                                .setUpdateId(context.getRequestId())
+                                .build(),
+                        new WithStartWorkflowOperation<>(workflow::execute, request.getCompleteOrderRequest())));
+            }
+            return client.startWorkflowUpdate(
+                    Order.class,
+                    orderId,
+                    Order::submitOrder,
                     request,
-                    UpdateOptions.<GetCompleteOrderStateResponse>newBuilder()
-                            .setUpdateId(details.getRequestId())
-                            .build(),
-                    new WithStartWorkflowOperation<>(workflow::execute, request.getCompleteOrderRequest()));
+                    UpdateOptions.newBuilder(GetCompleteOrderStateResponse.class)
+                            .setUpdateName("submitOrder")
+                            .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+                            .build());
         });
     }
 
+    private static WorkflowOptions startOptions(String orderId) {
+        return WorkflowOptions.newBuilder()
+                .setWorkflowId(orderId)
+                .setTaskQueue("apps")
+                // USE_EXISTING lets a retried request with the same update ID attach to the running workflow.
+                .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_USE_EXISTING)
+                // ALLOW_DUPLICATE avoids failing the operation after the workflow completes,
+                // which ALLOW_DUPLICATE_FAILED_ONLY would do.
+                .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE)
+                .build();
+    }
 }
