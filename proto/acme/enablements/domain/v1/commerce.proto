@@ -39,6 +39,14 @@ message CommerceOrderState {
   ScenarioOptions scenario_options = 8;
 }
 
+// Event the Commerce App publishes to webhook subscribers.
+message CommerceOrderEvent {
+  string event_id = 1; // unique per event; subscribers deduplicate redeliveries on it
+  string type = 2; // commerce.order.submitted
+  google.protobuf.Timestamp created = 3;
+  CommerceOrderState order = 4;
+}
+
 message CreateCommerceOrderRequest {
   string customer_id = 1;
   repeated acme.oms.v1.Item items = 2;

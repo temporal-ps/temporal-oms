@@ -1,11 +1,10 @@
 package com.acme.enablements.payments.workflows;
 
 import com.acme.enablements.activities.PendingPublishRegistryActivities;
-import com.acme.proto.acme.apps.api.orders.v1.MakePaymentRequest;
-import com.acme.proto.acme.apps.api.orders.v1.Metadata;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CaptureChargeRequest;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CreateChargeRequest;
 import com.acme.proto.acme.enablements.domain.enablements.v1.PaymentChargeState;
+import com.acme.proto.acme.enablements.domain.enablements.v1.PaymentEvent;
 import com.acme.proto.acme.enablements.domain.enablements.v1.VoidChargeRequest;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.JsonFormat;
@@ -15,7 +14,6 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
 
 import java.time.Duration;
-import java.util.UUID;
 
 public class PaymentChargeImpl implements PaymentCharge {
 
@@ -53,7 +51,7 @@ public class PaymentChargeImpl implements PaymentCharge {
             return;
         }
 
-        registry.registerPaymentAuthorization(state.getOrderId(), toMakePaymentRequestJson());
+        registry.registerPaymentAuthorization(state.getOrderId(), toPaymentEventJson("payment.authorized"));
 
         Workflow.await(AUTO_CAPTURE_DELAY, () -> voidRequested || captureRequested);
         if (voidRequested) {
@@ -67,7 +65,7 @@ public class PaymentChargeImpl implements PaymentCharge {
         }
 
         state = state.toBuilder().setStatus("CAPTURED").setCapturedAt(nowTimestamp()).build();
-        registry.registerPaymentCapture(state.getOrderId(), toMakePaymentRequestJson());
+        registry.registerPaymentCapture(state.getOrderId(), toPaymentEventJson("payment.captured"));
     }
 
     @Override
@@ -95,18 +93,18 @@ public class PaymentChargeImpl implements PaymentCharge {
         }
     }
 
-    private String toMakePaymentRequestJson() {
-        var request = MakePaymentRequest.newBuilder()
-                .setCustomerId(state.getCustomerId())
-                .setRrn(UUID.nameUUIDFromBytes(state.getChargeId().getBytes()).toString())
-                .setAmountCents(state.getAmountCents())
-                .setMetadata(Metadata.newBuilder().setOrderId(state.getOrderId()).build())
+    private String toPaymentEventJson(String type) {
+        var event = PaymentEvent.newBuilder()
+                .setEventId(Workflow.randomUUID().toString())
+                .setType(type)
+                .setCreated(nowTimestamp())
+                .setCharge(state)
                 .build();
         try {
-            return JsonFormat.printer().print(request);
+            return JsonFormat.printer().print(event);
         } catch (Exception e) {
             throw ApplicationFailure.newNonRetryableFailure(
-                    "Failed to serialize MakePaymentRequest for charge " + state.getChargeId(), "SerializationFailure");
+                    "Failed to serialize PaymentEvent for charge " + state.getChargeId(), "SerializationFailure");
         }
     }
 

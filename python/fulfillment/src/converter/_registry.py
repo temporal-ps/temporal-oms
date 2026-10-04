@@ -36,14 +36,7 @@ import acme.risk.domain.v1.workflows_p2p as _p2p_17
 import acme.risk.domain.v1.workflows_pb2 as _pb2_17
 
 REGISTRY: dict[type[BaseModel], type[Message]] = {
-    _p2p_0.Item: _pb2_0.Item,
-    _p2p_0.ShippingAddress: _pb2_0.ShippingAddress,
-    _p2p_0.SelectedShipment: _pb2_0.SelectedShipment,
-    _p2p_0.Order: _pb2_0.Order,
-    _p2p_0.SubmitOrderRequest: _pb2_0.SubmitOrderRequest,
     _p2p_0.SubmitOrderResponse: _pb2_0.SubmitOrderResponse,
-    _p2p_0.Metadata: _pb2_0.Metadata,
-    _p2p_0.MakePaymentRequest: _pb2_0.MakePaymentRequest,
     _p2p_0.MakePaymentResponse: _pb2_0.MakePaymentResponse,
     _p2p_0.ListOrdersRequest: _pb2_0.ListOrdersRequest,
     _p2p_0.OrderSummary: _pb2_0.OrderSummary,
@@ -78,6 +71,7 @@ REGISTRY: dict[type[BaseModel], type[Message]] = {
     _p2p_4.ErrorDetails: _pb2_4.ErrorDetails,
     _p2p_5.ScenarioOptions: _pb2_5.ScenarioOptions,
     _p2p_5.CommerceOrderState: _pb2_5.CommerceOrderState,
+    _p2p_5.CommerceOrderEvent: _pb2_5.CommerceOrderEvent,
     _p2p_5.CreateCommerceOrderRequest: _pb2_5.CreateCommerceOrderRequest,
     _p2p_5.CommerceInventoryState: _pb2_5.CommerceInventoryState,
     _p2p_5.HoldInventoryRequest: _pb2_5.HoldInventoryRequest,
@@ -87,6 +81,7 @@ REGISTRY: dict[type[BaseModel], type[Message]] = {
     _p2p_5.GetCommerceShippingRatesRequest: _pb2_5.GetCommerceShippingRatesRequest,
     _p2p_5.GetCommerceShippingRatesResponse: _pb2_5.GetCommerceShippingRatesResponse,
     _p2p_6.PaymentChargeState: _pb2_6.PaymentChargeState,
+    _p2p_6.PaymentEvent: _pb2_6.PaymentEvent,
     _p2p_6.CreateChargeRequest: _pb2_6.CreateChargeRequest,
     _p2p_6.CaptureChargeRequest: _pb2_6.CaptureChargeRequest,
     _p2p_6.VoidChargeRequest: _pb2_6.VoidChargeRequest,

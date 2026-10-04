@@ -20,6 +20,16 @@ class PaymentChargeState(BaseModel):
     authorized_at: datetime = Field(default_factory=datetime.now)
     captured_at: typing.Optional[datetime] = Field(default_factory=datetime.now)
 
+class PaymentEvent(BaseModel):
+    """
+     Event the Payments Processor publishes to webhook subscribers.
+    """
+
+    event_id: str = Field(default="")# unique per event; subscribers deduplicate redeliveries on it
+    type: str = Field(default="")# payment.authorized | payment.captured
+    created: datetime = Field(default_factory=datetime.now)
+    charge: PaymentChargeState = Field(default_factory=PaymentChargeState)
+
 class CreateChargeRequest(BaseModel):
     order_id: str = Field(default="")
     customer_id: str = Field(default="")

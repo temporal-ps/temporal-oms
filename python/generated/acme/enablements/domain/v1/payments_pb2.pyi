@@ -30,6 +30,18 @@ class PaymentChargeState(_message.Message):
     captured_at: _timestamp_pb2.Timestamp
     def __init__(self, charge_id: _Optional[str] = ..., order_id: _Optional[str] = ..., customer_id: _Optional[str] = ..., amount_cents: _Optional[int] = ..., card_last_four: _Optional[str] = ..., status: _Optional[str] = ..., decline_reason: _Optional[str] = ..., authorized_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., captured_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ...) -> None: ...
 
+class PaymentEvent(_message.Message):
+    __slots__ = ()
+    EVENT_ID_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    CREATED_FIELD_NUMBER: _ClassVar[int]
+    CHARGE_FIELD_NUMBER: _ClassVar[int]
+    event_id: str
+    type: str
+    created: _timestamp_pb2.Timestamp
+    charge: PaymentChargeState
+    def __init__(self, event_id: _Optional[str] = ..., type: _Optional[str] = ..., created: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., charge: _Optional[_Union[PaymentChargeState, _Mapping]] = ...) -> None: ...
+
 class CreateChargeRequest(_message.Message):
     __slots__ = ()
     ORDER_ID_FIELD_NUMBER: _ClassVar[int]

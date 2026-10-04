@@ -19,17 +19,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../_lib.sh"
 scenario_resume "$SCRIPT_DIR"
 
-METADATA_JSON="$(scenario_metadata_json)"
+EVENT_JSON="$(scenario_payment_event_json)"
 
 echo "Capturing payment for ${ORDER_ID}..."
 echo "Customer ID: ${CUSTOMER_ID}"
 echo ""
 
 xh POST http://localhost:8080/api/v1/payments-app/orders \
-  customerId="${CUSTOMER_ID}" \
-  rrn="${PAYMENT_RRN}" \
-  amountCents="${PAYMENT_AMOUNT_CENTS}" \
-  metadata:="${METADATA_JSON}"
+  --raw "${EVENT_JSON}"
 
 echo ""
 echo "Payment captured — order is now processing"

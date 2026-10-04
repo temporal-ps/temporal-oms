@@ -60,6 +60,18 @@ class CommerceOrderState(_message.Message):
     scenario_options: ScenarioOptions
     def __init__(self, order_id: _Optional[str] = ..., customer_id: _Optional[str] = ..., items: _Optional[_Iterable[_Union[_values_pb2.Item, _Mapping]]] = ..., shipping_address: _Optional[_Union[_values_pb2_1.Address, _Mapping]] = ..., selected_shipment: _Optional[_Union[_values_pb2_1.Shipment, _Mapping]] = ..., status: _Optional[str] = ..., placed_at: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., scenario_options: _Optional[_Union[ScenarioOptions, _Mapping]] = ...) -> None: ...
 
+class CommerceOrderEvent(_message.Message):
+    __slots__ = ()
+    EVENT_ID_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    CREATED_FIELD_NUMBER: _ClassVar[int]
+    ORDER_FIELD_NUMBER: _ClassVar[int]
+    event_id: str
+    type: str
+    created: _timestamp_pb2.Timestamp
+    order: CommerceOrderState
+    def __init__(self, event_id: _Optional[str] = ..., type: _Optional[str] = ..., created: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., order: _Optional[_Union[CommerceOrderState, _Mapping]] = ...) -> None: ...
+
 class CreateCommerceOrderRequest(_message.Message):
     __slots__ = ()
     CUSTOMER_ID_FIELD_NUMBER: _ClassVar[int]

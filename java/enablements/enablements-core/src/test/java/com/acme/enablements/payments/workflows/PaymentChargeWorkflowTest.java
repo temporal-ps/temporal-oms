@@ -5,7 +5,9 @@ import com.acme.enablements.commerce.workflows.PendingPublishEntry;
 import com.acme.enablements.commerce.workflows.PublishSide;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CreateChargeRequest;
 import com.acme.proto.acme.enablements.domain.enablements.v1.DemoScenario;
+import com.acme.proto.acme.enablements.domain.enablements.v1.PaymentEvent;
 import com.acme.proto.acme.enablements.domain.enablements.v1.VoidChargeRequest;
+import com.google.protobuf.util.JsonFormat;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -35,6 +37,7 @@ class PaymentChargeWorkflowTest {
     private static class RecordingRegistryActivities implements PendingPublishRegistryActivities {
         final List<String> authorizedOrderIds = new ArrayList<>();
         final List<String> capturedOrderIds = new ArrayList<>();
+        final List<String> payloads = new ArrayList<>();
 
         @Override
         public void registerCommerceOrder(String orderId, DemoScenario scenario, String commercePayloadJson) {
@@ -43,11 +46,13 @@ class PaymentChargeWorkflowTest {
         @Override
         public void registerPaymentAuthorization(String orderId, String authorizedPayloadJson) {
             authorizedOrderIds.add(orderId);
+            payloads.add(authorizedPayloadJson);
         }
 
         @Override
         public void registerPaymentCapture(String orderId, String paymentPayloadJson) {
             capturedOrderIds.add(orderId);
+            payloads.add(paymentPayloadJson);
         }
 
         @Override
@@ -98,6 +103,18 @@ class PaymentChargeWorkflowTest {
         assertThat(stub.getState().getStatus()).isEqualTo("CAPTURED");
         assertThat(registryActivities.authorizedOrderIds).containsExactly("order-1");
         assertThat(registryActivities.capturedOrderIds).containsExactly("order-1");
+
+        var events = new ArrayList<PaymentEvent>();
+        for (var json : registryActivities.payloads) {
+            var event = PaymentEvent.newBuilder();
+            JsonFormat.parser().merge(json, event);
+            events.add(event.build());
+        }
+        assertThat(events).extracting(PaymentEvent::getType)
+                .containsExactly("payment.authorized", "payment.captured");
+        assertThat(events).extracting(PaymentEvent::getEventId).doesNotContain("").doesNotHaveDuplicates();
+        assertThat(events.getLast().getCharge().getStatus()).isEqualTo("CAPTURED");
+        assertThat(events.getLast().getCharge().getOrderId()).isEqualTo("order-1");
     }
 
     @Test

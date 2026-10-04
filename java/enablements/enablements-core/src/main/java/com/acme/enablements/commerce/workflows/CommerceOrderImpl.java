@@ -2,10 +2,7 @@ package com.acme.enablements.commerce.workflows;
 
 import com.acme.enablements.activities.CommerceInventoryActivities;
 import com.acme.enablements.activities.PendingPublishRegistryActivities;
-import com.acme.proto.acme.apps.api.orders.v1.Order;
-import com.acme.proto.acme.apps.api.orders.v1.SelectedShipment;
-import com.acme.proto.acme.apps.api.orders.v1.ShippingAddress;
-import com.acme.proto.acme.apps.api.orders.v1.SubmitOrderRequest;
+import com.acme.proto.acme.enablements.domain.enablements.v1.CommerceOrderEvent;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CommerceOrderState;
 import com.acme.proto.acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest;
 import com.acme.proto.acme.enablements.domain.enablements.v1.HoldInventoryRequest;
@@ -53,7 +50,7 @@ public class CommerceOrderImpl implements CommerceOrder {
                 .addAllItems(state.getItemsList())
                 .build());
 
-        registry.registerCommerceOrder(state.getOrderId(), state.getScenarioOptions().getScenario(), toSubmitOrderRequestJson());
+        registry.registerCommerceOrder(state.getOrderId(), state.getScenarioOptions().getScenario(), toOrderSubmittedEventJson());
     }
 
     @Override
@@ -61,53 +58,18 @@ public class CommerceOrderImpl implements CommerceOrder {
         return state;
     }
 
-    private String toSubmitOrderRequestJson() {
-        var orderBuilder = Order.newBuilder()
-                .setOrderId(state.getOrderId())
-                .addAllItems(state.getItemsList().stream()
-                        .map(item -> com.acme.proto.acme.apps.api.orders.v1.Item.newBuilder()
-                                .setItemId(item.getItemId())
-                                .setQuantity(item.getQuantity())
-                                .build())
-                        .toList());
-
-        if (state.getShippingAddress().hasEasypost()) {
-            var ep = state.getShippingAddress().getEasypost();
-            orderBuilder.setShippingAddress(ShippingAddress.newBuilder()
-                    .setStreet(ep.getStreet1())
-                    .setCity(ep.getCity())
-                    .setState(ep.getState())
-                    .setPostalCode(ep.getZip())
-                    .setCountry(ep.getCountry())
-                    .build());
-        }
-
-        if (state.hasSelectedShipment()) {
-            var shipment = state.getSelectedShipment();
-            var selectedBuilder = SelectedShipment.newBuilder();
-            if (shipment.hasPaidPrice()) {
-                selectedBuilder.setPaidPriceCents(shipment.getPaidPrice().getUnits())
-                        .setCurrency(shipment.getPaidPrice().getCurrency());
-            }
-            if (shipment.hasEasypost() && shipment.getEasypost().hasSelectedRate()) {
-                var rate = shipment.getEasypost().getSelectedRate();
-                selectedBuilder.setRateId(rate.getRateId());
-                if (rate.hasDeliveryDays()) {
-                    selectedBuilder.setDeliveryDays((int) rate.getDeliveryDays());
-                }
-            }
-            orderBuilder.setSelectedShipment(selectedBuilder.build());
-        }
-
-        var request = SubmitOrderRequest.newBuilder()
-                .setCustomerId(state.getCustomerId())
-                .setOrder(orderBuilder.build())
+    private String toOrderSubmittedEventJson() {
+        var event = CommerceOrderEvent.newBuilder()
+                .setEventId(Workflow.randomUUID().toString())
+                .setType("commerce.order.submitted")
+                .setCreated(nowTimestamp())
+                .setOrder(state)
                 .build();
         try {
-            return JsonFormat.printer().print(request);
+            return JsonFormat.printer().print(event);
         } catch (Exception e) {
             throw ApplicationFailure.newNonRetryableFailure(
-                    "Failed to serialize SubmitOrderRequest for order " + state.getOrderId(), "SerializationFailure");
+                    "Failed to serialize CommerceOrderEvent for order " + state.getOrderId(), "SerializationFailure");
         }
     }
 

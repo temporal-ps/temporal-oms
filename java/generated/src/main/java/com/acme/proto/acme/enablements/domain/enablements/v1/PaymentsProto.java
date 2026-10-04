@@ -28,22 +28,27 @@ public final class PaymentsProto extends com.google.protobuf.GeneratedFile {
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_domain_enablements_v1_PaymentChargeState_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_domain_enablements_v1_PaymentChargeState_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_acme_enablements_domain_enablements_v1_PaymentEvent_descriptor;
+  static final
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_acme_enablements_domain_enablements_v1_PaymentEvent_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_domain_enablements_v1_CaptureChargeRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_domain_enablements_v1_CaptureChargeRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_enablements_domain_enablements_v1_VoidChargeRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_enablements_domain_enablements_v1_VoidChargeRequest_fieldAccessorTable;
 
@@ -67,20 +72,25 @@ public final class PaymentsProto extends com.google.protobuf.GeneratedFile {
       "ason\022?\n\rauthorized_at\030\010 \001(\0132\032.google.pro" +
       "tobuf.TimestampR\014authorizedAt\022@\n\013capture" +
       "d_at\030\t \001(\0132\032.google.protobuf.TimestampH\000" +
-      "R\ncapturedAt\210\001\001B\016\n\014_captured_at\"\225\001\n\023Crea" +
-      "teChargeRequest\022\031\n\010order_id\030\001 \001(\tR\007order" +
-      "Id\022\037\n\013customer_id\030\002 \001(\tR\ncustomerId\022!\n\014a" +
-      "mount_cents\030\003 \001(\003R\013amountCents\022\037\n\013card_n" +
-      "umber\030\004 \001(\tR\ncardNumber\"3\n\024CaptureCharge" +
-      "Request\022\033\n\tcharge_id\030\001 \001(\tR\010chargeId\"0\n\021" +
-      "VoidChargeRequest\022\033\n\tcharge_id\030\001 \001(\tR\010ch" +
-      "argeIdB\203\002\n5com.acme.proto.acme.enablemen" +
-      "ts.domain.enablements.v1B\rPaymentsProtoP" +
-      "\001\242\002\004AEDE\252\002&Acme.Enablements.Domain.Enabl" +
-      "ements.V1\312\002&Acme\\Enablements\\Domain\\Enab" +
-      "lements\\V1\342\0022Acme\\Enablements\\Domain\\Ena" +
-      "blements\\V1\\GPBMetadata\352\002*Acme::Enableme" +
-      "nts::Domain::Enablements::V1b\006proto3"
+      "R\ncapturedAt\210\001\001B\016\n\014_captured_at\"\307\001\n\014Paym" +
+      "entEvent\022\031\n\010event_id\030\001 \001(\tR\007eventId\022\022\n\004t" +
+      "ype\030\002 \001(\tR\004type\0224\n\007created\030\003 \001(\0132\032.googl" +
+      "e.protobuf.TimestampR\007created\022R\n\006charge\030" +
+      "\004 \001(\0132:.acme.enablements.domain.enableme" +
+      "nts.v1.PaymentChargeStateR\006charge\"\225\001\n\023Cr" +
+      "eateChargeRequest\022\031\n\010order_id\030\001 \001(\tR\007ord" +
+      "erId\022\037\n\013customer_id\030\002 \001(\tR\ncustomerId\022!\n" +
+      "\014amount_cents\030\003 \001(\003R\013amountCents\022\037\n\013card" +
+      "_number\030\004 \001(\tR\ncardNumber\"3\n\024CaptureChar" +
+      "geRequest\022\033\n\tcharge_id\030\001 \001(\tR\010chargeId\"0" +
+      "\n\021VoidChargeRequest\022\033\n\tcharge_id\030\001 \001(\tR\010" +
+      "chargeIdB\203\002\n5com.acme.proto.acme.enablem" +
+      "ents.domain.enablements.v1B\rPaymentsProt" +
+      "oP\001\242\002\004AEDE\252\002&Acme.Enablements.Domain.Ena" +
+      "blements.V1\312\002&Acme\\Enablements\\Domain\\En" +
+      "ablements\\V1\342\0022Acme\\Enablements\\Domain\\E" +
+      "nablements\\V1\\GPBMetadata\352\002*Acme::Enable" +
+      "ments::Domain::Enablements::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -93,20 +103,26 @@ public final class PaymentsProto extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_domain_enablements_v1_PaymentChargeState_descriptor,
         new java.lang.String[] { "ChargeId", "OrderId", "CustomerId", "AmountCents", "CardLastFour", "Status", "DeclineReason", "AuthorizedAt", "CapturedAt", });
-    internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_descriptor =
+    internal_static_acme_enablements_domain_enablements_v1_PaymentEvent_descriptor =
       getDescriptor().getMessageType(1);
+    internal_static_acme_enablements_domain_enablements_v1_PaymentEvent_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_acme_enablements_domain_enablements_v1_PaymentEvent_descriptor,
+        new java.lang.String[] { "EventId", "Type", "Created", "Charge", });
+    internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_descriptor =
+      getDescriptor().getMessageType(2);
     internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_domain_enablements_v1_CreateChargeRequest_descriptor,
         new java.lang.String[] { "OrderId", "CustomerId", "AmountCents", "CardNumber", });
     internal_static_acme_enablements_domain_enablements_v1_CaptureChargeRequest_descriptor =
-      getDescriptor().getMessageType(2);
+      getDescriptor().getMessageType(3);
     internal_static_acme_enablements_domain_enablements_v1_CaptureChargeRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_domain_enablements_v1_CaptureChargeRequest_descriptor,
         new java.lang.String[] { "ChargeId", });
     internal_static_acme_enablements_domain_enablements_v1_VoidChargeRequest_descriptor =
-      getDescriptor().getMessageType(3);
+      getDescriptor().getMessageType(4);
     internal_static_acme_enablements_domain_enablements_v1_VoidChargeRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_enablements_domain_enablements_v1_VoidChargeRequest_descriptor,

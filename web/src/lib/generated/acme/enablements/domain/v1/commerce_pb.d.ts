@@ -85,6 +85,43 @@ export declare type CommerceOrderState = Message<"acme.enablements.domain.enable
 export declare const CommerceOrderStateSchema: GenMessage<CommerceOrderState>;
 
 /**
+ * Event the Commerce App publishes to webhook subscribers.
+ *
+ * @generated from message acme.enablements.domain.enablements.v1.CommerceOrderEvent
+ */
+export declare type CommerceOrderEvent = Message<"acme.enablements.domain.enablements.v1.CommerceOrderEvent"> & {
+  /**
+   * unique per event; subscribers deduplicate redeliveries on it
+   *
+   * @generated from field: string event_id = 1;
+   */
+  eventId: string;
+
+  /**
+   * commerce.order.submitted
+   *
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created = 3;
+   */
+  created?: Timestamp;
+
+  /**
+   * @generated from field: acme.enablements.domain.enablements.v1.CommerceOrderState order = 4;
+   */
+  order?: CommerceOrderState;
+};
+
+/**
+ * Describes the message acme.enablements.domain.enablements.v1.CommerceOrderEvent.
+ * Use `create(CommerceOrderEventSchema)` to create a new message.
+ */
+export declare const CommerceOrderEventSchema: GenMessage<CommerceOrderEvent>;
+
+/**
  * @generated from message acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest
  */
 export declare type CreateCommerceOrderRequest = Message<"acme.enablements.domain.enablements.v1.CreateCommerceOrderRequest"> & {

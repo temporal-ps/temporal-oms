@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1e\x61\x63me/apps/api/v1/message.proto\x12\x17\x61\x63me.apps.api.orders.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"k\n\x12SubmitOrderRequest\x12\x1f\n\x0b\x63ustomer_id\x18\x01 \x01(\tR\ncustomerId\x12\x34\n\x05order\x18\x02 \x01(\x0b\x32\x1e.acme.apps.api.orders.v1.OrderR\x05order\"\x9f\x02\n\x05Order\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x33\n\x05items\x18\x02 \x03(\x0b\x32\x1d.acme.apps.api.orders.v1.ItemR\x05items\x12S\n\x10shipping_address\x18\x03 \x01(\x0b\x32(.acme.apps.api.orders.v1.ShippingAddressR\x0fshippingAddress\x12[\n\x11selected_shipment\x18\x04 \x01(\x0b\x32).acme.apps.api.orders.v1.SelectedShipmentH\x00R\x10selectedShipment\x88\x01\x01\x42\x14\n\x12_selected_shipment\"\xad\x01\n\x10SelectedShipment\x12(\n\x10paid_price_cents\x18\x01 \x01(\x03R\x0epaidPriceCents\x12\x1a\n\x08\x63urrency\x18\x02 \x01(\tR\x08\x63urrency\x12(\n\rdelivery_days\x18\x03 \x01(\x05H\x00R\x0c\x64\x65liveryDays\x88\x01\x01\x12\x17\n\x07rate_id\x18\x04 \x01(\tR\x06rateIdB\x10\n\x0e_delivery_days\"\x8e\x01\n\x0fShippingAddress\x12\x16\n\x06street\x18\x01 \x01(\tR\x06street\x12\x12\n\x04\x63ity\x18\x02 \x01(\tR\x04\x63ity\x12\x14\n\x05state\x18\x03 \x01(\tR\x05state\x12\x1f\n\x0bpostal_code\x18\x04 \x01(\tR\npostalCode\x12\x18\n\x07\x63ountry\x18\x05 \x01(\tR\x07\x63ountry\";\n\x04Item\x12\x17\n\x07item_id\x18\x01 \x01(\tR\x06itemId\x12\x1a\n\x08quantity\x18\x02 \x01(\x05R\x08quantity\"\x83\x01\n\x13SubmitOrderResponse\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x16\n\x06status\x18\x02 \x01(\tR\x06status\x12\x39\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa9\x01\n\x12MakePaymentRequest\x12\x1f\n\x0b\x63ustomer_id\x18\x01 \x01(\tR\ncustomerId\x12\x10\n\x03rrn\x18\x02 \x01(\tR\x03rrn\x12!\n\x0c\x61mount_cents\x18\x03 \x01(\x03R\x0b\x61mountCents\x12=\n\x08metadata\x18\x04 \x01(\x0b\x32!.acme.apps.api.orders.v1.MetadataR\x08metadata\"%\n\x08Metadata\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\"\x87\x01\n\x13MakePaymentResponse\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x16\n\x06status\x18\x02 \x01(\tR\x06status\x12=\n\x0cprocessed_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0bprocessedAt\"p\n\x11ListOrdersRequest\x12\x1f\n\x0b\x63ustomer_id\x18\x01 \x01(\tR\ncustomerId\x12\x1b\n\tpage_size\x18\x02 \x01(\x05R\x08pageSize\x12\x1d\n\npage_token\x18\x03 \x01(\tR\tpageToken\"{\n\x12ListOrdersResponse\x12=\n\x06orders\x18\x01 \x03(\x0b\x32%.acme.apps.api.orders.v1.OrderSummaryR\x06orders\x12&\n\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xcb\x01\n\x0cOrderSummary\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x1f\n\x0b\x63ustomer_id\x18\x02 \x01(\tR\ncustomerId\x12\x16\n\x06status\x18\x03 \x01(\tR\x06status\x12,\n\x12total_amount_cents\x18\x04 \x01(\x03R\x10totalAmountCents\x12\x39\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"+\n\x13ListProductsRequest\x12\x14\n\x05limit\x18\x01 \x01(\x05R\x05limit\"N\n\x14ListProductsResponse\x12\x36\n\x05items\x18\x01 \x03(\x0b\x32 .acme.apps.api.orders.v1.ProductR\x05items\"\x96\x01\n\x07Product\x12\x17\n\x07item_id\x18\x01 \x01(\tR\x06itemId\x12\x12\n\x04name\x18\x02 \x01(\tR\x04name\x12 \n\x0b\x64\x65scription\x18\x03 \x01(\tR\x0b\x64\x65scription\x12\x1f\n\x0bprice_cents\x18\x04 \x01(\x03R\npriceCents\x12\x1b\n\timage_url\x18\x05 \x01(\tR\x08imageUrlB\xb7\x01\n&com.acme.proto.acme.apps.api.orders.v1B\x0cMessageProtoP\x01\xa2\x02\x04\x41\x41\x41O\xaa\x02\x17\x41\x63me.Apps.Api.Orders.V1\xca\x02\x17\x41\x63me\\Apps\\Api\\Orders\\V1\xe2\x02#Acme\\Apps\\Api\\Orders\\V1\\GPBMetadata\xea\x02\x1b\x41\x63me::Apps::Api::Orders::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1e\x61\x63me/apps/api/v1/message.proto\x12\x17\x61\x63me.apps.api.orders.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x83\x01\n\x13SubmitOrderResponse\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x16\n\x06status\x18\x02 \x01(\tR\x06status\x12\x39\n\ncreated_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"\x87\x01\n\x13MakePaymentResponse\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x16\n\x06status\x18\x02 \x01(\tR\x06status\x12=\n\x0cprocessed_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\x0bprocessedAt\"p\n\x11ListOrdersRequest\x12\x1f\n\x0b\x63ustomer_id\x18\x01 \x01(\tR\ncustomerId\x12\x1b\n\tpage_size\x18\x02 \x01(\x05R\x08pageSize\x12\x1d\n\npage_token\x18\x03 \x01(\tR\tpageToken\"{\n\x12ListOrdersResponse\x12=\n\x06orders\x18\x01 \x03(\x0b\x32%.acme.apps.api.orders.v1.OrderSummaryR\x06orders\x12&\n\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xcb\x01\n\x0cOrderSummary\x12\x19\n\x08order_id\x18\x01 \x01(\tR\x07orderId\x12\x1f\n\x0b\x63ustomer_id\x18\x02 \x01(\tR\ncustomerId\x12\x16\n\x06status\x18\x03 \x01(\tR\x06status\x12,\n\x12total_amount_cents\x18\x04 \x01(\x03R\x10totalAmountCents\x12\x39\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.TimestampR\tcreatedAt\"+\n\x13ListProductsRequest\x12\x14\n\x05limit\x18\x01 \x01(\x05R\x05limit\"N\n\x14ListProductsResponse\x12\x36\n\x05items\x18\x01 \x03(\x0b\x32 .acme.apps.api.orders.v1.ProductR\x05items\"\x96\x01\n\x07Product\x12\x17\n\x07item_id\x18\x01 \x01(\tR\x06itemId\x12\x12\n\x04name\x18\x02 \x01(\tR\x04name\x12 \n\x0b\x64\x65scription\x18\x03 \x01(\tR\x0b\x64\x65scription\x12\x1f\n\x0bprice_cents\x18\x04 \x01(\x03R\npriceCents\x12\x1b\n\timage_url\x18\x05 \x01(\tR\x08imageUrlB\xb7\x01\n&com.acme.proto.acme.apps.api.orders.v1B\x0cMessageProtoP\x01\xa2\x02\x04\x41\x41\x41O\xaa\x02\x17\x41\x63me.Apps.Api.Orders.V1\xca\x02\x17\x41\x63me\\Apps\\Api\\Orders\\V1\xe2\x02#Acme\\Apps\\Api\\Orders\\V1\\GPBMetadata\xea\x02\x1b\x41\x63me::Apps::Api::Orders::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,34 +33,20 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'acme.apps.api.v1.message_pb
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n&com.acme.proto.acme.apps.api.orders.v1B\014MessageProtoP\001\242\002\004AAAO\252\002\027Acme.Apps.Api.Orders.V1\312\002\027Acme\\Apps\\Api\\Orders\\V1\342\002#Acme\\Apps\\Api\\Orders\\V1\\GPBMetadata\352\002\033Acme::Apps::Api::Orders::V1'
-  _globals['_SUBMITORDERREQUEST']._serialized_start=92
-  _globals['_SUBMITORDERREQUEST']._serialized_end=199
-  _globals['_ORDER']._serialized_start=202
-  _globals['_ORDER']._serialized_end=489
-  _globals['_SELECTEDSHIPMENT']._serialized_start=492
-  _globals['_SELECTEDSHIPMENT']._serialized_end=665
-  _globals['_SHIPPINGADDRESS']._serialized_start=668
-  _globals['_SHIPPINGADDRESS']._serialized_end=810
-  _globals['_ITEM']._serialized_start=812
-  _globals['_ITEM']._serialized_end=871
-  _globals['_SUBMITORDERRESPONSE']._serialized_start=874
-  _globals['_SUBMITORDERRESPONSE']._serialized_end=1005
-  _globals['_MAKEPAYMENTREQUEST']._serialized_start=1008
-  _globals['_MAKEPAYMENTREQUEST']._serialized_end=1177
-  _globals['_METADATA']._serialized_start=1179
-  _globals['_METADATA']._serialized_end=1216
-  _globals['_MAKEPAYMENTRESPONSE']._serialized_start=1219
-  _globals['_MAKEPAYMENTRESPONSE']._serialized_end=1354
-  _globals['_LISTORDERSREQUEST']._serialized_start=1356
-  _globals['_LISTORDERSREQUEST']._serialized_end=1468
-  _globals['_LISTORDERSRESPONSE']._serialized_start=1470
-  _globals['_LISTORDERSRESPONSE']._serialized_end=1593
-  _globals['_ORDERSUMMARY']._serialized_start=1596
-  _globals['_ORDERSUMMARY']._serialized_end=1799
-  _globals['_LISTPRODUCTSREQUEST']._serialized_start=1801
-  _globals['_LISTPRODUCTSREQUEST']._serialized_end=1844
-  _globals['_LISTPRODUCTSRESPONSE']._serialized_start=1846
-  _globals['_LISTPRODUCTSRESPONSE']._serialized_end=1924
-  _globals['_PRODUCT']._serialized_start=1927
-  _globals['_PRODUCT']._serialized_end=2077
+  _globals['_SUBMITORDERRESPONSE']._serialized_start=93
+  _globals['_SUBMITORDERRESPONSE']._serialized_end=224
+  _globals['_MAKEPAYMENTRESPONSE']._serialized_start=227
+  _globals['_MAKEPAYMENTRESPONSE']._serialized_end=362
+  _globals['_LISTORDERSREQUEST']._serialized_start=364
+  _globals['_LISTORDERSREQUEST']._serialized_end=476
+  _globals['_LISTORDERSRESPONSE']._serialized_start=478
+  _globals['_LISTORDERSRESPONSE']._serialized_end=601
+  _globals['_ORDERSUMMARY']._serialized_start=604
+  _globals['_ORDERSUMMARY']._serialized_end=807
+  _globals['_LISTPRODUCTSREQUEST']._serialized_start=809
+  _globals['_LISTPRODUCTSREQUEST']._serialized_end=852
+  _globals['_LISTPRODUCTSRESPONSE']._serialized_start=854
+  _globals['_LISTPRODUCTSRESPONSE']._serialized_end=932
+  _globals['_PRODUCT']._serialized_start=935
+  _globals['_PRODUCT']._serialized_end=1085
 # @@protoc_insertion_point(module_scope)
