@@ -10,6 +10,7 @@ import com.acme.proto.acme.common.v1.Shipment;
 import com.acme.proto.acme.fulfillment.domain.fulfillment.v1.*;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.activity.LocalActivityOptions;
+import io.temporal.common.RetryOptions;
 import io.temporal.common.SearchAttributeKey;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.workflow.*;
@@ -68,6 +69,7 @@ public class OrderImpl implements Order {
                 ActivityOptions.newBuilder()
                         .setTaskQueue("fulfillment-carriers")
                         .setStartToCloseTimeout(Duration.ofSeconds(30))
+                        .setScheduleToCloseTimeout(Duration.ofSeconds(90))
                         .build());
         this.optionsLoader = Workflow.newLocalActivityStub(FulfillmentOptionsLoader.class,
                 LocalActivityOptions.newBuilder()

@@ -153,5 +153,5 @@ don't be surprised to see it reappear after a redeploy.
 ## Cleanup
 
 ```bash
-./scripts/kind/demo-down.sh
+HARD=1 ./scripts/kind/demo-down.sh
 ```

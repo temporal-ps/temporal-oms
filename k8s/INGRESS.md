@@ -145,9 +145,11 @@ kubectl logs -n temporal-oms-apps -l app=apps-api --tail=50
 
 Ingress is torn down with the rest of the demo:
 ```bash
-./scripts/kind/demo-down.sh
+HARD=1 ./scripts/kind/demo-down.sh
 # or
-./scripts/k3d/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 ```
+
+Without `HARD=1`, either script only stops the cluster and keeps Ingress in place.
 
 This removes the entire selected cluster including all services, ingress, and pods.

@@ -422,8 +422,9 @@ Current parallel script surfaces:
 
 | Surface | KinD path | k3d path |
 |---|---|---|
-| Full setup | `scripts/kind/demo-up.sh` | `scripts/k3d/demo-up.sh` |
-| Full teardown | `scripts/kind/demo-down.sh` | `scripts/k3d/demo-down.sh` |
+| Full setup, or resume a stopped cluster | `scripts/kind/demo-up.sh` | `scripts/k3d/demo-up.sh` |
+| Soft down (stop cluster) | `scripts/kind/demo-down.sh` (`docker stop`) | `scripts/k3d/demo-down.sh` (`k3d cluster stop`) |
+| Full teardown | `HARD=1 scripts/kind/demo-down.sh` | `HARD=1 scripts/k3d/demo-down.sh` |
 | Infrastructure | `scripts/kind/infra-up.sh`, `/tmp/kind-config.yaml` | `scripts/k3d/infra-up.sh`, `/tmp/k3d-config.yaml` |
 | App deploy | `kind load docker-image ... --name temporal-oms` | `k3d image import ... --cluster temporal-oms` |
 | Processing worker bump | `scripts/kind/deploy-processing-workers.sh` | `scripts/k3d/deploy-processing-workers.sh` |

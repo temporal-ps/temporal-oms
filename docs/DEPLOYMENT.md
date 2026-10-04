@@ -26,9 +26,16 @@ OVERLAY=cloud ./scripts/kind/demo-up.sh
 # Test the API
 curl http://localhost:8080/api/v1/commerce-app/clothing
 
-# Tear down
+# Stop the cluster, keeping apps for a fast demo-up.sh resume
 ./scripts/kind/demo-down.sh
+
+# Full teardown (delete the cluster)
+HARD=1 ./scripts/kind/demo-down.sh
 ```
+
+`demo-up.sh` resumes a stopped cluster without rebuilding when the deployed
+`OVERLAY` matches. Use `REDEPLOY=1` to rebuild and redeploy current code. See
+[`scripts/README.md`](../scripts/README.md#soft-down-and-resume).
 
 ### Option 2: Deploy to k3d with Cloud Temporal
 
@@ -42,9 +49,16 @@ OVERLAY=cloud ./scripts/k3d/demo-up.sh
 # Port-forward API access
 ./scripts/k3d/tunnel.sh
 
-# Tear down
+# Stop the cluster, keeping apps for a fast demo-up.sh resume
 ./scripts/k3d/demo-down.sh
+
+# Full teardown (delete the cluster)
+HARD=1 ./scripts/k3d/demo-down.sh
 ```
+
+`demo-up.sh` resumes a stopped cluster without rebuilding when the deployed
+`OVERLAY` matches. Use `REDEPLOY=1` to rebuild and redeploy current code. See
+[`scripts/README.md`](../scripts/README.md#soft-down-and-resume).
 
 ### Option 3: Deploy to k3d with Local Temporal
 
@@ -62,8 +76,11 @@ OVERLAY=local ./scripts/k3d/demo-up.sh
 # Port-forward API access
 ./scripts/k3d/tunnel.sh
 
-# Tear down
+# Stop the cluster, keeping apps for a fast demo-up.sh resume
 ./scripts/k3d/demo-down.sh
+
+# Full teardown (delete the cluster)
+HARD=1 ./scripts/k3d/demo-down.sh
 ```
 
 ### Option 4: Deploy to KinD with Local Temporal
@@ -82,8 +99,11 @@ OVERLAY=local ./scripts/kind/demo-up.sh
 # Port-forward API access
 ./scripts/kind/tunnel.sh
 
-# Tear down
+# Stop the cluster, keeping apps for a fast demo-up.sh resume
 ./scripts/kind/demo-down.sh
+
+# Full teardown (delete the cluster)
+HARD=1 ./scripts/kind/demo-down.sh
 ```
 
 ### Not Kubernetes: Run Everything as Local Processes
@@ -415,11 +435,11 @@ OVERLAY=local ./scripts/k3d/app-deploy.sh
 ### Full Teardown and Restart
 
 ```bash
-./scripts/kind/demo-down.sh
+HARD=1 ./scripts/kind/demo-down.sh
 sleep 5
 OVERLAY=cloud ./scripts/kind/demo-up.sh
 
-./scripts/k3d/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 sleep 5
 OVERLAY=local ./scripts/k3d/demo-up.sh
 ```
@@ -551,8 +571,10 @@ Application → Spring Boot Profile (k8s)
 
 | Script | Purpose | Example |
 |--------|---------|---------|
-| `scripts/kind/demo-up.sh` | Full KinD environment setup | `OVERLAY=cloud ./scripts/kind/demo-up.sh` |
-| `scripts/k3d/demo-up.sh` | Full k3d environment setup | `OVERLAY=local ./scripts/k3d/demo-up.sh` |
+| `scripts/kind/demo-up.sh` | Full KinD environment setup, or resume a stopped cluster | `OVERLAY=cloud ./scripts/kind/demo-up.sh` |
+| `scripts/kind/demo-down.sh` | Stop the KinD cluster; `HARD=1` deletes it | `HARD=1 ./scripts/kind/demo-down.sh` |
+| `scripts/k3d/demo-up.sh` | Full k3d environment setup, or resume a stopped cluster | `OVERLAY=local ./scripts/k3d/demo-up.sh` |
+| `scripts/k3d/demo-down.sh` | Stop the k3d cluster; `HARD=1` deletes it | `HARD=1 ./scripts/k3d/demo-down.sh` |
 | `scripts/kind/app-deploy.sh` | Rebuild and redeploy apps to KinD | `OVERLAY=cloud ./scripts/kind/app-deploy.sh` |
 | `scripts/k3d/app-deploy.sh` | Rebuild and redeploy apps to k3d | `OVERLAY=local ./scripts/k3d/app-deploy.sh` |
 | `scripts/kind/status.sh` | Check KinD deployment status | `./scripts/kind/status.sh` |

@@ -13,12 +13,16 @@ if ! kind get clusters 2>/dev/null | grep -q temporal-oms; then
     echo "→ Creating KinD cluster (temporal-oms)..."
     kind create cluster --name temporal-oms
 else
-    echo "✓ KinD cluster (temporal-oms) already exists"
+    echo "✓ KinD cluster (temporal-oms) already exists; starting it if stopped"
+    docker start temporal-oms-control-plane >/dev/null
 fi
 
 # Always (re)write the kubeconfig — /tmp can be wiped between sessions.
 kind get kubeconfig --name temporal-oms > /tmp/kind-config.yaml
 export KUBECONFIG=/tmp/kind-config.yaml
+
+for _ in $(seq 60); do kubectl get --raw /readyz >/dev/null 2>&1 && break; sleep 2; done
+kubectl wait --for=condition=Ready node --all --timeout=120s >/dev/null
 
 echo "→ Creating Kubernetes namespaces..."
 kubectl create namespace temporal-oms-apps --dry-run=client -o yaml | kubectl apply -f - >/dev/null

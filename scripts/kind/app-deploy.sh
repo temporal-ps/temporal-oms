@@ -105,6 +105,8 @@ kubectl apply -f k8s/ingress/processing-api-ingress.yaml >/dev/null
 kubectl apply -f k8s/ingress/enablements-api-ingress.yaml >/dev/null
 kubectl apply -f k8s/ingress/web-ingress.yaml >/dev/null
 apply_runtime_api_key_secrets "$PROJECT_DIR"
+# demo-up.sh reads this label to decide whether the running apps match the requested OVERLAY.
+kubectl label namespace temporal-oms-apps temporal-oms/overlay="$OVERLAY" --overwrite >/dev/null
 
 echo "→ Restarting pods..."
 for ns in temporal-oms-apps temporal-oms-processing temporal-oms-enablements temporal-oms-fulfillment temporal-oms-web; do
