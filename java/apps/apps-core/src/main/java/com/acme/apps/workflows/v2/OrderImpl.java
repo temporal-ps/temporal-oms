@@ -45,11 +45,6 @@ public class OrderImpl implements Order {
                 .setArgs(args)
                 .setOptions(args.getOptions())
                         .build();
-        if(args.hasProcessOrder()) {
-            this.state = this.state.toBuilder()
-                    .setProcessOrder(args.getProcessOrder()).build();
-        }
-
         this.optionsActs = Workflow.newLocalActivityStub(Options.class, LocalActivityOptions.newBuilder().
                 setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
 

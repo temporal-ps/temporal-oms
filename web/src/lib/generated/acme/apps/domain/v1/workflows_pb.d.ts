@@ -7,8 +7,8 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
-import type { GetProcessOrderStateResponse, ProcessOrderRequest } from "../../../processing/domain/v1/workflows_pb";
 import type { OmsProperties } from "../../../oms/v1/message_pb";
+import type { GetProcessOrderStateResponse, ProcessOrderRequest } from "../../../processing/domain/v1/workflows_pb";
 import type { Order, Payment } from "../../../oms/v1/values_pb";
 
 /**
@@ -36,14 +36,9 @@ export declare type CompleteOrderRequest = Message<"acme.apps.domain.apps.v1.Com
   orderId: string;
 
   /**
-   * @generated from field: string customer_id = 5;
+   * @generated from field: string customer_id = 4;
    */
   customerId: string;
-
-  /**
-   * @generated from field: optional acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6;
-   */
-  processOrder?: ProcessOrderRequest;
 };
 
 /**
@@ -198,9 +193,19 @@ export declare type SubmitOrderRequest = Message<"acme.apps.domain.apps.v1.Submi
   timestamp?: Timestamp;
 
   /**
-   * @generated from field: acme.oms.v1.Order order = 2;
+   * @generated from field: string order_id = 2;
+   */
+  orderId: string;
+
+  /**
+   * @generated from field: acme.oms.v1.Order order = 3;
    */
   order?: Order;
+
+  /**
+   * @generated from field: optional acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4;
+   */
+  completeOrderRequest?: CompleteOrderRequest;
 };
 
 /**
@@ -219,9 +224,19 @@ export declare type CapturePaymentRequest = Message<"acme.apps.domain.apps.v1.Ca
   timestamp?: Timestamp;
 
   /**
-   * @generated from field: acme.oms.v1.Payment payment = 2;
+   * @generated from field: string order_id = 2;
+   */
+  orderId: string;
+
+  /**
+   * @generated from field: acme.oms.v1.Payment payment = 3;
    */
   payment?: Payment;
+
+  /**
+   * @generated from field: optional acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4;
+   */
+  completeOrderRequest?: CompleteOrderRequest;
 };
 
 /**

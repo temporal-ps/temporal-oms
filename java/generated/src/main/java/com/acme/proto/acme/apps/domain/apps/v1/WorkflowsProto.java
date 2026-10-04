@@ -28,42 +28,42 @@ public final class WorkflowsProto extends com.google.protobuf.GeneratedFile {
   }
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_GetCompleteOrderStateResponse_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_GetCompleteOrderStateResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_GetOptionsRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_GetOptionsRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CancelOrderRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CancelOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CancelOrderResponse_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CancelOrderResponse_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
     internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_descriptor;
-  static final 
+  static final
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_fieldAccessorTable;
 
@@ -80,63 +80,68 @@ public final class WorkflowsProto extends com.google.protobuf.GeneratedFile {
       "/timestamp.proto\032 acme/apps/domain/v1/va" +
       "lues.proto\032\031acme/oms/v1/message.proto\032\030a" +
       "cme/oms/v1/values.proto\032)acme/processing" +
-      "/domain/v1/workflows.proto\"\356\002\n\024CompleteO" +
+      "/domain/v1/workflows.proto\"\367\001\n\024CompleteO" +
       "rderRequest\0228\n\ttimestamp\030\001 \001(\0132\032.google." +
       "protobuf.TimestampR\ttimestamp\022]\n\007options" +
       "\030\002 \001(\0132>.acme.apps.domain.apps.v1.Comple" +
       "teOrderRequestExecutionOptionsH\000R\007option" +
       "s\210\001\001\022\031\n\010order_id\030\003 \001(\tR\007orderId\022\037\n\013custo" +
-      "mer_id\030\005 \001(\tR\ncustomerId\022c\n\rprocess_orde" +
-      "r\030\006 \001(\01329.acme.processing.domain.process" +
-      "ing.v1.ProcessOrderRequestH\001R\014processOrd" +
-      "er\210\001\001B\n\n\010_optionsB\020\n\016_process_order\"\263\002\n$" +
-      "CompleteOrderRequestExecutionOptions\022;\n\027" +
-      "completion_timeout_secs\030\001 \001(\003H\000R\025complet" +
-      "ionTimeoutSecs\210\001\001\022;\n\027processing_timeout_" +
-      "secs\030\002 \001(\003H\001R\025processingTimeoutSecs\210\001\001\022F" +
-      "\n\016oms_properties\030\003 \001(\0132\032.acme.oms.v1.Oms" +
-      "PropertiesH\002R\romsProperties\210\001\001B\032\n\030_compl" +
-      "etion_timeout_secsB\032\n\030_processing_timeou" +
-      "t_secsB\021\n\017_oms_properties\"\361\005\n\035GetComplet" +
-      "eOrderStateResponse\022B\n\004args\030\001 \001(\0132..acme" +
-      ".apps.domain.apps.v1.CompleteOrderReques" +
-      "tR\004args\022X\n\007options\030\002 \001(\0132>.acme.apps.dom" +
-      "ain.apps.v1.CompleteOrderRequestExecutio" +
-      "nOptionsR\007options\022\026\n\006errors\030\003 \003(\tR\006error" +
-      "s\022W\n\020submitted_orders\030\004 \003(\0132,.acme.apps." +
-      "domain.apps.v1.SubmitOrderRequestR\017submi" +
-      "ttedOrders\022\\\n\021captured_payments\030\005 \003(\0132/." +
-      "acme.apps.domain.apps.v1.CapturePaymentR" +
-      "equestR\020capturedPayments\022U\n\014cancellation" +
-      "\030\006 \001(\0132,.acme.apps.domain.apps.v1.Cancel" +
-      "OrderRequestH\000R\014cancellation\210\001\001\022c\n\rproce" +
-      "ss_order\030\007 \001(\01329.acme.processing.domain." +
-      "processing.v1.ProcessOrderRequestH\001R\014pro" +
-      "cessOrder\210\001\001\022p\n\017processed_order\030\010 \001(\0132B." +
-      "acme.processing.domain.processing.v1.Get" +
-      "ProcessOrderStateResponseH\002R\016processedOr" +
-      "der\210\001\001B\017\n\r_cancellationB\020\n\016_process_orde" +
-      "rB\022\n\020_processed_order\"\270\001\n\021GetOptionsRequ" +
-      "est\0228\n\ttimestamp\030\001 \001(\0132\032.google.protobuf" +
-      ".TimestampR\ttimestamp\022]\n\007options\030\002 \001(\0132>" +
-      ".acme.apps.domain.apps.v1.CompleteOrderR" +
-      "equestExecutionOptionsH\000R\007options\210\001\001B\n\n\010" +
-      "_options\"\211\001\n\022CancelOrderRequest\0228\n\ttimes" +
-      "tamp\030\001 \001(\0132\032.google.protobuf.TimestampR\t" +
-      "timestamp\022\026\n\006reason\030\002 \001(\tR\006reason\022!\n\014can" +
-      "celled_by\030\003 \001(\tR\013cancelledBy\"\025\n\023CancelOr" +
-      "derResponse\"x\n\022SubmitOrderRequest\0228\n\ttim" +
-      "estamp\030\001 \001(\0132\032.google.protobuf.Timestamp" +
-      "R\ttimestamp\022(\n\005order\030\002 \001(\0132\022.acme.oms.v1" +
-      ".OrderR\005order\"\201\001\n\025CapturePaymentRequest\022" +
-      "8\n\ttimestamp\030\001 \001(\0132\032.google.protobuf.Tim" +
-      "estampR\ttimestamp\022.\n\007payment\030\002 \001(\0132\024.acm" +
-      "e.oms.v1.PaymentR\007paymentB\276\001\n\'com.acme.p" +
-      "roto.acme.apps.domain.apps.v1B\016Workflows" +
-      "ProtoP\001\242\002\004AADA\252\002\030Acme.Apps.Domain.Apps.V" +
-      "1\312\002\030Acme\\Apps\\Domain\\Apps\\V1\342\002$Acme\\Apps" +
-      "\\Domain\\Apps\\V1\\GPBMetadata\352\002\034Acme::Apps" +
-      "::Domain::Apps::V1b\006proto3"
+      "mer_id\030\004 \001(\tR\ncustomerIdB\n\n\010_options\"\263\002\n" +
+      "$CompleteOrderRequestExecutionOptions\022;\n" +
+      "\027completion_timeout_secs\030\001 \001(\003H\000R\025comple" +
+      "tionTimeoutSecs\210\001\001\022;\n\027processing_timeout" +
+      "_secs\030\002 \001(\003H\001R\025processingTimeoutSecs\210\001\001\022" +
+      "F\n\016oms_properties\030\003 \001(\0132\032.acme.oms.v1.Om" +
+      "sPropertiesH\002R\romsProperties\210\001\001B\032\n\030_comp" +
+      "letion_timeout_secsB\032\n\030_processing_timeo" +
+      "ut_secsB\021\n\017_oms_properties\"\361\005\n\035GetComple" +
+      "teOrderStateResponse\022B\n\004args\030\001 \001(\0132..acm" +
+      "e.apps.domain.apps.v1.CompleteOrderReque" +
+      "stR\004args\022X\n\007options\030\002 \001(\0132>.acme.apps.do" +
+      "main.apps.v1.CompleteOrderRequestExecuti" +
+      "onOptionsR\007options\022\026\n\006errors\030\003 \003(\tR\006erro" +
+      "rs\022W\n\020submitted_orders\030\004 \003(\0132,.acme.apps" +
+      ".domain.apps.v1.SubmitOrderRequestR\017subm" +
+      "ittedOrders\022\\\n\021captured_payments\030\005 \003(\0132/" +
+      ".acme.apps.domain.apps.v1.CapturePayment" +
+      "RequestR\020capturedPayments\022U\n\014cancellatio" +
+      "n\030\006 \001(\0132,.acme.apps.domain.apps.v1.Cance" +
+      "lOrderRequestH\000R\014cancellation\210\001\001\022c\n\rproc" +
+      "ess_order\030\007 \001(\01329.acme.processing.domain" +
+      ".processing.v1.ProcessOrderRequestH\001R\014pr" +
+      "ocessOrder\210\001\001\022p\n\017processed_order\030\010 \001(\0132B" +
+      ".acme.processing.domain.processing.v1.Ge" +
+      "tProcessOrderStateResponseH\002R\016processedO" +
+      "rder\210\001\001B\017\n\r_cancellationB\020\n\016_process_ord" +
+      "erB\022\n\020_processed_order\"\270\001\n\021GetOptionsReq" +
+      "uest\0228\n\ttimestamp\030\001 \001(\0132\032.google.protobu" +
+      "f.TimestampR\ttimestamp\022]\n\007options\030\002 \001(\0132" +
+      ">.acme.apps.domain.apps.v1.CompleteOrder" +
+      "RequestExecutionOptionsH\000R\007options\210\001\001B\n\n" +
+      "\010_options\"\211\001\n\022CancelOrderRequest\0228\n\ttime" +
+      "stamp\030\001 \001(\0132\032.google.protobuf.TimestampR" +
+      "\ttimestamp\022\026\n\006reason\030\002 \001(\tR\006reason\022!\n\014ca" +
+      "ncelled_by\030\003 \001(\tR\013cancelledBy\"\025\n\023CancelO" +
+      "rderResponse\"\231\002\n\022SubmitOrderRequest\0228\n\tt" +
+      "imestamp\030\001 \001(\0132\032.google.protobuf.Timesta" +
+      "mpR\ttimestamp\022\031\n\010order_id\030\002 \001(\tR\007orderId" +
+      "\022(\n\005order\030\003 \001(\0132\022.acme.oms.v1.OrderR\005ord" +
+      "er\022i\n\026complete_order_request\030\004 \001(\0132..acm" +
+      "e.apps.domain.apps.v1.CompleteOrderReque" +
+      "stH\000R\024completeOrderRequest\210\001\001B\031\n\027_comple" +
+      "te_order_request\"\242\002\n\025CapturePaymentReque" +
+      "st\0228\n\ttimestamp\030\001 \001(\0132\032.google.protobuf." +
+      "TimestampR\ttimestamp\022\031\n\010order_id\030\002 \001(\tR\007" +
+      "orderId\022.\n\007payment\030\003 \001(\0132\024.acme.oms.v1.P" +
+      "aymentR\007payment\022i\n\026complete_order_reques" +
+      "t\030\004 \001(\0132..acme.apps.domain.apps.v1.Compl" +
+      "eteOrderRequestH\000R\024completeOrderRequest\210" +
+      "\001\001B\031\n\027_complete_order_requestB\276\001\n\'com.ac" +
+      "me.proto.acme.apps.domain.apps.v1B\016Workf" +
+      "lowsProtoP\001\242\002\004AADA\252\002\030Acme.Apps.Domain.Ap" +
+      "ps.V1\312\002\030Acme\\Apps\\Domain\\Apps\\V1\342\002$Acme\\" +
+      "Apps\\Domain\\Apps\\V1\\GPBMetadata\352\002\034Acme::" +
+      "Apps::Domain::Apps::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -152,7 +157,7 @@ public final class WorkflowsProto extends com.google.protobuf.GeneratedFile {
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_apps_domain_apps_v1_CompleteOrderRequest_descriptor,
-        new java.lang.String[] { "Timestamp", "Options", "OrderId", "CustomerId", "ProcessOrder", });
+        new java.lang.String[] { "Timestamp", "Options", "OrderId", "CustomerId", });
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_descriptor =
       getDescriptor().getMessageType(1);
     internal_static_acme_apps_domain_apps_v1_CompleteOrderRequestExecutionOptions_fieldAccessorTable = new
@@ -188,13 +193,13 @@ public final class WorkflowsProto extends com.google.protobuf.GeneratedFile {
     internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_apps_domain_apps_v1_SubmitOrderRequest_descriptor,
-        new java.lang.String[] { "Timestamp", "Order", });
+        new java.lang.String[] { "Timestamp", "OrderId", "Order", "CompleteOrderRequest", });
     internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_descriptor =
       getDescriptor().getMessageType(7);
     internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_acme_apps_domain_apps_v1_CapturePaymentRequest_descriptor,
-        new java.lang.String[] { "Timestamp", "Payment", });
+        new java.lang.String[] { "Timestamp", "OrderId", "Payment", "CompleteOrderRequest", });
     descriptor.resolveAllFeaturesImmutable();
     com.google.protobuf.TimestampProto.getDescriptor();
     com.acme.proto.acme.apps.domain.apps.v1.ValuesProto.getDescriptor();

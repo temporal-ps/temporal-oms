@@ -22,9 +22,10 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from acme.oms.v1 import values_pb2 as acme_dot_oms_dot_v1_dot_values__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n acme/apps/domain/v1/values.proto\x12\x18\x61\x63me.apps.domain.apps.v1*\xa8\x01\n\x06\x45rrors\x12\x16\n\x12\x45RRORS_UNSPECIFIED\x10\x00\x12\x1c\n\x18\x45RRORS_INVALID_ARGUMENTS\x10\x01\x12\x1a\n\x16\x45RRORS_ORDER_TIMED_OUT\x10\x02\x12\x1e\n\x1a\x45RRORS_SERVICE_UNAVAILABLE\x10\x03\x12\x17\n\x13\x45RRORS_UNAUTHORIZED\x10\x04\x12\x13\n\x0f\x45RRORS_CONFLICT\x10\x05\x42\xbb\x01\n\'com.acme.proto.acme.apps.domain.apps.v1B\x0bValuesProtoP\x01\xa2\x02\x04\x41\x41\x44\x41\xaa\x02\x18\x41\x63me.Apps.Domain.Apps.V1\xca\x02\x18\x41\x63me\\Apps\\Domain\\Apps\\V1\xe2\x02$Acme\\Apps\\Domain\\Apps\\V1\\GPBMetadata\xea\x02\x1c\x41\x63me::Apps::Domain::Apps::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n acme/apps/domain/v1/values.proto\x12\x18\x61\x63me.apps.domain.apps.v1\x1a\x18\x61\x63me/oms/v1/values.proto*\xa8\x01\n\x06\x45rrors\x12\x16\n\x12\x45RRORS_UNSPECIFIED\x10\x00\x12\x1c\n\x18\x45RRORS_INVALID_ARGUMENTS\x10\x01\x12\x1a\n\x16\x45RRORS_ORDER_TIMED_OUT\x10\x02\x12\x1e\n\x1a\x45RRORS_SERVICE_UNAVAILABLE\x10\x03\x12\x17\n\x13\x45RRORS_UNAUTHORIZED\x10\x04\x12\x13\n\x0f\x45RRORS_CONFLICT\x10\x05\x42\xbb\x01\n\'com.acme.proto.acme.apps.domain.apps.v1B\x0bValuesProtoP\x01\xa2\x02\x04\x41\x41\x44\x41\xaa\x02\x18\x41\x63me.Apps.Domain.Apps.V1\xca\x02\x18\x41\x63me\\Apps\\Domain\\Apps\\V1\xe2\x02$Acme\\Apps\\Domain\\Apps\\V1\\GPBMetadata\xea\x02\x1c\x41\x63me::Apps::Domain::Apps::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,6 +33,6 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'acme.apps.domain.v1.values_
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\'com.acme.proto.acme.apps.domain.apps.v1B\013ValuesProtoP\001\242\002\004AADA\252\002\030Acme.Apps.Domain.Apps.V1\312\002\030Acme\\Apps\\Domain\\Apps\\V1\342\002$Acme\\Apps\\Domain\\Apps\\V1\\GPBMetadata\352\002\034Acme::Apps::Domain::Apps::V1'
-  _globals['_ERRORS']._serialized_start=63
-  _globals['_ERRORS']._serialized_end=231
+  _globals['_ERRORS']._serialized_start=89
+  _globals['_ERRORS']._serialized_end=257
 # @@protoc_insertion_point(module_scope)

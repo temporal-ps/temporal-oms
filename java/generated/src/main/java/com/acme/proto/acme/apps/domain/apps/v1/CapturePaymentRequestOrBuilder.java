@@ -26,17 +26,44 @@ public interface CapturePaymentRequestOrBuilder extends
   com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder();
 
   /**
-   * <code>.acme.oms.v1.Payment payment = 2 [json_name = "payment"];</code>
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The orderId.
+   */
+  java.lang.String getOrderId();
+  /**
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The bytes for orderId.
+   */
+  com.google.protobuf.ByteString
+      getOrderIdBytes();
+
+  /**
+   * <code>.acme.oms.v1.Payment payment = 3 [json_name = "payment"];</code>
    * @return Whether the payment field is set.
    */
   boolean hasPayment();
   /**
-   * <code>.acme.oms.v1.Payment payment = 2 [json_name = "payment"];</code>
+   * <code>.acme.oms.v1.Payment payment = 3 [json_name = "payment"];</code>
    * @return The payment.
    */
   com.acme.proto.acme.oms.v1.Payment getPayment();
   /**
-   * <code>.acme.oms.v1.Payment payment = 2 [json_name = "payment"];</code>
+   * <code>.acme.oms.v1.Payment payment = 3 [json_name = "payment"];</code>
    */
   com.acme.proto.acme.oms.v1.PaymentOrBuilder getPaymentOrBuilder();
+
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return Whether the completeOrderRequest field is set.
+   */
+  boolean hasCompleteOrderRequest();
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return The completeOrderRequest.
+   */
+  com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest getCompleteOrderRequest();
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   */
+  com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder getCompleteOrderRequestOrBuilder();
 }

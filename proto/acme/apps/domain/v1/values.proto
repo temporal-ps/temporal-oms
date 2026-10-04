@@ -1,5 +1,7 @@
 // Domain value objects for Apps namespace
 syntax = "proto3";
+import "acme/oms/v1/values.proto";
+
 
 package acme.apps.domain.apps.v1;
 

@@ -36,22 +36,25 @@ public final class ValuesProto extends com.google.protobuf.GeneratedFile {
   static {
     java.lang.String[] descriptorData = {
       "\n acme/apps/domain/v1/values.proto\022\030acme" +
-      ".apps.domain.apps.v1*\250\001\n\006Errors\022\026\n\022ERROR" +
-      "S_UNSPECIFIED\020\000\022\034\n\030ERRORS_INVALID_ARGUME" +
-      "NTS\020\001\022\032\n\026ERRORS_ORDER_TIMED_OUT\020\002\022\036\n\032ERR" +
-      "ORS_SERVICE_UNAVAILABLE\020\003\022\027\n\023ERRORS_UNAU" +
-      "THORIZED\020\004\022\023\n\017ERRORS_CONFLICT\020\005B\273\001\n\'com." +
-      "acme.proto.acme.apps.domain.apps.v1B\013Val" +
-      "uesProtoP\001\242\002\004AADA\252\002\030Acme.Apps.Domain.App" +
-      "s.V1\312\002\030Acme\\Apps\\Domain\\Apps\\V1\342\002$Acme\\A" +
-      "pps\\Domain\\Apps\\V1\\GPBMetadata\352\002\034Acme::A" +
-      "pps::Domain::Apps::V1b\006proto3"
+      ".apps.domain.apps.v1\032\030acme/oms/v1/values" +
+      ".proto*\250\001\n\006Errors\022\026\n\022ERRORS_UNSPECIFIED\020" +
+      "\000\022\034\n\030ERRORS_INVALID_ARGUMENTS\020\001\022\032\n\026ERROR" +
+      "S_ORDER_TIMED_OUT\020\002\022\036\n\032ERRORS_SERVICE_UN" +
+      "AVAILABLE\020\003\022\027\n\023ERRORS_UNAUTHORIZED\020\004\022\023\n\017" +
+      "ERRORS_CONFLICT\020\005B\273\001\n\'com.acme.proto.acm" +
+      "e.apps.domain.apps.v1B\013ValuesProtoP\001\242\002\004A" +
+      "ADA\252\002\030Acme.Apps.Domain.Apps.V1\312\002\030Acme\\Ap" +
+      "ps\\Domain\\Apps\\V1\342\002$Acme\\Apps\\Domain\\App" +
+      "s\\V1\\GPBMetadata\352\002\034Acme::Apps::Domain::A" +
+      "pps::V1b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
+          com.acme.proto.acme.oms.v1.ValuesProto.getDescriptor(),
         });
     descriptor.resolveAllFeaturesImmutable();
+    com.acme.proto.acme.oms.v1.ValuesProto.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

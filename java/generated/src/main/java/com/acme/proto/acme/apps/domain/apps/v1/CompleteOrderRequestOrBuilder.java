@@ -53,29 +53,14 @@ public interface CompleteOrderRequestOrBuilder extends
       getOrderIdBytes();
 
   /**
-   * <code>string customer_id = 5 [json_name = "customerId"];</code>
+   * <code>string customer_id = 4 [json_name = "customerId"];</code>
    * @return The customerId.
    */
   java.lang.String getCustomerId();
   /**
-   * <code>string customer_id = 5 [json_name = "customerId"];</code>
+   * <code>string customer_id = 4 [json_name = "customerId"];</code>
    * @return The bytes for customerId.
    */
   com.google.protobuf.ByteString
       getCustomerIdBytes();
-
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   * @return Whether the processOrder field is set.
-   */
-  boolean hasProcessOrder();
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   * @return The processOrder.
-   */
-  com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest getProcessOrder();
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   */
-  com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder getProcessOrderOrBuilder();
 }
