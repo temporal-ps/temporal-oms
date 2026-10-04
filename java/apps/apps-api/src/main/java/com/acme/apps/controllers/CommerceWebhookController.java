@@ -133,6 +133,9 @@ public class CommerceWebhookController {
                     .build()
             );
 
+            var nc = NexusClient.newInstance(workflowClient.getWorkflowServiceStubs(),
+                    NexusClientOptions.newBuilder().build());
+
             // StartUpdateWithStart:  start workflow and execute update in one operation
             WorkflowClient.startUpdateWithStart(
                 workflow::submitOrder,
