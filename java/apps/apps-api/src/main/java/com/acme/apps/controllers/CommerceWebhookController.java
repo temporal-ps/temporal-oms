@@ -1,6 +1,6 @@
 package com.acme.apps.controllers;
 
-import com.acme.apps.workflows.Order;
+import com.acme.oms.services.AppsService;
 import com.acme.proto.acme.apps.api.orders.v1.*;
 import com.google.protobuf.Timestamp;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,16 +10,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
-import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
+import io.temporal.api.enums.v1.NexusOperationIdConflictPolicy;
+import io.temporal.api.enums.v1.NexusOperationIdReusePolicy;
 import io.temporal.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Commerce App Webhook Controller
@@ -37,10 +40,18 @@ public class CommerceWebhookController {
 
     private static final Logger logger = LoggerFactory.getLogger(CommerceWebhookController.class);
 
-    private final WorkflowClient workflowClient;
+    private final NexusServiceClient<AppsService> appsService;
 
-    public CommerceWebhookController(WorkflowClient workflowClient) {
-        this.workflowClient = workflowClient;
+    public CommerceWebhookController(
+            WorkflowClient workflowClient,
+            @Value("${oms.apps.nexus.endpoints.apps}") String appsEndpoint) {
+        var nexusClient = NexusClient.newInstance(
+                workflowClient.getWorkflowServiceStubs(),
+                NexusClientOptions.newBuilder()
+                        .setNamespace(workflowClient.getOptions().getNamespace())
+                        .setDataConverter(workflowClient.getOptions().getDataConverter())
+                        .build());
+        this.appsService = nexusClient.newNexusServiceClient(AppsService.class, appsEndpoint);
     }
 
     /**
@@ -63,9 +74,15 @@ public class CommerceWebhookController {
     public ResponseEntity<SubmitOrderResponse> submitCommerceOrder(
             @Parameter(description = "Order ID", required = true)
             @PathVariable String orderId,
+            @Parameter(description = "Idempotency key; a retry with the same value is applied once")
+            @RequestHeader(value = "X-Request-Id", required = false) String requestId,
             @RequestBody SubmitOrderRequest request) {
 
-        logger.info("Received commerce order for orderId: {}", orderId);
+        if (requestId == null || requestId.isBlank()) {
+            requestId = UUID.randomUUID().toString();
+            logger.warn("No X-Request-Id header for orderId: {}; retries will not be deduplicated", orderId);
+        }
+        logger.info("Received commerce order for orderId: {} requestId: {}", orderId, requestId);
 
         try {
             // Prepare update request using protobuf builders
@@ -107,47 +124,37 @@ public class CommerceWebhookController {
                 domainOrderBuilder.setSelectedShipment(shipmentBuilder.build());
             }
 
-            var updateRequest = com.acme.proto.acme.apps.domain.apps.v1.SubmitOrderRequest.newBuilder()
-                .setOrder(domainOrderBuilder.build())
-                .build();
-
-            // Prepare workflow start request
             Instant now = Instant.now();
+            var timestamp = Timestamp.newBuilder()
+                .setSeconds(now.getEpochSecond())
+                .setNanos(now.getNano())
+                .build();
             var completeOrderRequest = com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.newBuilder()
                 .setOrderId(orderId)
                 .setCustomerId(request.getCustomerId())
-                .setTimestamp(Timestamp.newBuilder()
-                    .setSeconds(now.getEpochSecond())
-                    .setNanos(now.getNano())
-                    .build())
+                .setTimestamp(timestamp)
+                .build();
+            var submitOrderRequest = com.acme.proto.acme.apps.domain.apps.v1.SubmitOrderRequest.newBuilder()
+                .setTimestamp(timestamp)
+                .setOrderId(orderId)
+                .setOrder(domainOrderBuilder.build())
+                .setCompleteOrderRequest(completeOrderRequest)
                 .build();
 
-            // Get workflow stub for method references
-            Order workflow = workflowClient.newWorkflowStub(
-                Order.class,
-                WorkflowOptions.newBuilder()
-                    .setWorkflowId(orderId)
-                        .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_USE_EXISTING)
-                        .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY)
-                    .setTaskQueue("apps")
-                    .build()
-            );
-
-            var nc = NexusClient.newInstance(workflowClient.getWorkflowServiceStubs(),
-                    NexusClientOptions.newBuilder().build());
-
-            // StartUpdateWithStart:  start workflow and execute update in one operation
-            WorkflowClient.startUpdateWithStart(
-                workflow::submitOrder,
-                updateRequest,
-                UpdateOptions.<com.acme.proto.acme.apps.domain.apps.v1.SubmitOrderRequest>newBuilder()
-                        .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+            // The request ID is the standalone operation ID, so the server deduplicates retried webhooks.
+            try {
+                appsService.start(
+                    AppsService::submitOrder,
+                    StartNexusOperationOptions.newBuilder()
+                        .setId(requestId)
+                        .setScheduleToCloseTimeout(Duration.ofSeconds(30))
+                        .setIdConflictPolicy(NexusOperationIdConflictPolicy.NEXUS_OPERATION_ID_CONFLICT_POLICY_USE_EXISTING)
+                        .setIdReusePolicy(NexusOperationIdReusePolicy.NEXUS_OPERATION_ID_REUSE_POLICY_REJECT_DUPLICATE)
                         .build(),
-                new WithStartWorkflowOperation<>(
-                    workflow::execute,
-                    completeOrderRequest
-                )
-            );
+                    submitOrderRequest);
+            } catch (NexusOperationAlreadyStartedException e) {
+                logger.info("Commerce order already submitted for orderId: {} requestId: {}", orderId, requestId);
+            }
 
             logger.info("Commerce order submitted successfully for orderId: {}", orderId);
 
