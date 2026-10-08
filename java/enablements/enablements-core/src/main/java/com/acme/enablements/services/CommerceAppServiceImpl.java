@@ -14,7 +14,6 @@ import io.temporal.client.StartActivityOptions;
 import io.temporal.nexus.TemporalOperationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -30,10 +29,11 @@ public class CommerceAppServiceImpl {
 
         return TemporalOperationHandler.create(
                 (context, client, request) -> {
+                    logger.debug("Starting commerce app activity: {}", request.getOrder().getOrderId());
 
-                    logger.debug("Starting commerce app activity: " + context.getRequestId());
+                    var actId = "order-%s-%s".formatted(request.getOrder().getOrderId(), context.getRequestId());
                     var sao = StartActivityOptions.newBuilder()
-                            .setId(context.getRequestId())
+                            .setId(actId)
                             .setTaskQueue("commerce-app")
                             .setStartToCloseTimeout(Duration.ofSeconds(30))
                             .build();
