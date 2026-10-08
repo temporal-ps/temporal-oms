@@ -1,3 +1,3 @@
-xh PUT http://localhost:8080/api/v1/commerce-app/orders/order-123 customerId="cust-001" order:='{"orderId":"order-123","items":[{"itemId":"shirt-001","quantity":1}],"shippingAddress":{"street":"123 Main St","city":"New York","state":"NY","postalCode":"10001","country":"US"}}'
+xh PUT http://localhost:8080/api/v1/commerce-app/orders/order-123 --raw '{"eventId":"evt-commerce-order-123","type":"commerce.order.submitted","order":{"orderId":"order-123","customerId":"cust-001","items":[{"itemId":"shirt-001","quantity":1}],"shippingAddress":{"easypost":{"street1":"123 Main St","city":"New York","state":"NY","zip":"10001","country":"US"}},"status":"PLACED"}}'
 
-xh POST http://localhost:8080/api/v1/payments-app/orders customerId="cust-001" rrn="payment-intent-456" amountCents=9999 metadata:='{"orderId":"order-123"}'
+xh POST http://localhost:8080/api/v1/payments-app/orders --raw '{"eventId":"evt-payment-captured-order-123","type":"payment.captured","charge":{"chargeId":"payment-intent-456","orderId":"order-123","customerId":"cust-001","amountCents":"9999","status":"CAPTURED"}}'

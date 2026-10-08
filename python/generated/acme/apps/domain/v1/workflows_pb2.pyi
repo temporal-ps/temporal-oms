@@ -19,13 +19,11 @@ class CompleteOrderRequest(_message.Message):
     OPTIONS_FIELD_NUMBER: _ClassVar[int]
     ORDER_ID_FIELD_NUMBER: _ClassVar[int]
     CUSTOMER_ID_FIELD_NUMBER: _ClassVar[int]
-    PROCESS_ORDER_FIELD_NUMBER: _ClassVar[int]
     timestamp: _timestamp_pb2.Timestamp
     options: CompleteOrderRequestExecutionOptions
     order_id: str
     customer_id: str
-    process_order: _workflows_pb2.ProcessOrderRequest
-    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., options: _Optional[_Union[CompleteOrderRequestExecutionOptions, _Mapping]] = ..., order_id: _Optional[str] = ..., customer_id: _Optional[str] = ..., process_order: _Optional[_Union[_workflows_pb2.ProcessOrderRequest, _Mapping]] = ...) -> None: ...
+    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., options: _Optional[_Union[CompleteOrderRequestExecutionOptions, _Mapping]] = ..., order_id: _Optional[str] = ..., customer_id: _Optional[str] = ...) -> None: ...
 
 class CompleteOrderRequestExecutionOptions(_message.Message):
     __slots__ = ()
@@ -82,15 +80,23 @@ class CancelOrderResponse(_message.Message):
 class SubmitOrderRequest(_message.Message):
     __slots__ = ()
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    ORDER_ID_FIELD_NUMBER: _ClassVar[int]
     ORDER_FIELD_NUMBER: _ClassVar[int]
+    COMPLETE_ORDER_REQUEST_FIELD_NUMBER: _ClassVar[int]
     timestamp: _timestamp_pb2.Timestamp
+    order_id: str
     order: _values_pb2_1.Order
-    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., order: _Optional[_Union[_values_pb2_1.Order, _Mapping]] = ...) -> None: ...
+    complete_order_request: CompleteOrderRequest
+    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., order_id: _Optional[str] = ..., order: _Optional[_Union[_values_pb2_1.Order, _Mapping]] = ..., complete_order_request: _Optional[_Union[CompleteOrderRequest, _Mapping]] = ...) -> None: ...
 
 class CapturePaymentRequest(_message.Message):
     __slots__ = ()
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
+    ORDER_ID_FIELD_NUMBER: _ClassVar[int]
     PAYMENT_FIELD_NUMBER: _ClassVar[int]
+    COMPLETE_ORDER_REQUEST_FIELD_NUMBER: _ClassVar[int]
     timestamp: _timestamp_pb2.Timestamp
+    order_id: str
     payment: _values_pb2_1.Payment
-    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., payment: _Optional[_Union[_values_pb2_1.Payment, _Mapping]] = ...) -> None: ...
+    complete_order_request: CompleteOrderRequest
+    def __init__(self, timestamp: _Optional[_Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]] = ..., order_id: _Optional[str] = ..., payment: _Optional[_Union[_values_pb2_1.Payment, _Mapping]] = ..., complete_order_request: _Optional[_Union[CompleteOrderRequest, _Mapping]] = ...) -> None: ...

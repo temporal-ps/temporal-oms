@@ -16,8 +16,7 @@ message CompleteOrderRequest {
   google.protobuf.Timestamp timestamp = 1;
   optional CompleteOrderRequestExecutionOptions options = 2;
   string order_id = 3;
-  string customer_id = 5;
-  optional acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6;
+  string customer_id = 4;
 }
 
 message CompleteOrderRequestExecutionOptions {
@@ -54,10 +53,14 @@ message CancelOrderResponse {
 
 message SubmitOrderRequest {
   google.protobuf.Timestamp timestamp = 1;
-  acme.oms.v1.Order order = 2;
+  string order_id = 2;
+  acme.oms.v1.Order order = 3;
+  optional CompleteOrderRequest complete_order_request = 4;
 }
 
 message CapturePaymentRequest {
   google.protobuf.Timestamp timestamp = 1;
-  acme.oms.v1.Payment payment = 2;
+  string order_id = 2;
+  acme.oms.v1.Payment payment = 3;
+  optional CompleteOrderRequest complete_order_request = 4;
 }

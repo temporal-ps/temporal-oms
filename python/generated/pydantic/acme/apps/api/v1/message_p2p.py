@@ -9,60 +9,20 @@ from pydantic import Field
 import typing
 
 
-class Item(BaseModel):
-    item_id: str = Field(default="")
-    quantity: int = Field(default=0)
-
-class ShippingAddress(BaseModel):
-    street: str = Field(default="")
-    city: str = Field(default="")
-    state: str = Field(default="")
-    postal_code: str = Field(default="")
-    country: str = Field(default="")
-
-class SelectedShipment(BaseModel):
-    """
-     SelectedShipment carries the customer's checkout selection for margin and SLA reasoning.
-    """
-
-    paid_price_cents: int = Field(default=0)# customer's paid price in minor currency units
-    currency: str = Field(default="")# ISO 4217; defaults to USD if empty
-    delivery_days: typing.Optional[int] = Field(default=0)# agreed transit days (SLA)
-    rate_id: str = Field(default="")# EasyPost rate ID of the selected option
-
-class Order(BaseModel):
-    order_id: str = Field(default="")
-    items: typing.List[Item] = Field(default_factory=list)
-    shipping_address: ShippingAddress = Field(default_factory=ShippingAddress)
-    selected_shipment: typing.Optional[SelectedShipment] = Field(default_factory=SelectedShipment)
-
-class SubmitOrderRequest(BaseModel):
-    """
-     PUT /api/v1/commerce-app/orders/{order_id}
-    """
-
-    customer_id: str = Field(default="")
-    order: Order = Field(default_factory=Order)
-
 class SubmitOrderResponse(BaseModel):
+    """
+     PUT /api/v1/commerce-app/orders/{order_id} (request body: acme.enablements CommerceOrderEvent)
+    """
+
     order_id: str = Field(default="")
     status: str = Field(default="")
     created_at: datetime = Field(default_factory=datetime.now)
 
-class Metadata(BaseModel):
-    order_id: str = Field(default="")
-
-class MakePaymentRequest(BaseModel):
-    """
-     POST /api/v1/payments-app/orders
-    """
-
-    customer_id: str = Field(default="")
-    rrn: str = Field(default="")# Retrieval Reference Number / payment_intent
-    amount_cents: int = Field(default=0)
-    metadata: Metadata = Field(default_factory=Metadata)
-
 class MakePaymentResponse(BaseModel):
+    """
+     POST /api/v1/payments-app/orders (request body: acme.enablements PaymentEvent)
+    """
+
     order_id: str = Field(default="")
     status: str = Field(default="")
     processed_at: datetime = Field(default_factory=datetime.now)

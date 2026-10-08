@@ -10,7 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../_lib.sh"
 scenario_begin "$SCRIPT_DIR"
 
-ORDER_JSON="$(scenario_order_json "11 Wall St" "New York" "NY" "10005" "995" "5")"
+EVENT_JSON="$(scenario_commerce_event_json"11 Wall St" "New York" "NY" "10005" "995" "5")"
 
 echo "📋 Submitting INVALID order for processing..."
 echo "Workflow ID: ${ORDER_ID}"
@@ -20,8 +20,7 @@ echo "Run context: ${SCENARIO_CONTEXT_FILE}"
 echo ""
 
 xh PUT "http://localhost:8080/api/v1/commerce-app/orders/${ORDER_ID}" \
-  customerId="${CUSTOMER_ID}" \
-  order:="${ORDER_JSON}"
+  --raw "${EVENT_JSON}"
 
 echo ""
 echo "✅ Order submitted"

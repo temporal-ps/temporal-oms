@@ -26,17 +26,44 @@ public interface SubmitOrderRequestOrBuilder extends
   com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder();
 
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The orderId.
+   */
+  java.lang.String getOrderId();
+  /**
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The bytes for orderId.
+   */
+  com.google.protobuf.ByteString
+      getOrderIdBytes();
+
+  /**
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    * @return Whether the order field is set.
    */
   boolean hasOrder();
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    * @return The order.
    */
   com.acme.proto.acme.oms.v1.Order getOrder();
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    */
   com.acme.proto.acme.oms.v1.OrderOrBuilder getOrderOrBuilder();
+
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return Whether the completeOrderRequest field is set.
+   */
+  boolean hasCompleteOrderRequest();
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return The completeOrderRequest.
+   */
+  com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest getCompleteOrderRequest();
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   */
+  com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder getCompleteOrderRequestOrBuilder();
 }

@@ -24,15 +24,18 @@ class CompleteOrderRequest(BaseModel):
     options: typing.Optional[CompleteOrderRequestExecutionOptions] = Field(default_factory=CompleteOrderRequestExecutionOptions)
     order_id: str = Field(default="")
     customer_id: str = Field(default="")
-    process_order: typing.Optional[ProcessOrderRequest] = Field(default_factory=ProcessOrderRequest)
 
 class SubmitOrderRequest(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
+    order_id: str = Field(default="")
     order: Order = Field(default_factory=Order)
+    complete_order_request: typing.Optional[CompleteOrderRequest] = Field(default_factory=CompleteOrderRequest)
 
 class CapturePaymentRequest(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
+    order_id: str = Field(default="")
     payment: Payment = Field(default_factory=Payment)
+    complete_order_request: typing.Optional[CompleteOrderRequest] = Field(default_factory=CompleteOrderRequest)
 
 class CancelOrderRequest(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)

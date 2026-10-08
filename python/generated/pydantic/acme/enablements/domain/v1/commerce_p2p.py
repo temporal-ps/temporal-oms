@@ -46,6 +46,16 @@ class CommerceOrderState(BaseModel):
     placed_at: datetime = Field(default_factory=datetime.now)
     scenario_options: ScenarioOptions = Field(default_factory=ScenarioOptions)
 
+class CommerceOrderEvent(BaseModel):
+    """
+     Event the Commerce App publishes to webhook subscribers.
+    """
+
+    event_id: str = Field(default="")# unique per event; subscribers deduplicate redeliveries on it
+    type: str = Field(default="")# commerce.order.submitted
+    created: datetime = Field(default_factory=datetime.now)
+    order: CommerceOrderState = Field(default_factory=CommerceOrderState)
+
 class CreateCommerceOrderRequest(BaseModel):
     customer_id: str = Field(default="")
     items: typing.List[Item] = Field(default_factory=list)

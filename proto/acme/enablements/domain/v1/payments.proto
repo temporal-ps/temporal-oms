@@ -17,6 +17,14 @@ message PaymentChargeState {
   optional google.protobuf.Timestamp captured_at = 9;
 }
 
+// Event the Payments Processor publishes to webhook subscribers.
+message PaymentEvent {
+  string event_id = 1; // unique per event; subscribers deduplicate redeliveries on it
+  string type = 2; // payment.authorized | payment.captured
+  google.protobuf.Timestamp created = 3;
+  PaymentChargeState charge = 4;
+}
+
 message CreateChargeRequest {
   string order_id = 1;
   string customer_id = 2;

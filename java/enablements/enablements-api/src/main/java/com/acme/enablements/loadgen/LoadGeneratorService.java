@@ -9,6 +9,7 @@ import io.temporal.api.enums.v1.ActivityIdReusePolicy;
 import io.temporal.client.ActivityClient;
 import io.temporal.client.ActivityClientOptions;
 import io.temporal.client.ActivityExecutionDescription;
+import io.temporal.client.DescribeActivityOptions;
 import io.temporal.client.StartActivityOptions;
 import io.temporal.client.WorkflowClient;
 import org.slf4j.Logger;
@@ -75,8 +76,10 @@ public class LoadGeneratorService {
 
     public LoadGenerationState getState(String enablementId) {
         ActivityExecutionDescription description =
-                activityClient.getHandle(enablementId, null, Integer.class).describe();
-        int submitted = description.getHeartbeatDetails(Integer.class).orElse(0);
+                activityClient.getHandle(enablementId, null, Integer.class)
+                        .describe(DescribeActivityOptions.newBuilder().setIncludeHeartbeatDetails(true).build());
+        var details = description.getHeartbeatDetails();
+        int submitted = details.getSize() > 0 ? details.get(0, Integer.class) : 0;
         return LoadGenerationState.newBuilder()
                 .setEnablementId(enablementId)
                 .setStatus(toExecutionStatus(description.getStatus()))

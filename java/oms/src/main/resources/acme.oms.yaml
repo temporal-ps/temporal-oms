@@ -4,6 +4,7 @@ oms:
     nexus:
       endpoints:
         #endpoints must start with A-Z or a-z and can only contain A-Z, a-z, 0-9, or -
+        apps: oms-apps-v1
         order-processing: oms-processing-v1
         order-fulfillment: oms-fulfillment-v1
   processing:

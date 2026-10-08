@@ -28,20 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class NexusIntegrationAdaptersTest {
 
     @Test
-    void commerceAdapterDelegatesToEnablementsApiClient() throws Exception {
-        var client = new RecordingClient();
-        var service = new CommerceAppServiceImpl(client);
-        var request = ValidateOrderRequest.newBuilder()
-                .setOrder(Order.newBuilder().setOrderId("order-1").build())
-                .build();
-
-        var response = invoke(service.validateOrder(), request);
-
-        assertThat(response.getManualCorrectionNeeded()).isTrue();
-        assertThat(client.validateOrderRequest).isSameAs(request);
-    }
-
-    @Test
     void pimsAdapterDelegatesToEnablementsApiClient() throws Exception {
         var client = new RecordingClient();
         var service = new ProductInformationManagementServiceImpl(client);

@@ -94,3 +94,8 @@ spring.temporal:
         activity-beans:
           - webhook-publisher-activities
           - pending-publish-registry-activities
+      - task-queue: commerce-app
+        activity-beans:
+          - commerce-app-activities
+        rate-limits:
+          max-task-queue-activities-per-second: 150

@@ -28,6 +28,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private SubmitOrderRequest() {
+    orderId_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -75,10 +76,49 @@ private static final long serialVersionUID = 0L;
     return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
   }
 
-  public static final int ORDER_FIELD_NUMBER = 2;
+  public static final int ORDER_ID_FIELD_NUMBER = 2;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object orderId_ = "";
+  /**
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The orderId.
+   */
+  @java.lang.Override
+  public java.lang.String getOrderId() {
+    java.lang.Object ref = orderId_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      orderId_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string order_id = 2 [json_name = "orderId"];</code>
+   * @return The bytes for orderId.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getOrderIdBytes() {
+    java.lang.Object ref = orderId_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      orderId_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int ORDER_FIELD_NUMBER = 3;
   private com.acme.proto.acme.oms.v1.Order order_;
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    * @return Whether the order field is set.
    */
   @java.lang.Override
@@ -86,7 +126,7 @@ private static final long serialVersionUID = 0L;
     return ((bitField0_ & 0x00000002) != 0);
   }
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    * @return The order.
    */
   @java.lang.Override
@@ -94,11 +134,37 @@ private static final long serialVersionUID = 0L;
     return order_ == null ? com.acme.proto.acme.oms.v1.Order.getDefaultInstance() : order_;
   }
   /**
-   * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+   * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
    */
   @java.lang.Override
   public com.acme.proto.acme.oms.v1.OrderOrBuilder getOrderOrBuilder() {
     return order_ == null ? com.acme.proto.acme.oms.v1.Order.getDefaultInstance() : order_;
+  }
+
+  public static final int COMPLETE_ORDER_REQUEST_FIELD_NUMBER = 4;
+  private com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest completeOrderRequest_;
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return Whether the completeOrderRequest field is set.
+   */
+  @java.lang.Override
+  public boolean hasCompleteOrderRequest() {
+    return ((bitField0_ & 0x00000004) != 0);
+  }
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   * @return The completeOrderRequest.
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest getCompleteOrderRequest() {
+    return completeOrderRequest_ == null ? com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.getDefaultInstance() : completeOrderRequest_;
+  }
+  /**
+   * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+   */
+  @java.lang.Override
+  public com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder getCompleteOrderRequestOrBuilder() {
+    return completeOrderRequest_ == null ? com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.getDefaultInstance() : completeOrderRequest_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -118,8 +184,14 @@ private static final long serialVersionUID = 0L;
     if (((bitField0_ & 0x00000001) != 0)) {
       output.writeMessage(1, getTimestamp());
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(orderId_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 2, orderId_);
+    }
     if (((bitField0_ & 0x00000002) != 0)) {
-      output.writeMessage(2, getOrder());
+      output.writeMessage(3, getOrder());
+    }
+    if (((bitField0_ & 0x00000004) != 0)) {
+      output.writeMessage(4, getCompleteOrderRequest());
     }
     getUnknownFields().writeTo(output);
   }
@@ -134,9 +206,16 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1, getTimestamp());
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(orderId_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(2, orderId_);
+    }
     if (((bitField0_ & 0x00000002) != 0)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(2, getOrder());
+        .computeMessageSize(3, getOrder());
+    }
+    if (((bitField0_ & 0x00000004) != 0)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(4, getCompleteOrderRequest());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -158,10 +237,17 @@ private static final long serialVersionUID = 0L;
       if (!getTimestamp()
           .equals(other.getTimestamp())) return false;
     }
+    if (!getOrderId()
+        .equals(other.getOrderId())) return false;
     if (hasOrder() != other.hasOrder()) return false;
     if (hasOrder()) {
       if (!getOrder()
           .equals(other.getOrder())) return false;
+    }
+    if (hasCompleteOrderRequest() != other.hasCompleteOrderRequest()) return false;
+    if (hasCompleteOrderRequest()) {
+      if (!getCompleteOrderRequest()
+          .equals(other.getCompleteOrderRequest())) return false;
     }
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
@@ -178,9 +264,15 @@ private static final long serialVersionUID = 0L;
       hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
       hash = (53 * hash) + getTimestamp().hashCode();
     }
+    hash = (37 * hash) + ORDER_ID_FIELD_NUMBER;
+    hash = (53 * hash) + getOrderId().hashCode();
     if (hasOrder()) {
       hash = (37 * hash) + ORDER_FIELD_NUMBER;
       hash = (53 * hash) + getOrder().hashCode();
+    }
+    if (hasCompleteOrderRequest()) {
+      hash = (37 * hash) + COMPLETE_ORDER_REQUEST_FIELD_NUMBER;
+      hash = (53 * hash) + getCompleteOrderRequest().hashCode();
     }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
@@ -314,6 +406,7 @@ private static final long serialVersionUID = 0L;
               .alwaysUseFieldBuilders) {
         internalGetTimestampFieldBuilder();
         internalGetOrderFieldBuilder();
+        internalGetCompleteOrderRequestFieldBuilder();
       }
     }
     @java.lang.Override
@@ -325,10 +418,16 @@ private static final long serialVersionUID = 0L;
         timestampBuilder_.dispose();
         timestampBuilder_ = null;
       }
+      orderId_ = "";
       order_ = null;
       if (orderBuilder_ != null) {
         orderBuilder_.dispose();
         orderBuilder_ = null;
+      }
+      completeOrderRequest_ = null;
+      if (completeOrderRequestBuilder_ != null) {
+        completeOrderRequestBuilder_.dispose();
+        completeOrderRequestBuilder_ = null;
       }
       return this;
     }
@@ -371,10 +470,19 @@ private static final long serialVersionUID = 0L;
         to_bitField0_ |= 0x00000001;
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.orderId_ = orderId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
         result.order_ = orderBuilder_ == null
             ? order_
             : orderBuilder_.build();
         to_bitField0_ |= 0x00000002;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.completeOrderRequest_ = completeOrderRequestBuilder_ == null
+            ? completeOrderRequest_
+            : completeOrderRequestBuilder_.build();
+        to_bitField0_ |= 0x00000004;
       }
       result.bitField0_ |= to_bitField0_;
     }
@@ -394,8 +502,16 @@ private static final long serialVersionUID = 0L;
       if (other.hasTimestamp()) {
         mergeTimestamp(other.getTimestamp());
       }
+      if (!other.getOrderId().isEmpty()) {
+        orderId_ = other.orderId_;
+        bitField0_ |= 0x00000002;
+        onChanged();
+      }
       if (other.hasOrder()) {
         mergeOrder(other.getOrder());
+      }
+      if (other.hasCompleteOrderRequest()) {
+        mergeCompleteOrderRequest(other.getCompleteOrderRequest());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -431,12 +547,24 @@ private static final long serialVersionUID = 0L;
               break;
             } // case 10
             case 18: {
-              input.readMessage(
-                  internalGetOrderFieldBuilder().getBuilder(),
-                  extensionRegistry);
+              orderId_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000002;
               break;
             } // case 18
+            case 26: {
+              input.readMessage(
+                  internalGetOrderFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bitField0_ |= 0x00000004;
+              break;
+            } // case 26
+            case 34: {
+              input.readMessage(
+                  internalGetCompleteOrderRequestFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 34
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -562,7 +690,7 @@ private static final long serialVersionUID = 0L;
      * <code>.google.protobuf.Timestamp timestamp = 1 [json_name = "timestamp"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>
         internalGetTimestampFieldBuilder() {
       if (timestampBuilder_ == null) {
         timestampBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -575,18 +703,90 @@ private static final long serialVersionUID = 0L;
       return timestampBuilder_;
     }
 
+    private java.lang.Object orderId_ = "";
+    /**
+     * <code>string order_id = 2 [json_name = "orderId"];</code>
+     * @return The orderId.
+     */
+    public java.lang.String getOrderId() {
+      java.lang.Object ref = orderId_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        orderId_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string order_id = 2 [json_name = "orderId"];</code>
+     * @return The bytes for orderId.
+     */
+    public com.google.protobuf.ByteString
+        getOrderIdBytes() {
+      java.lang.Object ref = orderId_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        orderId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string order_id = 2 [json_name = "orderId"];</code>
+     * @param value The orderId to set.
+     * @return This builder for chaining.
+     */
+    public Builder setOrderId(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      orderId_ = value;
+      bitField0_ |= 0x00000002;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string order_id = 2 [json_name = "orderId"];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearOrderId() {
+      orderId_ = getDefaultInstance().getOrderId();
+      bitField0_ = (bitField0_ & ~0x00000002);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string order_id = 2 [json_name = "orderId"];</code>
+     * @param value The bytes for orderId to set.
+     * @return This builder for chaining.
+     */
+    public Builder setOrderIdBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      orderId_ = value;
+      bitField0_ |= 0x00000002;
+      onChanged();
+      return this;
+    }
+
     private com.acme.proto.acme.oms.v1.Order order_;
     private com.google.protobuf.SingleFieldBuilder<
         com.acme.proto.acme.oms.v1.Order, com.acme.proto.acme.oms.v1.Order.Builder, com.acme.proto.acme.oms.v1.OrderOrBuilder> orderBuilder_;
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      * @return Whether the order field is set.
      */
     public boolean hasOrder() {
-      return ((bitField0_ & 0x00000002) != 0);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      * @return The order.
      */
     public com.acme.proto.acme.oms.v1.Order getOrder() {
@@ -597,7 +797,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public Builder setOrder(com.acme.proto.acme.oms.v1.Order value) {
       if (orderBuilder_ == null) {
@@ -608,12 +808,12 @@ private static final long serialVersionUID = 0L;
       } else {
         orderBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public Builder setOrder(
         com.acme.proto.acme.oms.v1.Order.Builder builderForValue) {
@@ -622,16 +822,16 @@ private static final long serialVersionUID = 0L;
       } else {
         orderBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public Builder mergeOrder(com.acme.proto.acme.oms.v1.Order value) {
       if (orderBuilder_ == null) {
-        if (((bitField0_ & 0x00000002) != 0) &&
+        if (((bitField0_ & 0x00000004) != 0) &&
           order_ != null &&
           order_ != com.acme.proto.acme.oms.v1.Order.getDefaultInstance()) {
           getOrderBuilder().mergeFrom(value);
@@ -642,16 +842,16 @@ private static final long serialVersionUID = 0L;
         orderBuilder_.mergeFrom(value);
       }
       if (order_ != null) {
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         onChanged();
       }
       return this;
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public Builder clearOrder() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       order_ = null;
       if (orderBuilder_ != null) {
         orderBuilder_.dispose();
@@ -661,15 +861,15 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public com.acme.proto.acme.oms.v1.Order.Builder getOrderBuilder() {
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       onChanged();
       return internalGetOrderFieldBuilder().getBuilder();
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     public com.acme.proto.acme.oms.v1.OrderOrBuilder getOrderOrBuilder() {
       if (orderBuilder_ != null) {
@@ -680,10 +880,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.acme.oms.v1.Order order = 2 [json_name = "order"];</code>
+     * <code>.acme.oms.v1.Order order = 3 [json_name = "order"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.oms.v1.Order, com.acme.proto.acme.oms.v1.Order.Builder, com.acme.proto.acme.oms.v1.OrderOrBuilder> 
+        com.acme.proto.acme.oms.v1.Order, com.acme.proto.acme.oms.v1.Order.Builder, com.acme.proto.acme.oms.v1.OrderOrBuilder>
         internalGetOrderFieldBuilder() {
       if (orderBuilder_ == null) {
         orderBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -694,6 +894,127 @@ private static final long serialVersionUID = 0L;
         order_ = null;
       }
       return orderBuilder_;
+    }
+
+    private com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest completeOrderRequest_;
+    private com.google.protobuf.SingleFieldBuilder<
+        com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.Builder, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder> completeOrderRequestBuilder_;
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     * @return Whether the completeOrderRequest field is set.
+     */
+    public boolean hasCompleteOrderRequest() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     * @return The completeOrderRequest.
+     */
+    public com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest getCompleteOrderRequest() {
+      if (completeOrderRequestBuilder_ == null) {
+        return completeOrderRequest_ == null ? com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.getDefaultInstance() : completeOrderRequest_;
+      } else {
+        return completeOrderRequestBuilder_.getMessage();
+      }
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public Builder setCompleteOrderRequest(com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest value) {
+      if (completeOrderRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        completeOrderRequest_ = value;
+      } else {
+        completeOrderRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public Builder setCompleteOrderRequest(
+        com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.Builder builderForValue) {
+      if (completeOrderRequestBuilder_ == null) {
+        completeOrderRequest_ = builderForValue.build();
+      } else {
+        completeOrderRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public Builder mergeCompleteOrderRequest(com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest value) {
+      if (completeOrderRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000008) != 0) &&
+          completeOrderRequest_ != null &&
+          completeOrderRequest_ != com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.getDefaultInstance()) {
+          getCompleteOrderRequestBuilder().mergeFrom(value);
+        } else {
+          completeOrderRequest_ = value;
+        }
+      } else {
+        completeOrderRequestBuilder_.mergeFrom(value);
+      }
+      if (completeOrderRequest_ != null) {
+        bitField0_ |= 0x00000008;
+        onChanged();
+      }
+      return this;
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public Builder clearCompleteOrderRequest() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      completeOrderRequest_ = null;
+      if (completeOrderRequestBuilder_ != null) {
+        completeOrderRequestBuilder_.dispose();
+        completeOrderRequestBuilder_ = null;
+      }
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.Builder getCompleteOrderRequestBuilder() {
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return internalGetCompleteOrderRequestFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    public com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder getCompleteOrderRequestOrBuilder() {
+      if (completeOrderRequestBuilder_ != null) {
+        return completeOrderRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return completeOrderRequest_ == null ?
+            com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.getDefaultInstance() : completeOrderRequest_;
+      }
+    }
+    /**
+     * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequest complete_order_request = 4 [json_name = "completeOrderRequest"];</code>
+     */
+    private com.google.protobuf.SingleFieldBuilder<
+        com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.Builder, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder>
+        internalGetCompleteOrderRequestFieldBuilder() {
+      if (completeOrderRequestBuilder_ == null) {
+        completeOrderRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequest.Builder, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestOrBuilder>(
+                getCompleteOrderRequest(),
+                getParentForChildren(),
+                isClean());
+        completeOrderRequest_ = null;
+      }
+      return completeOrderRequestBuilder_;
     }
 
     // @@protoc_insertion_point(builder_scope:acme.apps.domain.apps.v1.SubmitOrderRequest)

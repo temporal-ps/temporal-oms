@@ -72,6 +72,43 @@ export declare type PaymentChargeState = Message<"acme.enablements.domain.enable
 export declare const PaymentChargeStateSchema: GenMessage<PaymentChargeState>;
 
 /**
+ * Event the Payments Processor publishes to webhook subscribers.
+ *
+ * @generated from message acme.enablements.domain.enablements.v1.PaymentEvent
+ */
+export declare type PaymentEvent = Message<"acme.enablements.domain.enablements.v1.PaymentEvent"> & {
+  /**
+   * unique per event; subscribers deduplicate redeliveries on it
+   *
+   * @generated from field: string event_id = 1;
+   */
+  eventId: string;
+
+  /**
+   * payment.authorized | payment.captured
+   *
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created = 3;
+   */
+  created?: Timestamp;
+
+  /**
+   * @generated from field: acme.enablements.domain.enablements.v1.PaymentChargeState charge = 4;
+   */
+  charge?: PaymentChargeState;
+};
+
+/**
+ * Describes the message acme.enablements.domain.enablements.v1.PaymentEvent.
+ * Use `create(PaymentEventSchema)` to create a new message.
+ */
+export declare const PaymentEventSchema: GenMessage<PaymentEvent>;
+
+/**
  * @generated from message acme.enablements.domain.enablements.v1.CreateChargeRequest
  */
 export declare type CreateChargeRequest = Message<"acme.enablements.domain.enablements.v1.CreateChargeRequest"> & {

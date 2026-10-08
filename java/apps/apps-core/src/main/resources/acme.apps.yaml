@@ -4,12 +4,22 @@ spring.temporal:
   connection:
     target: ${TEMPORAL_APPS_ADDRESS:localhost:7233}
     api-key: ${TEMPORAL_APPS_API_KEY:}
+  namespaces:
+    - namespace: apps
+      alias: apps
+      nexus-service-clients:
+        - endpoint: oms-apps-v1
+          service: com.acme.oms.services.AppsService
+        - endpoint: oms-support-v1
+          service: com.acme.oms.services.SupportService
   workers:
     - task-queue: apps
       workflow-classes:
         - ${ACME_APPS_ORDER_WORKFLOW_CLASS:com.acme.apps.workflows.v3.OrderImpl}
       activity-beans:
         - options-activities
+      nexus-service-beans:
+        - apps-service
       workflow-task-pollers-configuration:
         poller-behavior-autoscaling:
           min-concurrent-task-pollers: 2 # preserve default

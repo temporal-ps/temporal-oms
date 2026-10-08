@@ -59,27 +59,35 @@ scenario_resume() {
   export ORDER_ID CUSTOMER_ID PAYMENT_RRN PAYMENT_AMOUNT_CENTS
 }
 
-scenario_order_json() {
+scenario_now() {
+  date -u +%Y-%m-%dT%H:%M:%SZ
+}
+
+# Prints a CommerceOrderEvent (commerce.order.submitted) for ORDER_ID. The event ID is
+# derived from ORDER_ID, so re-running a step is deduplicated by apps-api.
+scenario_commerce_event_json() {
   local street="$1"
   local city="$2"
   local state="$3"
   local postal_code="$4"
   local paid_price_cents="$5"
   local delivery_days="${6:-}"
+  local rate=""
+
+  if [ -n "$delivery_days" ]; then
+    rate=$(printf ',"easypost":{"selectedRate":{"deliveryDays":"%s"}}' "$delivery_days")
+  fi
 
   # APRL-001 (Blue T-Shirt in commerce-catalog.json) carries the "APRL-" warehouse-routing
   # prefix the fulfillment shipping fixture expects; see shipping-fixtures.json warehouses.
-  if [ -n "$delivery_days" ]; then
-    printf '{"orderId":"%s","items":[{"itemId":"APRL-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD","deliveryDays":%s}}' \
-      "$ORDER_ID" "$street" "$city" "$state" "$postal_code" "$paid_price_cents" "$delivery_days"
-  else
-    printf '{"orderId":"%s","items":[{"itemId":"APRL-001","quantity":1}],"shippingAddress":{"street":"%s","city":"%s","state":"%s","postalCode":"%s","country":"US"},"selectedShipment":{"paidPriceCents":"%s","currency":"USD"}}' \
-      "$ORDER_ID" "$street" "$city" "$state" "$postal_code" "$paid_price_cents"
-  fi
+  printf '{"eventId":"evt-commerce-%s","type":"commerce.order.submitted","created":"%s","order":{"orderId":"%s","customerId":"%s","items":[{"itemId":"APRL-001","quantity":1}],"shippingAddress":{"easypost":{"street1":"%s","city":"%s","state":"%s","zip":"%s","country":"US"}},"selectedShipment":{"paidPrice":{"units":"%s","currency":"USD"}%s},"status":"PLACED"}}' \
+    "$ORDER_ID" "$(scenario_now)" "$ORDER_ID" "$CUSTOMER_ID" "$street" "$city" "$state" "$postal_code" "$paid_price_cents" "$rate"
 }
 
-scenario_metadata_json() {
-  printf '{"orderId":"%s"}' "$ORDER_ID"
+# Prints a PaymentEvent (payment.captured) for ORDER_ID, using PAYMENT_RRN as the charge ID.
+scenario_payment_event_json() {
+  printf '{"eventId":"evt-payment-captured-%s","type":"payment.captured","created":"%s","charge":{"chargeId":"%s","orderId":"%s","customerId":"%s","amountCents":"%s","status":"CAPTURED"}}' \
+    "$ORDER_ID" "$(scenario_now)" "$PAYMENT_RRN" "$ORDER_ID" "$CUSTOMER_ID" "$PAYMENT_AMOUNT_CENTS"
 }
 
 scenario_wait_for_continue() {

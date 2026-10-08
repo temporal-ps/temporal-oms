@@ -116,7 +116,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs = 
+      com.google.protobuf.ByteString bs =
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       orderId_ = s;
@@ -132,7 +132,7 @@ private static final long serialVersionUID = 0L;
       getOrderIdBytes() {
     java.lang.Object ref = orderId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
+      com.google.protobuf.ByteString b =
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       orderId_ = b;
@@ -142,11 +142,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int CUSTOMER_ID_FIELD_NUMBER = 5;
+  public static final int CUSTOMER_ID_FIELD_NUMBER = 4;
   @SuppressWarnings("serial")
   private volatile java.lang.Object customerId_ = "";
   /**
-   * <code>string customer_id = 5 [json_name = "customerId"];</code>
+   * <code>string customer_id = 4 [json_name = "customerId"];</code>
    * @return The customerId.
    */
   @java.lang.Override
@@ -155,7 +155,7 @@ private static final long serialVersionUID = 0L;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs = 
+      com.google.protobuf.ByteString bs =
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       customerId_ = s;
@@ -163,7 +163,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string customer_id = 5 [json_name = "customerId"];</code>
+   * <code>string customer_id = 4 [json_name = "customerId"];</code>
    * @return The bytes for customerId.
    */
   @java.lang.Override
@@ -171,7 +171,7 @@ private static final long serialVersionUID = 0L;
       getCustomerIdBytes() {
     java.lang.Object ref = customerId_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
+      com.google.protobuf.ByteString b =
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
       customerId_ = b;
@@ -179,32 +179,6 @@ private static final long serialVersionUID = 0L;
     } else {
       return (com.google.protobuf.ByteString) ref;
     }
-  }
-
-  public static final int PROCESS_ORDER_FIELD_NUMBER = 6;
-  private com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest processOrder_;
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   * @return Whether the processOrder field is set.
-   */
-  @java.lang.Override
-  public boolean hasProcessOrder() {
-    return ((bitField0_ & 0x00000004) != 0);
-  }
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   * @return The processOrder.
-   */
-  @java.lang.Override
-  public com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest getProcessOrder() {
-    return processOrder_ == null ? com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.getDefaultInstance() : processOrder_;
-  }
-  /**
-   * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-   */
-  @java.lang.Override
-  public com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder getProcessOrderOrBuilder() {
-    return processOrder_ == null ? com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.getDefaultInstance() : processOrder_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -231,10 +205,7 @@ private static final long serialVersionUID = 0L;
       com.google.protobuf.GeneratedMessage.writeString(output, 3, orderId_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(customerId_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 5, customerId_);
-    }
-    if (((bitField0_ & 0x00000004) != 0)) {
-      output.writeMessage(6, getProcessOrder());
+      com.google.protobuf.GeneratedMessage.writeString(output, 4, customerId_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -257,11 +228,7 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.GeneratedMessage.computeStringSize(3, orderId_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(customerId_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(5, customerId_);
-    }
-    if (((bitField0_ & 0x00000004) != 0)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(6, getProcessOrder());
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(4, customerId_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -292,11 +259,6 @@ private static final long serialVersionUID = 0L;
         .equals(other.getOrderId())) return false;
     if (!getCustomerId()
         .equals(other.getCustomerId())) return false;
-    if (hasProcessOrder() != other.hasProcessOrder()) return false;
-    if (hasProcessOrder()) {
-      if (!getProcessOrder()
-          .equals(other.getProcessOrder())) return false;
-    }
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -320,10 +282,6 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getOrderId().hashCode();
     hash = (37 * hash) + CUSTOMER_ID_FIELD_NUMBER;
     hash = (53 * hash) + getCustomerId().hashCode();
-    if (hasProcessOrder()) {
-      hash = (37 * hash) + PROCESS_ORDER_FIELD_NUMBER;
-      hash = (53 * hash) + getProcessOrder().hashCode();
-    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -456,7 +414,6 @@ private static final long serialVersionUID = 0L;
               .alwaysUseFieldBuilders) {
         internalGetTimestampFieldBuilder();
         internalGetOptionsFieldBuilder();
-        internalGetProcessOrderFieldBuilder();
       }
     }
     @java.lang.Override
@@ -475,11 +432,6 @@ private static final long serialVersionUID = 0L;
       }
       orderId_ = "";
       customerId_ = "";
-      processOrder_ = null;
-      if (processOrderBuilder_ != null) {
-        processOrderBuilder_.dispose();
-        processOrderBuilder_ = null;
-      }
       return this;
     }
 
@@ -532,12 +484,6 @@ private static final long serialVersionUID = 0L;
       if (((from_bitField0_ & 0x00000008) != 0)) {
         result.customerId_ = customerId_;
       }
-      if (((from_bitField0_ & 0x00000010) != 0)) {
-        result.processOrder_ = processOrderBuilder_ == null
-            ? processOrder_
-            : processOrderBuilder_.build();
-        to_bitField0_ |= 0x00000004;
-      }
       result.bitField0_ |= to_bitField0_;
     }
 
@@ -568,9 +514,6 @@ private static final long serialVersionUID = 0L;
         customerId_ = other.customerId_;
         bitField0_ |= 0x00000008;
         onChanged();
-      }
-      if (other.hasProcessOrder()) {
-        mergeProcessOrder(other.getProcessOrder());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -617,18 +560,11 @@ private static final long serialVersionUID = 0L;
               bitField0_ |= 0x00000004;
               break;
             } // case 26
-            case 42: {
+            case 34: {
               customerId_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000008;
               break;
-            } // case 42
-            case 50: {
-              input.readMessage(
-                  internalGetProcessOrderFieldBuilder().getBuilder(),
-                  extensionRegistry);
-              bitField0_ |= 0x00000010;
-              break;
-            } // case 50
+            } // case 34
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -754,7 +690,7 @@ private static final long serialVersionUID = 0L;
      * <code>.google.protobuf.Timestamp timestamp = 1 [json_name = "timestamp"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>
         internalGetTimestampFieldBuilder() {
       if (timestampBuilder_ == null) {
         timestampBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -875,7 +811,7 @@ private static final long serialVersionUID = 0L;
      * <code>optional .acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptions options = 2 [json_name = "options"];</code>
      */
     private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptions, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptions.Builder, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptionsOrBuilder> 
+        com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptions, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptions.Builder, com.acme.proto.acme.apps.domain.apps.v1.CompleteOrderRequestExecutionOptionsOrBuilder>
         internalGetOptionsFieldBuilder() {
       if (optionsBuilder_ == null) {
         optionsBuilder_ = new com.google.protobuf.SingleFieldBuilder<
@@ -913,7 +849,7 @@ private static final long serialVersionUID = 0L;
         getOrderIdBytes() {
       java.lang.Object ref = orderId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         orderId_ = b;
@@ -962,7 +898,7 @@ private static final long serialVersionUID = 0L;
 
     private java.lang.Object customerId_ = "";
     /**
-     * <code>string customer_id = 5 [json_name = "customerId"];</code>
+     * <code>string customer_id = 4 [json_name = "customerId"];</code>
      * @return The customerId.
      */
     public java.lang.String getCustomerId() {
@@ -978,14 +914,14 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string customer_id = 5 [json_name = "customerId"];</code>
+     * <code>string customer_id = 4 [json_name = "customerId"];</code>
      * @return The bytes for customerId.
      */
     public com.google.protobuf.ByteString
         getCustomerIdBytes() {
       java.lang.Object ref = customerId_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         customerId_ = b;
@@ -995,7 +931,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string customer_id = 5 [json_name = "customerId"];</code>
+     * <code>string customer_id = 4 [json_name = "customerId"];</code>
      * @param value The customerId to set.
      * @return This builder for chaining.
      */
@@ -1008,7 +944,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string customer_id = 5 [json_name = "customerId"];</code>
+     * <code>string customer_id = 4 [json_name = "customerId"];</code>
      * @return This builder for chaining.
      */
     public Builder clearCustomerId() {
@@ -1018,7 +954,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>string customer_id = 5 [json_name = "customerId"];</code>
+     * <code>string customer_id = 4 [json_name = "customerId"];</code>
      * @param value The bytes for customerId to set.
      * @return This builder for chaining.
      */
@@ -1030,127 +966,6 @@ private static final long serialVersionUID = 0L;
       bitField0_ |= 0x00000008;
       onChanged();
       return this;
-    }
-
-    private com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest processOrder_;
-    private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.Builder, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder> processOrderBuilder_;
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     * @return Whether the processOrder field is set.
-     */
-    public boolean hasProcessOrder() {
-      return ((bitField0_ & 0x00000010) != 0);
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     * @return The processOrder.
-     */
-    public com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest getProcessOrder() {
-      if (processOrderBuilder_ == null) {
-        return processOrder_ == null ? com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.getDefaultInstance() : processOrder_;
-      } else {
-        return processOrderBuilder_.getMessage();
-      }
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public Builder setProcessOrder(com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest value) {
-      if (processOrderBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        processOrder_ = value;
-      } else {
-        processOrderBuilder_.setMessage(value);
-      }
-      bitField0_ |= 0x00000010;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public Builder setProcessOrder(
-        com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.Builder builderForValue) {
-      if (processOrderBuilder_ == null) {
-        processOrder_ = builderForValue.build();
-      } else {
-        processOrderBuilder_.setMessage(builderForValue.build());
-      }
-      bitField0_ |= 0x00000010;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public Builder mergeProcessOrder(com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest value) {
-      if (processOrderBuilder_ == null) {
-        if (((bitField0_ & 0x00000010) != 0) &&
-          processOrder_ != null &&
-          processOrder_ != com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.getDefaultInstance()) {
-          getProcessOrderBuilder().mergeFrom(value);
-        } else {
-          processOrder_ = value;
-        }
-      } else {
-        processOrderBuilder_.mergeFrom(value);
-      }
-      if (processOrder_ != null) {
-        bitField0_ |= 0x00000010;
-        onChanged();
-      }
-      return this;
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public Builder clearProcessOrder() {
-      bitField0_ = (bitField0_ & ~0x00000010);
-      processOrder_ = null;
-      if (processOrderBuilder_ != null) {
-        processOrderBuilder_.dispose();
-        processOrderBuilder_ = null;
-      }
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.Builder getProcessOrderBuilder() {
-      bitField0_ |= 0x00000010;
-      onChanged();
-      return internalGetProcessOrderFieldBuilder().getBuilder();
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    public com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder getProcessOrderOrBuilder() {
-      if (processOrderBuilder_ != null) {
-        return processOrderBuilder_.getMessageOrBuilder();
-      } else {
-        return processOrder_ == null ?
-            com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.getDefaultInstance() : processOrder_;
-      }
-    }
-    /**
-     * <code>optional .acme.processing.domain.processing.v1.ProcessOrderRequest process_order = 6 [json_name = "processOrder"];</code>
-     */
-    private com.google.protobuf.SingleFieldBuilder<
-        com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.Builder, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder> 
-        internalGetProcessOrderFieldBuilder() {
-      if (processOrderBuilder_ == null) {
-        processOrderBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequest.Builder, com.acme.proto.acme.processing.domain.processing.v1.ProcessOrderRequestOrBuilder>(
-                getProcessOrder(),
-                getParentForChildren(),
-                isClean());
-        processOrder_ = null;
-      }
-      return processOrderBuilder_;
     }
 
     // @@protoc_insertion_point(builder_scope:acme.apps.domain.apps.v1.CompleteOrderRequest)
