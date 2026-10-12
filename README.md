@@ -2,6 +2,30 @@
 
 A reference application for a fictional clothing retailer's Order Management System, built progressively with Temporal. This is the foundation for hands-on workshops that show how Temporal applications are designed, evolved, and operated in production.
 
+## Quick Start
+
+Needs JDK 21, Maven, Node.js, [`uv`](https://docs.astral.sh/uv/), and the
+[Temporal CLI](https://docs.temporal.io/cli#install). No Docker, Kubernetes, or Temporal Cloud
+account.
+
+```bash
+git clone https://github.com/temporal-ps/temporal-oms.git
+cd temporal-oms
+./scripts/local-up.sh
+```
+
+Then open **http://localhost:3000**:
+
+- **Shop**: place an order and pick a card number to see payment succeed, decline, or fail.
+- **Orders**: follow each order into the Temporal UI at http://localhost:8233.
+- **Admin**: start load with a mix of normal and edge-case orders.
+
+The first run builds everything and takes a few minutes. Stop with `./scripts/local-down.sh`.
+
+Next, run the [worker version rollout demo](docs/GETTING_STARTED.md#demo-2-worker-version-rollout)
+on local Kubernetes (`./scripts/k3d/demo-up.sh`). The full walkthrough for both demos is in
+**[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**.
+
 ---
 
 ## What This Application Teaches
@@ -74,9 +98,7 @@ placing orders, and an Admin page for load scenarios and worker version rollout.
 
 ---
 
-## Getting Started
-
-### Tool Prerequisites
+## Toolchain
 
 Preferred setup uses [asdf](https://asdf-vm.com/guide/getting-started.html) to install the tools
 listed in [`.tool-versions`](.tool-versions). Review asdf and
