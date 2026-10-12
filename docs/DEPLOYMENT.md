@@ -63,20 +63,15 @@ HARD=1 ./scripts/k3d/demo-down.sh
 ### Option 3: Deploy to k3d with Local Temporal
 
 ```bash
-# Terminal 1: start local Temporal and bind it to all interfaces for k3d pods
-temporal server start-dev --ip 0.0.0.0 --ui-ip 0.0.0.0
-
-# Terminal 2: configure Temporal, then deploy with local overlay
-./scripts/setup-temporal-namespaces.sh
-OVERLAY=local ./scripts/k3d/demo-up.sh
+# Starts a host Temporal dev server on 0.0.0.0 (unless one is already healthy), sets up
+# namespaces, deploys, and starts tunnel.sh in the background
+./scripts/k3d/demo-up.sh
 
 # Check status
 ./scripts/k3d/status.sh
 
-# Port-forward API access
-./scripts/k3d/tunnel.sh
-
-# Stop the cluster, keeping apps for a fast demo-up.sh resume
+# Stops the background tunnel, the cluster, and the dev server demo-up.sh started,
+# keeping apps for a fast demo-up.sh resume, keeping apps for a fast demo-up.sh resume
 ./scripts/k3d/demo-down.sh
 
 # Full teardown (delete the cluster)
@@ -86,20 +81,15 @@ HARD=1 ./scripts/k3d/demo-down.sh
 ### Option 4: Deploy to KinD with Local Temporal
 
 ```bash
-# Terminal 1: start local Temporal and bind it so KinD pods can reach it
-temporal server start-dev --ip 0.0.0.0 --ui-ip 0.0.0.0
-
-# Terminal 2: configure Temporal, then deploy with local overlay
-./scripts/setup-temporal-namespaces.sh
-OVERLAY=local ./scripts/kind/demo-up.sh
+# Starts a host Temporal dev server on 0.0.0.0 (unless one is already healthy), sets up
+# namespaces, deploys, and starts tunnel.sh in the background
+./scripts/kind/demo-up.sh
 
 # Check status
 ./scripts/kind/status.sh
 
-# Port-forward API access
-./scripts/kind/tunnel.sh
-
-# Stop the cluster, keeping apps for a fast demo-up.sh resume
+# Stops the background tunnel, the cluster, and the dev server demo-up.sh started,
+# keeping apps for a fast demo-up.sh resume, keeping apps for a fast demo-up.sh resume
 ./scripts/kind/demo-down.sh
 
 # Full teardown (delete the cluster)
@@ -112,17 +102,7 @@ Use [GETTING_STARTED.md](GETTING_STARTED.md) for this path. It does not require 
 kubectl, Helm, k9s, yq, or Temporal Cloud credentials.
 
 ```bash
-# Terminal 1
-temporal server start-dev
-```
-
-```bash
-# Terminal 2, from the repo root
-./scripts/local-up.sh
-
-# Optional dry run
-./scripts/runscenario.sh valid-order --yes
-
+./scripts/local-up.sh     # starts Temporal, the OMS, and the web UI on :3000
 ./scripts/local-down.sh
 ```
 
@@ -261,6 +241,8 @@ This script:
 
 #### Step 3c: Access the API
 
+With `OVERLAY=local`, `demo-up.sh` already runs `tunnel.sh` in the background. Otherwise:
+
 ```bash
 # In one terminal, port-forward
 ./scripts/kind/tunnel.sh
@@ -287,7 +269,7 @@ Traefik routes `/api/v1/integrations` and `/api/v1/enablements` to `enablements-
 `/api` to `apps-api`, and everything else to the web pod, on a dedicated `webui` entrypoint
 (port 3000). This mirrors the path routing in `web/vite.config.ts`'s dev-server proxy, since the
 production build has no server-side proxy of its own. See
-[GETTING_STARTED.md](GETTING_STARTED.md#web-ui-commerce--payments-demo) for the walkthrough.
+[GETTING_STARTED.md](GETTING_STARTED.md#demo-1-shop-and-watch-workflows) for the walkthrough.
 
 The web pod's `PUBLIC_TEMPORAL_UI_BASE_URL` defaults to `http://localhost:8233`, matching a local
 Temporal dev server (`OVERLAY=local`). With `OVERLAY=cloud`, the Temporal deep-links in the UI will
@@ -399,20 +381,15 @@ kubectl exec -n temporal-oms-apps <pod-name> -- cat /etc/config/temporal-secret/
 Use [GETTING_STARTED.md](GETTING_STARTED.md) for the local process path. The short version is:
 
 ```bash
-# Terminal 1
-temporal server start-dev
-```
-
-```bash
-# Terminal 2, from the repo root
 ./scripts/local-up.sh
 ./scripts/local-down.sh
 ```
 
 **Notes:**
-- `local-up.sh` starts all local APIs and workers.
+- `local-up.sh` starts all local APIs and workers and the web UI. It starts a Temporal dev server
+  when none is reachable at `127.0.0.1:7233`.
 - Logs are written under `.workshop/logs`.
-- `local-down.sh` stops the OMS services. Stop the Temporal dev server separately with `Ctrl+C`.
+- `local-down.sh` stops the OMS services, the web UI, and the dev server if `local-up.sh` started it.
 
 ---
 

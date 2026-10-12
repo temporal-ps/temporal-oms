@@ -9,6 +9,14 @@ echo ""
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$PROJECT_DIR"
 
+if [ "$OVERLAY" = "local" ]; then
+    # shellcheck source=../_lib/demo-local.sh
+    source scripts/_lib/demo-local.sh
+    demo_require_no_local_stack
+    demo_ensure_host_temporal
+    demo_setup_namespaces
+fi
+
 # Resume path: reuse a cluster left by a soft demo-down.sh when its apps match OVERLAY.
 # REDEPLOY=1 forces the full infra-up.sh and app-deploy.sh path (rebuilds images from current code).
 resumed=false
@@ -40,20 +48,31 @@ if [ "$resumed" != true ]; then
     OVERLAY="${OVERLAY}" bash scripts/kind/app-deploy.sh
 fi
 echo ""
-echo "🎉 KinD demo environment ready!"
-echo ""
-echo "API Access:"
-echo "  ./scripts/kind/tunnel.sh  (in another terminal)"
-echo "  Then: curl http://localhost:8080/api/actuator/health"
-echo "        curl http://localhost:8050/actuator/health"
-echo "        open http://localhost:3000  (Web UI: Commerce + Payments demo)"
+if [ "$OVERLAY" = "local" ]; then
+    demo_start_tunnel scripts/kind/tunnel.sh
+    echo ""
+    echo "🎉 KinD demo environment ready!"
+    echo ""
+    echo "  Web UI:       http://localhost:3000   <- start here"
+    echo "  Admin:        http://localhost:3000/admin"
+    echo "  Temporal UI:  http://localhost:8233"
+    echo ""
+    echo "  Worker Deployments start with no current version. Before placing orders or"
+    echo "  starting load, open Admin and roll out OMS v1 (or any later version)."
+    echo ""
+    echo "  Stop: ./scripts/kind/demo-down.sh  (HARD=1 deletes the cluster)"
+else
+    echo "🎉 KinD demo environment ready!"
+    echo ""
+    echo "API Access:"
+    echo "  ./scripts/kind/tunnel.sh  (in another terminal)"
+    echo "  Then: open http://localhost:3000"
+fi
 echo ""
 echo "Commands:"
-echo "  ./scripts/setup-temporal-namespaces.sh - Create local Temporal namespaces/endpoints"
 echo "  ./scripts/kind/demo-down.sh     - Stop the cluster (HARD=1 deletes it)"
 echo "  ./scripts/kind/app-deploy.sh    - Redeploy apps only"
 echo "  ./scripts/kind/status.sh        - Check deployment status"
-echo "  ./scripts/kind/tunnel.sh        - Port-forward (run in another terminal)"
 echo ""
 echo "Use OVERLAY to switch Temporal backend:"
 echo "  OVERLAY=cloud ./scripts/kind/demo-up.sh   - Deploy with Temporal Cloud"

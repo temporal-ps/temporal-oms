@@ -298,6 +298,9 @@ it via `ActivityHandle.cancel()`. See spec.md's "Reconciliation Note
   `ExecutionStatus` (`COMPLETED`/`CANCELED`/`FAILED`) instead of
   `DemoPhase.COMPLETE`; the "Temporal UI" link now points at the Standalone
   Activity, not a workflow.
+- 2026-10-12: the `/demo` page merged into the Admin page at `/admin`
+  (`web/src/routes/admin/+page.svelte`); `/demo` redirects there. `LoadShapePanel` and the
+  shape/rate presets are unchanged.
 
 ---
 

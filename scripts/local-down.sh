@@ -12,6 +12,7 @@ if [[ "${1:-}" == "--quiet" ]]; then
 fi
 
 service_names=(
+  web
   python-fulfillment-worker
   enablements-workers
   fulfillment-workers
@@ -97,6 +98,14 @@ main() {
   for name in "${service_names[@]}"; do
     wait_for_stop "$name"
   done
+
+  # Stopped after the workers so they do not log connection errors while shutting down.
+  # Only present when local-up.sh started the dev server itself.
+  if [[ -f "$RUN_DIR/temporal-dev.pid" ]]; then
+    found=1
+  fi
+  send_stop_signal temporal-dev
+  wait_for_stop temporal-dev
 
   if [[ "$found" -eq 0 ]]; then
     say "No local services are running."

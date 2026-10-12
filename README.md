@@ -2,6 +2,30 @@
 
 A reference application for a fictional clothing retailer's Order Management System, built progressively with Temporal. This is the foundation for hands-on workshops that show how Temporal applications are designed, evolved, and operated in production.
 
+## Quick Start
+
+Needs JDK 21, Maven, Node.js, [`uv`](https://docs.astral.sh/uv/), and the
+[Temporal CLI](https://docs.temporal.io/cli#install). No Docker, Kubernetes, or Temporal Cloud
+account.
+
+```bash
+git clone https://github.com/temporal-ps/temporal-oms.git
+cd temporal-oms
+./scripts/local-up.sh
+```
+
+Then open **http://localhost:3000**:
+
+- **Shop**: place an order and pick a card number to see payment succeed, decline, or fail.
+- **Orders**: follow each order into the Temporal UI at http://localhost:8233.
+- **Admin**: start load with a mix of normal and edge-case orders.
+
+The first run builds everything and takes a few minutes. Stop with `./scripts/local-down.sh`.
+
+Next, run the [worker version rollout demo](docs/GETTING_STARTED.md#demo-2-worker-version-rollout)
+on local Kubernetes (`./scripts/k3d/demo-up.sh`). The full walkthrough for both demos is in
+**[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**.
+
 ---
 
 ## What This Application Teaches
@@ -69,13 +93,12 @@ Payment Processor → processing namespace
 
 → Full requirements and evolution: [docs/prd/README.md](docs/prd/README.md)
 
-A web UI for order management and observability is in development.
+The web UI at `http://localhost:3000` is the primary way to drive the system: a storefront for
+placing orders, and an Admin page for load scenarios and worker version rollout.
 
 ---
 
-## Getting Started
-
-### Tool Prerequisites
+## Toolchain
 
 Preferred setup uses [asdf](https://asdf-vm.com/guide/getting-started.html) to install the tools
 listed in [`.tool-versions`](.tool-versions). Review asdf and
@@ -116,12 +139,12 @@ that column.
 | `helm` | ✅ | | ✅ | Install Temporal Worker Controller |
 | `yq` | | | ✅ | Parse cloud secret YAML in k8s scripts |
 | `k9s` | ✅ | | | Optional Kubernetes cluster UI |
-| `nodejs` | ✅ | | | Optional web UI tooling |
+| `nodejs` | ✅ | ✅ | | Web UI dev server (skip with `local-up.sh --no-web`) |
 | `buf` | ✅ | | | Optional protobuf linting and generation |
 | `caddy` | ✅ | | | Optional instructor key distribution helper |
 | `cloudflared` | ✅ | | | Optional instructor key distribution helper |
 
-Local run means `temporal server start-dev` plus `./scripts/local-up.sh`. K8s paths mean
+Local run means `./scripts/local-up.sh`. K8s paths mean
 `scripts/kind/*` or `scripts/k3d/*`, with either local Temporal or Temporal Cloud. Tools with a
 blank `.tool-versions` cell are not installed by `asdf install`; install them separately when your
 chosen path requires them.
@@ -134,7 +157,7 @@ Start at Level 1 and work up. Each level builds on the previous.
 
 | Level | Description | What you need |
 |-------|-------------|---------------|
-| **1** | Run locally, no Kubernetes | JDK 21, Maven, Temporal CLI, Python with `uv`, `curl`; `xh` for scenarios |
+| **1** | Run locally, no Kubernetes | JDK 21, Maven, Temporal CLI, Python with `uv`, Node.js, `curl`; `xh` for scenarios |
 | **2** | KinD or k3d cluster with local Temporal | Level 1 + Docker, KinD or k3d, Helm, kubectl, yq; k9s optional |
 | **3** | KinD or k3d cluster connected to Temporal Cloud | Level 2 + Temporal Cloud account, namespaces, service accounts, API keys |
 | **4** | Worker Versioning Enablement (live demo) | Level 3 running + load generation |
@@ -143,59 +166,34 @@ Start at Level 1 and work up. Each level builds on the previous.
 
 ## Level 1 — Run Locally (No Kubernetes)
 
-Fastest path to a working system. All services run as local processes against a local Temporal
-server.
-
-Terminal 1:
+Fastest path to a working system. All services, a Temporal dev server, and the web UI run as
+local processes.
 
 ```bash
-./scripts/start-temporal-dev.sh
+./scripts/local-up.sh     # then open http://localhost:3000
+./scripts/local-down.sh   # stops everything local-up.sh started
 ```
 
-This wraps `temporal server start-dev` with the dynamic-config flags standalone Nexus
-operations and standalone activities need; see
-**[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** for details.
-
-Terminal 2:
-
-```bash
-# bring up all APIs, workers, local namespaces, Nexus endpoints, and Worker Versioning state
-./scripts/local-up.sh
-
-# Optional dry run to see it all work
-./scripts/runscenario.sh valid-order --yes
-
-# tear down all local services except Temporal server
-./scripts/local-down.sh
-```
-
-Stop the Temporal dev server with `Ctrl+C` in Terminal 1.
-
-- **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**: local setup, demo scenarios, troubleshooting
+- **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**: Demo 1 walkthrough, CLI scenarios, troubleshooting
 - **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**: protobuf changes, workflow modifications, debugging, testing
 
 ---
 
 ## Level 2 — Kubernetes Deployment with Local Temporal
 
-Full stack in a local Kubernetes cluster. Choose one runner and use that directory consistently.
+Full stack in a local Kubernetes cluster, which the Admin page's worker version rollout needs.
+`demo-up.sh` starts a host Temporal dev server, sets up namespaces, deploys the cluster, and starts
+the port-forwards in the background.
 
 ```bash
-# Terminal 1
-./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
-
-# Terminal 2
-./scripts/setup-temporal-namespaces.sh
-./scripts/kind/infra-up.sh
-./scripts/kind/app-deploy.sh
-
-# or
-./scripts/setup-temporal-namespaces.sh
-./scripts/k3d/infra-up.sh
-./scripts/k3d/app-deploy.sh
+./scripts/k3d/demo-up.sh     # then open http://localhost:3000/admin
+./scripts/k3d/demo-down.sh   # HARD=1 deletes the cluster
 ```
 
-→ **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for full prerequisites, verification, and troubleshooting.
+Use `scripts/kind/*` in place of `scripts/k3d/*` for KinD.
+
+- **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)**: Demo 2 walkthrough
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**: full prerequisites, the step-by-step scripts, verification, and troubleshooting
 
 ---
 

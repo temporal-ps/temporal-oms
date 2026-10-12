@@ -110,6 +110,19 @@ package-per-version numbering (confirmed by reading the deploy script itself).
   `WorkerVersionEnablementWorkflowTest` suite, and `npm run check` + `npm run build`
   (web/).
 
+### 2026-10-12: Single Admin page
+
+- `/admin/worker-versions` and the load-only `/demo` page merged into `/admin`
+  (`web/src/routes/admin/+page.svelte`); both old paths redirect there. The load panel uses
+  `LoadShapePanel` (Clean/Mixed/Chaos shapes, Trickle/Steady/Burst rates) in place of the
+  former fixed NORMAL-only "Start load".
+- New `GET /api/v1/enablements/runtime` (`RuntimeController`) reports `kubernetes` from
+  `KUBERNETES_SERVICE_HOST`. The Admin page shows a runtime badge and disables the
+  OMS Version and Advanced panels on the local-process stack; a failed probe leaves them enabled.
+- `scripts/kind|k3d/demo-up.sh` with `OVERLAY=local` now start the host dev server, run
+  namespace setup (no version registration, so the first rollout starts at a true OMS v1),
+  and start `tunnel.sh` in the background (`scripts/_lib/demo-local.sh`).
+
 ---
 
 ## Next

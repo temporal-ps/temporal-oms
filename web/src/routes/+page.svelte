@@ -60,15 +60,16 @@
 						/>
 					</svg>
 				</div>
-				<h2 class="mt-6 text-2xl font-semibold text-gray-900">Demo Load Control</h2>
+				<h2 class="mt-6 text-2xl font-semibold text-gray-900">Admin</h2>
 				<p class="mt-4 text-gray-600">
-					Drive order traffic for the safe-deploys / worker-versioning workshop
+					Drive order load with different scenario mixes, and roll out worker versions
 				</p>
+				<p class="mt-2 text-xs text-gray-500">Worker version rollout requires Kubernetes (KinD/k3d)</p>
 				<button
-					onclick={() => goto('/demo')}
+					onclick={() => goto('/admin')}
 					class="mt-6 w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
 				>
-					Open Demo Control
+					Open Admin
 				</button>
 			</div>
 		</div>

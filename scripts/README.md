@@ -19,18 +19,11 @@ the operational paths easy to read and avoids cluster-driver conditionals inside
 Local process stack:
 
 ```bash
-# Terminal 1
-./scripts/start-temporal-dev.sh
-```
-
-```bash
-# Terminal 2, from the repo root
-./scripts/local-up.sh
-
-# Optional dry run
-./scripts/runscenario.sh valid-order --yes
-
+./scripts/local-up.sh     # Temporal dev server, all services, web UI on :3000
 ./scripts/local-down.sh
+
+# Optional CLI check while it runs
+./scripts/runscenario.sh valid-order --yes
 ```
 
 KinD with Temporal Cloud:
@@ -45,26 +38,14 @@ k3d with Temporal Cloud:
 OVERLAY=cloud ./scripts/k3d/demo-up.sh
 ```
 
-KinD with local Temporal:
+KinD or k3d with local Temporal (`OVERLAY=local` is the default). `demo-up.sh` starts a host
+Temporal dev server on `0.0.0.0` unless one is already healthy, runs
+`setup-temporal-namespaces.sh`, deploys, and starts `tunnel.sh` in the background.
+`demo-down.sh` stops the tunnel and the dev server it started.
 
 ```bash
-# Terminal 1
-./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
-
-# Terminal 2
-./scripts/setup-temporal-namespaces.sh
-OVERLAY=local ./scripts/kind/demo-up.sh
-```
-
-k3d with local Temporal:
-
-```bash
-# Terminal 1
-./scripts/start-temporal-dev.sh --ip 0.0.0.0 --ui-ip 0.0.0.0
-
-# Terminal 2
-./scripts/setup-temporal-namespaces.sh
-OVERLAY=local ./scripts/k3d/demo-up.sh
+./scripts/kind/demo-up.sh
+./scripts/k3d/demo-up.sh
 ```
 
 For live coding after infrastructure is up:
@@ -203,8 +184,8 @@ WORKSHOP_PIN_OUTPUT=false ./scripts/serve-workshop-api-keys.sh
 | `app-deploy.sh` | Build Java projects, build Docker images, load/import images, deploy apps |
 | `app-down.sh` | Remove applications while keeping the cluster running |
 | `infra-down.sh` | Delete the cluster and all infrastructure |
-| `demo-up.sh` | Full setup: runs `infra-up.sh` and `app-deploy.sh`. Resumes a stopped cluster and reuses its apps when `OVERLAY` matches; `REDEPLOY=1` forces the full path |
-| `demo-down.sh` | Stops the cluster by default; `HARD=1` runs `app-down.sh` and `infra-down.sh` for a full teardown |
+| `demo-up.sh` | Full setup: runs `infra-up.sh` and `app-deploy.sh`. Resumes a stopped cluster and reuses its apps when `OVERLAY` matches; `REDEPLOY=1` forces the full path. With `OVERLAY=local`, also starts the host dev server, namespace setup, and a background `tunnel.sh` |
+| `demo-down.sh` | Stops the background tunnel, then the cluster by default; `HARD=1` runs `app-down.sh` and `infra-down.sh` for a full teardown. Stops the host dev server if `demo-up.sh` started it |
 | `deploy-processing-workers.sh` | Build and deploy a new processing worker image through TWC |
 | `tunnel.sh` | Port-forward APIs |
 | `status.sh` | Show deployment status |
@@ -215,9 +196,10 @@ WORKSHOP_PIN_OUTPUT=false ./scripts/serve-workshop-api-keys.sh
 |---|---|
 | `setup-asdf-plugins.sh` | Install missing asdf plugins listed in `.tool-versions` |
 | `start-temporal-dev.sh` | Run `temporal server start-dev` with the dynamic-config flags standalone Nexus operations and standalone activities need |
-| `local-up.sh` | Start all local OMS APIs and workers against an already running Temporal dev server |
-| `local-down.sh` | Stop services started by `local-up.sh` |
-| `setup-temporal-namespaces.sh` | Create local Temporal namespaces, Nexus endpoints, search attributes, and current Worker Deployment versions |
+| `local-up.sh` | Start all local OMS APIs, workers, and the web UI (`--no-web` skips it). Starts a Temporal dev server when none is reachable |
+| `local-down.sh` | Stop everything `local-up.sh` started |
+| `web-up.sh` | Run the web UI dev server on its own |
+| `setup-temporal-namespaces.sh` | Create local Temporal namespaces, Nexus endpoints, and search attributes. Registers current Worker Deployment versions only with `SKIP_VERSION_REGISTRATION=0` |
 
 ## Requirements
 
