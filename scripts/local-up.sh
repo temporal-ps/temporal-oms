@@ -13,8 +13,12 @@ TEMPORAL_UI_HOST="${TEMPORAL_UI_HOST:-127.0.0.1}"
 TEMPORAL_UI_PORT="${TEMPORAL_UI_PORT:-8233}"
 
 UP_SUCCEEDED=0
+STARTED_ANY=0
+WITH_WEB=1
+STARTED_TEMPORAL=0
 
 service_names=(
+  temporal-dev
   enablements-api
   fulfillment-api
   processing-api
@@ -24,7 +28,30 @@ service_names=(
   fulfillment-workers
   enablements-workers
   python-fulfillment-worker
+  web
 )
+
+usage() {
+  cat <<EOF
+Usage: ./scripts/local-up.sh [--no-web]
+
+Starts the OMS as local processes. If no Temporal server is reachable at
+\$TEMPORAL_ADDRESS (default 127.0.0.1:7233), starts one with
+scripts/start-temporal-dev.sh. Starts the web UI on http://localhost:3000
+unless --no-web is given. Stop everything with ./scripts/local-down.sh.
+EOF
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --no-web) WITH_WEB=0 ;;
+      -h|--help) usage; exit 0 ;;
+      *) usage >&2; die "Unknown argument: $1" ;;
+    esac
+    shift
+  done
+}
 
 die() {
   echo "ERROR: $*" >&2
@@ -51,7 +78,7 @@ fail_service() {
 
 cleanup_on_failure() {
   local status=$?
-  if [[ "$status" -ne 0 && "$UP_SUCCEEDED" -eq 0 ]]; then
+  if [[ "$status" -ne 0 && "$UP_SUCCEEDED" -eq 0 && "$STARTED_ANY" -eq 1 ]]; then
     echo ""
     echo "local-up failed; stopping services started by this run..."
     "$SCRIPT_DIR/local-down.sh" --quiet || true
@@ -175,6 +202,9 @@ check_required_ports() {
   check_port 9082 "processing-workers management" || failed=1
   check_port 9091 "apps-api management" || failed=1
   check_port 9092 "apps-workers management" || failed=1
+  if [[ "$WITH_WEB" -eq 1 ]]; then
+    check_port 3000 "web UI (use --no-web to skip it)" || failed=1
+  fi
 
   [[ "$failed" -eq 0 ]] || die "One or more required ports are busy. Stop the process above or change the service port before retrying."
 }
@@ -194,6 +224,7 @@ start_service() {
 
   local pid=$!
   echo "$pid" >"$pid_file"
+  STARTED_ANY=1
 
   sleep 1
   if ! pid_is_running "$pid"; then
@@ -256,15 +287,45 @@ wait_log() {
   fail_service "$name" "timed out after ${STARTUP_TIMEOUT}s waiting for log pattern: $pattern"
 }
 
-wait_temporal() {
-  echo "Checking external Temporal at $TEMPORAL_ADDRESS ..."
-  if ! temporal --disable-config-file --disable-config-env --address "$TEMPORAL_ADDRESS" \
-    operator cluster health --command-timeout 5s >/dev/null 2>&1; then
-    die "Temporal is not reachable at $TEMPORAL_ADDRESS. Start Temporal separately, then rerun ./scripts/local-up.sh.
-Example:
-  ./scripts/start-temporal-dev.sh --ip 127.0.0.1 --port 7233 --ui-ip 127.0.0.1 --ui-port 8233"
+temporal_healthy() {
+  temporal --disable-config-file --disable-config-env --address "$TEMPORAL_ADDRESS" \
+    operator cluster health --command-timeout 5s >/dev/null 2>&1
+}
+
+# Reuses a reachable Temporal server; otherwise starts the dev server on
+# TEMPORAL_ADDRESS and records its PID so local-down.sh stops it too.
+ensure_temporal() {
+  echo "Checking Temporal at $TEMPORAL_ADDRESS ..."
+  if temporal_healthy; then
+    echo "  Temporal ready (already running; local-down.sh will leave it running)"
+    return 0
   fi
-  echo "  Temporal ready"
+
+  local host="${TEMPORAL_ADDRESS%:*}"
+  local port="${TEMPORAL_ADDRESS##*:}"
+  [[ "$host" == "127.0.0.1" || "$host" == "localhost" ]] || die "Temporal is not reachable at $TEMPORAL_ADDRESS, and local-up.sh only starts a dev server on localhost."
+
+  local failed=0
+  check_port "$port" "temporal dev server" || failed=1
+  check_port "$TEMPORAL_UI_PORT" "temporal dev server UI" || failed=1
+  [[ "$failed" -eq 0 ]] || die "Temporal is not reachable at $TEMPORAL_ADDRESS, and its ports are busy."
+
+  start_service temporal-dev "$SCRIPT_DIR/start-temporal-dev.sh" \
+    --ip "$host" --port "$port" --ui-ip "$TEMPORAL_UI_HOST" --ui-port "$TEMPORAL_UI_PORT"
+  STARTED_TEMPORAL=1
+
+  local started="$SECONDS"
+  echo "Waiting for temporal-dev at $TEMPORAL_ADDRESS ..."
+  while (( SECONDS - started < STARTUP_TIMEOUT )); do
+    pid_is_running "$(cat "$RUN_DIR/temporal-dev.pid" 2>/dev/null || true)" \
+      || fail_service temporal-dev "process exited before Temporal became healthy"
+    if temporal_healthy; then
+      echo "  temporal-dev ready"
+      return 0
+    fi
+    sleep 1
+  done
+  fail_service temporal-dev "timed out after ${STARTUP_TIMEOUT}s waiting for $TEMPORAL_ADDRESS"
 }
 
 run_temporal_setup() {
@@ -313,12 +374,18 @@ check_artifacts() {
 }
 
 print_summary() {
+  local temporal_note="started by local-up.sh"
+  [[ "$STARTED_TEMPORAL" -eq 1 ]] || temporal_note="already running; not stopped by local-down.sh"
+
+  echo ""
+  echo "Local services are up."
+  echo ""
+  if [[ "$WITH_WEB" -eq 1 ]]; then
+    echo "Web UI:             http://localhost:3000   <- start here"
+  fi
   cat <<EOF
-
-Local services are up.
-
-Temporal:           $TEMPORAL_ADDRESS
 Temporal UI:        http://$TEMPORAL_UI_HOST:$TEMPORAL_UI_PORT
+Temporal:           $TEMPORAL_ADDRESS ($temporal_note)
 apps-api:           http://localhost:8080
 processing-api:     http://localhost:8070
 fulfillment-api:    http://localhost:8060
@@ -331,6 +398,7 @@ EOF
 }
 
 main() {
+  parse_args "$@"
   mkdir -p "$RUN_DIR" "$LOG_DIR"
 
   load_dotenv
@@ -340,12 +408,20 @@ main() {
   require_command temporal
   require_command curl
   require_command uv
+  if [[ "$WITH_WEB" -eq 1 ]]; then
+    require_command node
+    require_command npm
+  fi
 
-  check_artifacts
   ensure_no_existing_run
   check_required_ports
+  check_artifacts
+  if [[ "$WITH_WEB" -eq 1 && ! -d "$ROOT_DIR/web/node_modules" ]]; then
+    echo "Installing web UI dependencies ..."
+    npm install --prefix "$ROOT_DIR/web"
+  fi
 
-  wait_temporal
+  ensure_temporal
   run_temporal_setup
 
   start_service enablements-api java -jar "$ROOT_DIR/java/enablements/enablements-api/target/enablements-api-1.0.0-SNAPSHOT.jar" \
@@ -404,6 +480,11 @@ main() {
     ENABLEMENTS_API_BASE_URL="$ENABLEMENTS_API_BASE_URL" \
     bash -lc 'cd python/fulfillment && exec uv run --project .. python -m src.worker'
   wait_log python-fulfillment-worker "All workers polling"
+
+  if [[ "$WITH_WEB" -eq 1 ]]; then
+    start_service web "$SCRIPT_DIR/web-up.sh" --host 127.0.0.1 --port 3000 --strictPort
+    wait_http web http://127.0.0.1:3000/
+  fi
 
   UP_SUCCEEDED=1
   print_summary

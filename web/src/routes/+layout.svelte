@@ -1,6 +1,19 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
+
+	const NAV_LINKS = [
+		{ label: 'Home', href: '/', match: (path: string) => path === '/' },
+		{
+			label: 'Shop',
+			href: '/shop/home',
+			match: (path: string) => path.startsWith('/shop') && !path.startsWith('/shop/orders')
+		},
+		{ label: 'Orders', href: '/shop/orders', match: (path: string) => path.startsWith('/shop/orders') },
+		{ label: 'Admin', href: '/admin', match: (path: string) => path.startsWith('/admin') }
+	];
+
+	$: isActive = (match: (path: string) => boolean) => match($page.url.pathname);
 </script>
 
 <div class="min-h-screen flex flex-col">
@@ -8,7 +21,7 @@
 	<header class="bg-white shadow-sm">
 		<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 			<div class="flex items-center justify-between">
-				<div class="flex items-center space-x-2">
+				<a href="/" class="flex items-center space-x-2">
 					<svg
 						class="w-8 h-8 text-primary-600"
 						fill="none"
@@ -23,25 +36,20 @@
 						/>
 					</svg>
 					<span class="text-xl font-bold text-gray-900">Temporal OMS</span>
-				</div>
+				</a>
 
-				<!-- Navigation - only show in shop flow -->
-				{#if $page.url.pathname.startsWith('/shop')}
-					<div class="flex items-center space-x-4">
+				<div class="flex items-center space-x-4">
+					{#each NAV_LINKS as link}
 						<a
-							href="/shop/home"
-							class="text-gray-600 hover:text-gray-900 transition-colors"
+							href={link.href}
+							class="transition-colors {isActive(link.match)
+								? 'text-gray-900 font-medium'
+								: 'text-gray-600 hover:text-gray-900'}"
 						>
-							Home
+							{link.label}
 						</a>
-						<a
-							href="/shop/orders"
-							class="text-gray-600 hover:text-gray-900 transition-colors"
-						>
-							Orders
-						</a>
-					</div>
-				{/if}
+					{/each}
+				</div>
 			</div>
 		</nav>
 	</header>

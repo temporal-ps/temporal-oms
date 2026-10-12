@@ -1,33 +1,36 @@
 # Admin UI: Worker Version Rollout
 
-Walkthrough for the Admin UI at `/admin/worker-versions`: promote apps, processing, and
+Walkthrough for the Worker Versions panel of the Admin page at `/admin`: promote apps, processing, and
 fulfillment to a target OMS version with one click (hosting.md
 [`OMS-Version-Driven Promotion`](../specs/oms-evolution/hosting.md)), or promote one
 bounded context at a time via the Advanced controls (hosting.md Mode B).
 
-Works identically on KinD or k3d — the two script directories are parallel and expose the
-same ports. Examples below use `kind`; substitute `k3d` throughout for the other runner.
+Works identically on k3d or KinD: the two script directories are parallel and expose the
+same ports. Examples below use `k3d`; substitute `kind` throughout for KinD.
 
 ---
 
 ## Prerequisites
 
-**Level 2 or Level 3 already running** (see the root [README.md](../README.md)):
+Promotion creates and deletes Kubernetes Deployments, so it works only on k3d or KinD. On the
+local-process stack (`local-up.sh`) the Admin page shows "Running as local processes" and
+disables this panel; its Load Generator still works.
+
+**Start the stack** (Demo 2 in [GETTING_STARTED.md](GETTING_STARTED.md#demo-2-worker-version-rollout)):
 
 ```bash
-./scripts/setup-temporal-namespaces.sh
-./scripts/kind/infra-up.sh
-./scripts/kind/app-deploy.sh
+./scripts/k3d/demo-up.sh
 ```
 
-**To start genuinely at OMS v1 (no Worker Versioning anywhere)**, set
-`SKIP_VERSION_REGISTRATION=1` on the setup script instead - registering `build-id=local` as
-current is a one-way door (Temporal has no API to unset a Worker Deployment's current version,
-only to change it), so it has to be skipped from the very first bring-up:
+With `OVERLAY=local` (the default), `demo-up.sh` starts the host Temporal dev server, runs
+`setup-temporal-namespaces.sh`, deploys, and starts `tunnel.sh` in the background.
 
-```bash
-SKIP_VERSION_REGISTRATION=1 ./scripts/setup-temporal-namespaces.sh
-```
+**Starting at OMS v1.** `setup-temporal-namespaces.sh` defaults to
+`SKIP_VERSION_REGISTRATION=1`, so no Worker Deployment version is registered and the first
+rollout starts from a true OMS v1 (no Worker Versioning anywhere). Registering a build id as
+current is a one-way door: Temporal has no API to unset a Worker Deployment's current version,
+only to change it. Running setup with `SKIP_VERSION_REGISTRATION=0` (as `local-up.sh` does)
+rules out a true v1 baseline against that Temporal server.
 
 This only affects `apps`/`fulfillment`. `processing` still starts versioned regardless (its
 Worker Versioning is engaged by the Temporal Worker Controller the moment its CRD comes up, not
@@ -43,34 +46,31 @@ If you deployed before this feature existed, redeploy so `enablements-workers` p
 `OmsVersionRolloutImpl`:
 
 ```bash
-./scripts/kind/app-deploy.sh
+./scripts/k3d/app-deploy.sh
 ```
 
 Verify pods are healthy:
 
 ```bash
-./scripts/kind/status.sh
+./scripts/k3d/status.sh
 ```
 
 ---
 
 ## Step 1: Open the Admin UI
 
-```bash
-./scripts/kind/tunnel.sh   # run in another terminal; leave it running
-```
-
-Open **http://localhost:3000/admin/worker-versions**. The page's `/api/v1/enablements/*`
-calls are routed by Traefik straight to `enablements-api` on the same port — no separate
-API tunnel needed for this page.
+Open **http://localhost:3000/admin**, or click **Admin** in the header. The badge at the top
+should say "Running on Kubernetes (k3d/KinD)". The page's `/api/v1/enablements/*` calls are
+routed by Traefik to `enablements-api` on the same port.
 
 ---
 
 ## Step 2 (optional): Start load
 
-Click **Start load** in the Load panel to submit continuous orders while you roll out
-versions. Not required — a deployment action works with zero load running, and load works
-with no deployment ever having happened.
+In the **Load Generator** panel, pick a shape (Clean, Mixed, Chaos) and a rate, then click
+**Start load** to submit continuous orders while you roll out versions. Load is optional: a
+deployment action works with no load running. Start load only after the first rollout (see
+above).
 
 ---
 
@@ -100,7 +100,6 @@ What happens on click:
 Confirm from the CLI:
 
 ```bash
-export KUBECONFIG=/tmp/kind-config.yaml
 temporal worker deployment describe --name apps --namespace apps
 temporal worker deployment describe --name processing --namespace processing
 temporal worker deployment describe --name fulfillment --namespace fulfillment
@@ -153,5 +152,5 @@ don't be surprised to see it reappear after a redeploy.
 ## Cleanup
 
 ```bash
-HARD=1 ./scripts/kind/demo-down.sh
+HARD=1 ./scripts/k3d/demo-down.sh
 ```

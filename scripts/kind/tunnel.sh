@@ -11,6 +11,9 @@ echo ""
 echo "Press Ctrl+C to stop"
 echo ""
 
+# Stop both port-forwards when this script is interrupted or killed (demo-down.sh sends SIGTERM).
+trap 'kill $(jobs -p) 2>/dev/null' EXIT INT TERM
+
 kubectl port-forward -n traefik svc/traefik 8080:80 8070:8070 3000:3000 &
 kubectl port-forward -n temporal-oms-enablements svc/enablements-api 8050:8050 &
 
